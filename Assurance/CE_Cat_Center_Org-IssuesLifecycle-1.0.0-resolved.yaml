@@ -1,0 +1,752 @@
+---
+openapi: 3.0.0
+info:
+  title: "Open API Spec to resolve, ignore and update Assurance Issues"
+  description: The issue lifecycle APIs let the users resolve and ignore the issues. Users can also update selected fields of the issue.
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Cisco Catalyst Center License
+    url: https://www.cisco.com/c/en/us/products/collateral/software/dna-software-ebook-cte.html
+  version: 1.0.0
+servers:
+- url: https://developer.cisco.com
+tags:
+- name: issues
+  description: Operations related to Catalyst Center - Assurance Issues
+  externalDocs:
+    description: Catalyst Center Assurance user guide
+    url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
+paths:
+  /intent/api/v1/issues/resolve:
+    post:
+      tags:
+      - issues
+      summary: Resolve the given lists of issues
+      description: Resolves the given list of issues. The response contains the list of issues which were successfully resoved as well as the issues which are failed to resovle.
+      operationId: resolveIssues
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload which contains list of issue ids to be resolved
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolveIssuesRequest'
+        required: true
+      responses:
+        "200":
+          description: Response model for resolve issues
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResolveIssuesResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /intent/api/v1/issues/ignore:
+    post:
+      tags:
+      - issues
+      summary: Ignore the given list of issues
+      description: Ignores the given list of issues. The response contains the list of issues which were successfully ignored as well as the issues which are failed to ignore.
+      operationId: ignoreIssues
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload which contains list of issue ids to be ignored
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IgnoreIssuesRequest'
+        required: true
+      responses:
+        "200":
+          description: Response model for ignore issues
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/IgnoreIssuesResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /intent/api/v1/issues/{id}/update:
+    post:
+      tags:
+      - issues
+      summary: Update the given issue by updating selected fields
+      description: Updates selected fields in the given issue. Currently the only field that can be updated is 'notes' field.
+      operationId: updateIssue
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: Accept-Language
+        in: header
+        description: "This header parameter can be used to specify the language in which issue description and suggested actions need to be returned. Available options are - 'en' (English), 'ja' (Japanese), 'ko' (Korean), 'zh' (Chinese). If this parameter is not present the issue details are returned in English language."
+        required: false
+        style: simple
+        explode: false
+        schema:
+          type: string
+          enum:
+          - en
+          - ja
+          - ko
+          - zh
+      - name: id
+        in: path
+        description: The issue Uuid
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: Payload to to update the given issue
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateIssueRequest'
+        required: true
+      responses:
+        "200":
+          description: Response containing issue details of a given issue
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/IssueDetailResponseModel'
+              examples:
+                Response with all fields:
+                  $ref: '#/components/examples/IssuesQueryResponseExample1'
+                Response with requested fields:
+                  $ref: '#/components/examples/IssuesQueryResponseExample2'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+components:
+  schemas:
+    ResolveIssuesResponseModel:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/ResolveIssuesResponse'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+    ResolveIssuesResponse:
+      type: object
+      properties:
+        successfulIssueIds:
+          type: array
+          description: List of issue ids which were resovled successfully
+          example:
+          - f031fc13-38e6-47f4-ad1c-75a7af97da7e
+          - 9704d351-eef9-4c6f-8a02-051fa2364dbf
+          items:
+            type: string
+        failureIssueIds:
+          type: array
+          description: List of issue ids which were not resovled
+          example:
+          - 0750fda2-b8a6-4fea-8ff5-1663307857b7
+          - f031fc13-38e6-47f4-ad1c-75a7af97da7e
+          items:
+            type: string
+    IgnoreIssuesResponseModel:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/IgnoreIssuesResponse'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+    IgnoreIssuesResponse:
+      type: object
+      properties:
+        successfulIssueIds:
+          type: array
+          description: List of issue ids which were ignored successfully
+          example:
+          - f031fc13-38e6-47f4-ad1c-75a7af97da7e
+          - 9704d351-eef9-4c6f-8a02-051fa2364dbf
+          items:
+            type: string
+        failureIssueIds:
+          type: array
+          description: List of issue ids which were not ignored
+          example:
+          - 0750fda2-b8a6-4fea-8ff5-1663307857b7
+          - f031fc13-38e6-47f4-ad1c-75a7af97da7e
+          items:
+            type: string
+    ResolveIssuesRequest:
+      type: object
+      properties:
+        issueIds:
+          maxItems: 100
+          minItems: 1
+          type: array
+          example:
+          - f031fc13-38e6-47f4-ad1c-75a7af97da7e
+          - 9704d351-eef9-4c6f-8a02-051fa2364dbf
+          items:
+            type: string
+            description: List of issue ids to be resolved. Issue Ids can be retrieved using the API - data/api/v1/issues
+    IgnoreIssuesRequest:
+      type: object
+      properties:
+        issueIds:
+          maxItems: 100
+          minItems: 1
+          type: array
+          description: List of issue ids to be ignored. Issue Ids can be retrieved using the API - data/api/v1/issues
+          example:
+          - f031fc13-38e6-47f4-ad1c-75a7af97da7e
+          - 9704d351-eef9-4c6f-8a02-051fa2364dbf
+          items:
+            type: string
+        ignoreHours:
+          minimum: 1
+          type: integer
+          description: "Number of hours this issue needs to be ignored. This period applies to all issues given in issueIds. If different issues need to have different ignore periods, then this API should to be called separately for each issue."
+          example: 24
+    UpdateIssueRequest:
+      type: object
+      properties:
+        notes:
+          maxLength: 500
+          minProperties: 1
+          type: string
+          description: The notes to be added
+          example: This issue is currently under investigation by network admin
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorObject'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured   processing this request.
+      example:
+        response:
+        - errorCode: 2600
+          message: Error message
+          detail: Error details
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    ErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: Application specific error code returned by the server
+        message:
+          type: string
+          description: Brief message about the error condition
+        detail:
+          type: string
+          description: "A more detailed explanation of the error condition the   parameter and its value, that caused the condition and why it caused it."
+    IssueDetailResponseModel:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/IssueDetailResponse'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+    IssueDetailResponse:
+      type: object
+      properties:
+        issueId:
+          type: string
+          description: Issue uuid
+          readOnly: true
+          example: b654e071-f99d-48d4-957b-6638e9f3a2c9
+        name:
+          type: string
+          description: Issue name.
+          readOnly: true
+          example: global_ap_disconnect_trigger
+        description:
+          type: string
+          description: Description of the issue
+          readOnly: true
+          example: 21 AP(s) are disconnected from Wireless Controller that are physically connected to Switch '31a-sw1'.
+        summary:
+          type: string
+          description: Summary of the issue
+          readOnly: true
+          example: AP "SJC24-12A-AP12" has a coverage hole.
+        priority:
+          type: string
+          description: Priority of the issue
+          example: P1
+          enum:
+          - P1
+          - P2
+          - P3
+          - P4
+        severity:
+          type: string
+          description: Severity of the issue
+          example: high
+          enum:
+          - high
+          - medium
+          - low
+        deviceType:
+          type: string
+          description: Device type of the device to which this issue belongs to
+          example: wireless controller
+          enum:
+          - access point
+          - border router
+          - access
+          - core
+          - wireless controller
+          - sensor
+          - distribution
+          - wireless
+          - wired
+        category:
+          type: string
+          description: Category of the issue
+          example: connectivity
+          enum:
+          - onboarding
+          - connectivity
+          - connected
+          - device
+          - availability
+          - utilization
+          - application
+          - sensor test
+          - ap anomaly
+          - system
+          - beta analytics
+          - unknown
+        entityType:
+          type: string
+          description: Entity type of the issue
+          example: network device
+          enum:
+          - network device
+          - client
+          - application
+          - sensor
+        entityId:
+          type: string
+          description: "Id of the entity for which this issue belongs to. For example, it could be mac address of AP or UUID of Sensor"
+          readOnly: true
+          example: 68:ca:e4:79:3f:20 4de02167-901b-43cf-8822-cffd3caa286f
+        firstOccurredTime:
+          type: integer
+          description: The epoch time when this issue first occurred
+          format: int64
+          readOnly: true
+          example: 1704589631740
+        mostRecentOccurredTime:
+          type: integer
+          description: The epoch time when this issue recently occurred
+          format: int64
+          readOnly: true
+          example: 1704589631740
+        status:
+          type: string
+          description: Status of the issue
+          example: active
+          enum:
+          - active
+          - resolved
+          - ignored
+        isGlobal:
+          type: boolean
+          description: "This flag indicates whether or not this issue is a global issue. Global issues are those issues which impacts across many devices, sites. They are also displayed on Issue Dashboard in Catalyst Center UI. Non-Global issues are displayed only on Client 360 or Device 360 pages."
+          example: true
+        updatedBy:
+          type: string
+          description: Name of person who updated this issue most recently
+          readOnly: true
+          example: admin
+        updatedTime:
+          type: integer
+          description: The epoch time when this issue was last updated
+          format: int64
+          readOnly: true
+          example: 1704589631740
+        notes:
+          type: string
+          description: Notes added by user
+          example: This issue is under investigation.
+        siteId:
+          type: string
+          description: Site ID of the device to which this issue belongs to
+          example: 5fafcecf-53e5-405c-8bd1-22bd84726b36
+        siteHierarchyId:
+          type: string
+          description: Site Hierarchy ID of the device to which this issue belongs to
+          example: /bdb8f628-64fa-4a8c-bcb0-b652183168c6/4de02167-901b-43cf-8822-cffd3caa286f/a3a490fc-dd21-49de-aa6b-6a1b6260b49d/
+        siteName:
+          type: string
+          description: "Site name of the device to which this issue belongs to. The site name is captured at the time of issue creation. If the site name changes after issue is created, then the new name will not be reflected in the response"
+          example: SJ-24
+        siteHierarchy:
+          type: string
+          description: Site Hierarchy of the device to which this issue belongs to
+          example: Global/San Jose/SJ-24/Floor-3
+        suggestedActions:
+          type: array
+          description: List of suggested actions to be performed to address the issue. AI Driven issues have integrated MRE support where suggested actions are generated dynamically and they will not be included here.
+          items:
+            $ref: '#/components/schemas/SuggestedAction'
+        additionalAttributes:
+          type: array
+          description: Other useful attributes of the issue
+          items:
+            $ref: '#/components/schemas/IssuesAdditionalAttribute'
+      description: Contains all details of an issue including suggested actions.
+    SuggestedAction:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Suggested action message
+          example: Check the switch interface operational status for each port.
+        steps:
+          type: array
+          description: List of commands to be executed on the device
+          items:
+            $ref: '#/components/schemas/SuggestedActionStep'
+      description: Suggested actions to be performed to address this issue
+    SuggestedActionStep:
+      type: object
+      properties:
+        command:
+          type: string
+          description: The actual command to be exected
+          example: show interface GigabitEthernet1/0/10
+        description:
+          type: string
+          description: The description of the command
+          example: Shows details of the given interface
+        entityId:
+          type: string
+          description: UUID of the device on which the command should be executed
+          example: 51cb8491-0aa2-4e69-b52e-7bb744d4abcc
+        stepType:
+          type: string
+          description: Type of this step
+          example: command-Runner
+      description: Details of the command to be executed on the device
+    IssuesAdditionalAttribute:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Attribute key
+          example: areaName
+        value:
+          type: string
+          description: Attribute value
+          example: Global/San Jose
+  responses:
+    ResolveIssuesResponseModel:
+      description: Response model for resolve issues
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResolveIssuesResponseModel'
+    IgnoreIssuesResponseModel:
+      description: Response model for ignore issues
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/IgnoreIssuesResponseModel'
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "500":
+      description: The server could not fulfill the request due to internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "1XX":
+      description: Informational Responses - The server received the request and sent an informational response.
+    "2XX":
+      description: "Successful Responses - The server received the client request, understood it, and accepted it."
+    "3XX":
+      description: Redirection Messages - The client must take additional action to complete the request.
+    "4XX":
+      description: Client Error Responses - The client request caused the error.
+    "5XX":
+      description: Server Error Responses - The server failed to fulfill the request.
+    defaultError:
+      description: Unexpected Error
+    IssueDetailResponseModel:
+      description: Response containing issue details of a given issue
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/IssueDetailResponseModel'
+          examples:
+            Response with all fields:
+              $ref: '#/components/examples/IssuesQueryResponseExample1'
+            Response with requested fields:
+              $ref: '#/components/examples/IssuesQueryResponseExample2'
+    "404":
+      description: The client made a request for a resource that does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  parameters:
+    callerId:
+      name: X-CALLER-ID
+      in: header
+      description: |
+        Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+      required: false
+      schema:
+        type: string
+        default: unknown
+      example: ui:client360
+  examples:
+    IssuesQueryResponseExample1:
+      description: This response has all possible fields. This is default behavior when specific `views` or `attributes` are not requested
+      value:
+        response:
+          issueId: c5b7bf20-17e2-413f-81af-ff0304490cc9
+          name: switch_cpu_high
+          description: Network device "assur-sw-23.cisco.com" is experiencing high CPU utilization of 4%
+          summary: Network Device assur-sw-23.cisco.com is experiencing high CPU utilization
+          priority: P3
+          severity: high
+          deviceType: access
+          category: device
+          entityType: network device
+          entityId: c30cd70d-6665-4985-b27c-0f2e3c00edd1
+          firstOccurredTime: 1711647900000
+          mostRecentOccurredTime: 1711647900000
+          status: active
+          isGlobal: true
+          updatedBy: null
+          updatedTime: null
+          notes: null
+          siteId: fa08a067-807d-475b-83f8-139c616dbead
+          siteHierarchyId: /99d370e2-dad1-41c2-9730-e08f62cb53a0/f5ec4526-20b9-4542-9486-fd906c05d7e3/f8d85686-9405-4791-a08f-7fb88c119320/fa08a067-807d-475b-83f8-139c616dbead/
+          siteName: Floor1
+          siteHierarchy: Global/California/SJC24/Floor1
+          suggestedActions:
+          - message: Run embedded wireshark to see what (if any) traffic is being sent to the CPU.
+          - message: Verify configuration is compliant.
+          - message: "Check the CPU history for the last 60sec, 60min, 72hours"
+            steps:
+            - command: show proc cpu history
+              description: "Check the CPU history for the last 60sec, 60min, 72hours"
+              entityId: c30cd70d-6665-4985-b27c-0f2e3c00edd1
+              stepType: command-Runner
+          - message: Check for the CPU queue with the highest hits/drops to determine type of traffic sent to CPU (if applicable)
+            steps:
+            - command: show controllers cpu-interface
+              description: Check for the CPU queue with the highest hits/drops to determine type of traffic sent to CPU (if applicable)
+              entityId: c30cd70d-6665-4985-b27c-0f2e3c00edd1
+              stepType: command-Runner
+          - message: Check for the CoPP class with the highest hits/drops in case the conform rate is set too high
+            steps:
+            - command: show platform hardware fed switch active qos queue stats internal cpu policer
+              description: Check for the CoPP class with the highest hits/drops in case the conform rate is set too high
+              entityId: c30cd70d-6665-4985-b27c-0f2e3c00edd1
+              stepType: command-Runner
+          - message: Verify the device logs for CPU related event messages
+          - message: "Check the release notes for known bugs, if it is known issue, check if SMU is available and apply on the switch"
+          - message: Contact Cisco TAC World Wide – https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+          additionalAttributes:
+          - key: managementIpAddr
+            value: 121.7.180.1
+          - key: platformType
+            value: Switches and Hubs
+          - key: floorId
+            value: fa08a067-807d-475b-83f8-139c616dbead
+          - key: _count
+            value: "405"
+          - key: areaName
+            value: Global/California
+          - key: scope
+            value: global
+          - key: floorName
+            value: Global/California/SJC24/Floor1
+          - key: siteType
+            value: floor
+          - key: deviceType
+            value: Cisco Catalyst 38xx stack-able ethernet switch
+          - key: severity
+            value: HIGH
+          - key: deviceUuid
+            value: c30cd70d-6665-4985-b27c-0f2e3c00edd1
+          - key: deviceRole
+            value: ACCESS
+          - key: _suppression
+            value: "0"
+          - key: entityType
+            value: network_device
+          - key: deviceOS
+            value: 16.12.4
+          - key: nwDeviceName
+            value: assur-sw-23.cisco.com
+          - key: cpu
+            value: "4.0"
+          - key: eventUniqueId
+            value: 121.7.180.1
+          - key: entityId
+            value: c30cd70d-6665-4985-b27c-0f2e3c00edd1
+          - key: deviceFamily
+            value: Switches and Hubs
+          - key: message
+            value: This Device is experiencing high CPU utilization
+          - key: priority
+            value: P3
+          - key: buildingId
+            value: f8d85686-9405-4791-a08f-7fb88c119320
+          - key: buildingName
+            value: Global/California/SJC24
+          - key: areaId
+            value: f5ec4526-20b9-4542-9486-fd906c05d7e3
+          - key: siteHierarchy
+            value: Global/California/SJC24/Floor1
+          - key: deviceModel
+            value: WS-C3850-24P-E
+          - key: category
+            value: Device
+          - key: status
+            value: active
+        version: "1.0"
+    IssuesQueryResponseExample2:
+      description: This response has only selected fields. It has all default attributes and the attributes which are part of 'site' view.
+      value:
+        response:
+          issueId: c5b7bf20-17e2-413f-81af-ff0304490cc9
+          name: switch_cpu_high
+          description: Network device "assur-sw-23.cisco.com" is experiencing high CPU utilization of 4%
+          summary: Network Device assur-sw-23.cisco.com is experiencing high CPU utilization
+          priority: P3
+          severity: high
+          category: device
+          entityType: network device
+          entityId: c30cd70d-6665-4985-b27c-0f2e3c00edd1
+          firstOccurredTime: 1711661100000
+          mostRecentOccurredTime: 1711661100000
+          status: active
+          isGlobal: true
+          siteId: fa08a067-807d-475b-83f8-139c616dbead
+          siteHierarchyId: /99d370e2-dad1-41c2-9730-e08f62cb53a0/f5ec4526-20b9-4542-9486-fd906c05d7e3/f8d85686-9405-4791-a08f-7fb88c119320/fa08a067-807d-475b-83f8-139c616dbead/
+          siteName: Floor1
+          siteHierarchy: Global/California/SJC24/Floor1
+        version: "1.0"

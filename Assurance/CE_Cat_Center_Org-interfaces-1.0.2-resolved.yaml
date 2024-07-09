@@ -1,0 +1,1608 @@
+---
+openapi: 3.0.0
+info:
+  title: Assurance Network Device Interfaces List with statistics data
+  description: "This API provides a comprehensive list of interfaces across all Network Devices, contains both interface configurations and statistics data"
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Apache-2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.2
+externalDocs:
+  description: Catalyst Center Developer API resources
+  url: https://developer.cisco.com/dnacenter/
+servers:
+- url: https://developer.cisco.com
+tags:
+- name: interfacesStatistics
+  description: Operations related to Catalyst Center - Assurance Network Device Interface statistics
+  externalDocs:
+    description: Catalyst Center Assurance user guide
+    url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
+paths:
+  /data/api/v1/interfaces:
+    get:
+      tags:
+      - interfaceList
+      summary: Gets interfaces along with statistics data from all network devices.
+      description: "Retrieves the list of the interfaces from all network devices based on the provided query parameters. The latest interfaces data in the specified start and end time range will be returned. When there is no start and end time specified returns the latest available data.\n\nThe elements are grouped and sorted by deviceUuid first, and are then sorted by the given sort field, or by the default value: name.\n\n\nThe supported sorting options are: \nname, adminStatus, description, duplexConfig, duplexOper, interfaceIfIndex,interfaceType, macAddress,mediaType, operStatus, portChannelId, portMode, portType,speed, vlanId"
+      operationId: readInterfaces
+      parameters:
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+
+          If `startTime` is not provided, API will default to current time.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 1000
+          minimum: 1
+          type: integer
+          default: 500
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: sortBy
+        in: query
+        description: A field within the response to sort by.
+        schema:
+          type: string
+      - name: order
+        in: query
+        description: The sort order of the field ascending or descending.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteName
+        in: query
+        description: |
+          The name of the site. (Ex. `FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*San*, *San, San*`
+
+          Examples:
+
+          `?siteName=building1` (single siteName requested)
+
+          `?siteName=building1&siteName=building2&siteName=building3` (multiple siteNames requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteId
+        in: query
+        description: |
+          The UUID of the site. (Ex. `flooruuid`)
+
+          Examples:
+
+          `?siteId=id1` (single id requested)
+
+          `?siteId=id1&siteId=id2&siteId=id3` (multiple ids requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: view
+        in: query
+        description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific view associated fields. The default view is ``configuration``.\n\n### Response data proviced by each view:  \n\n1. **configuration**\n[id,adminStatus,description,duplexConfig,duplexOper,interfaceIfIndex,interfaceType,ipv4Address,ipv6AddressList,isL3Interface,isWan,macAddress,mediaType,name,operStatus, portChannelId,portMode, portType,speed,timestamp,vlanId,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId]  \n\n2. **statistics**\n[id,name,rxDiscards,rxError,rxRate,rxUtilization,txDiscards,txError,txRate,txUtilization,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId]  \n\n3. **stackPort**\n[id,name,peerStackMember,peerStackPort,stackPortType,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId]  \n\nThe default view is configuration, If need to access an additional view, simply include the view name in the query parameter.\n\nExamples:\n\nview=configuration (single view requested)\n\nview=configuration&view=statistic&stackPort (multiple views requested)\n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          maxItems: 5
+          minItems: 1
+          type: array
+          items:
+            type: string
+          default: "configuration,statistics,stackPort"
+      - name: attribute
+        in: query
+        description: |
+          The following list of attributes can be provided in the attribute field
+
+          [id,adminStatus, description,duplexConfig,duplexOper,interfaceIfIndex,interfaceType,ipv4Address,ipv6AddressList,isL3Interface,isWan,macAddress,mediaType,name,operStatus,peerStackMember,peerStackPort, portChannelId,portMode, portType,rxDiscards,rxError,rxRate,rxUtilization,speed,stackPortType,timestamp,txDiscards,txError,txRate,txUtilization,vlanId,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId]
+
+          If length of attribute list is too long, please use 'views' param instead.
+
+          Examples:
+
+          attributes=name (single attribute requested)
+
+          attributes=name,description,duplexOper (multiple attributes with comma separator)
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: networkDeviceId
+        in: query
+        description: |
+          The list of Network Device Uuids. (Ex. `6bef213c-19ca-4170-8375-b694e251101c`)
+
+          Examples:
+
+          `networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c` (single networkDeviceId requested)
+
+          `networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c&networkDeviceId=32219612-819e-4b5e-a96b-cf22aca13dd9&networkDeviceId=2541e9a7-b80d-4955-8aa2-79b233318ba0` (multiple networkDeviceIds with & separator)
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: networkDeviceIpAddress
+        in: query
+        description: "The list of Network Device management IP Address. (Ex. `121.1.1.10`)\n\nThis field supports wildcard (`*`) character-based search. \nEx: `*1.1*` or `1.1*` or `*1.1`\n\nExamples:\n\n`networkDeviceIpAddress=121.1.1.10`\n\n`networkDeviceIpAddress=121.1.1.10&networkDeviceIpAddress=172.20.1.10&networkDeviceIpAddress=10.10.20.10` (multiple networkDevice IP Address with & separator)\n"
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: networkDeviceMacAddress
+        in: query
+        description: "The list of Network Device MAC Address. (Ex. `64:f6:9d:07:9a:00`)\n\nThis field supports wildcard (`*`) character-based search. \nEx: `*AB:AB:AB*` or `AB:AB:AB*` or `*AB:AB:AB`\n\nExamples:\n\n`networkDeviceMacAddress=64:f6:9d:07:9a:00`\n\n`networkDeviceMacAddress=64:f6:9d:07:9a:00&networkDeviceMacAddress=70:56:9d:07:ac:77` (multiple networkDevice MAC addresses with & separator)\n"
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            format: mac
+      - name: interfaceId
+        in: query
+        description: |
+          The list of Interface Uuids. (Ex. `6bef213c-19ca-4170-8375-b694e251101c`)
+
+          Examples:
+
+          `interfaceId=6bef213c-19ca-4170-8375-b694e251101c` (single interface uuid )
+
+          `interfaceId=6bef213c-19ca-4170-8375-b694e251101c&32219612-819e-4b5e-a96b-cf22aca13dd9&2541e9a7-b80d-4955-8aa2-79b233318ba0` (multiple Interface uuid with & separator)
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+      - name: interfaceName
+        in: query
+        description: "The list of Interface name (Ex. `GigabitEthernet1/0/1`)\nThis field supports wildcard (`*`) character-based search. \nEx: `*1/0/1*` or `1/0/1*` or `*1/0/1`\n\nExamples:\n\n`interfaceNames=GigabitEthernet1/0/1` (single interface name)\n\n`interfaceNames=GigabitEthernet1/0/1&GigabitEthernet2/0/1&GigabitEthernet3/0/1` (multiple interface names with & separator)\n"
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Interfaces Response model on success
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/InterfacesResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /data/api/v1/interfaces/{id}:
+    get:
+      tags:
+      - interfaceList
+      summary: Get the interface data for the given interface id (instance Uuid) along with the statistics data
+      description: Returns the interface data for the given interface instance Uuid along with the statistics data. The latest interface data in the specified start and end time range will be returned. When there is no start and end time specified returns the latest available data for the given interface Id.
+      operationId: readInterfaceById
+      parameters:
+      - name: id
+        in: path
+        description: The interface Uuid
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+
+          If `startTime` is not provided, API will default to current time.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: view
+        in: query
+        description: Interface data model views
+        required: false
+        style: form
+        explode: false
+        schema:
+          $ref: '#/components/schemas/InterfacesViews'
+      - name: attribute
+        in: query
+        description: |
+          The following list of attributes can be provided in the attribute field
+
+          [id,adminStatus, description,duplexConfig,duplexOper,interfaceIfIndex,interfaceType,ipv4Address,ipv6AddressList,isL3Interface,isWan,macAddress,mediaType,name,operStatus,peerStackMember,peerStackPort, portChannelId,portMode, portType,rxDiscards,rxError,rxRate,rxUtilization,speed,stackPortType,timestamp,txDiscards,txError,txRate,txUtilization,vlanId,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId]
+
+          If length of attribute list is too long, please use 'views' param instead.
+
+          Examples:
+
+          attributes=name (single attribute requested)
+
+          attributes=name,description,duplexOper (multiple attributes with comma separator)
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Interfaces Response model on success
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/InterfaceResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /data/api/v1/interfaces/count:
+    get:
+      tags:
+      - interfaceList
+      summary: Gets the total Network device interface counts in the specified time range. When there is no start and end time specified returns the latest interfaces total count.
+      description: Gets the total Network device interface counts
+      operationId: readInterfacesCount
+      parameters:
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+
+          If `startTime` is not provided, API will default to current time.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteName
+        in: query
+        description: |
+          The name of the site. (Ex. `FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*San*, *San, San*`
+
+          Examples:
+
+          `?siteName=building1` (single siteName requested)
+
+          `?siteName=building1&siteName=building2&siteName=building3` (multiple siteNames requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteId
+        in: query
+        description: |
+          The UUID of the site. (Ex. `flooruuid`)
+
+          Examples:
+
+          `?siteId=id1` (single id requested)
+
+          `?siteId=id1&siteId=id2&siteId=id3` (multiple ids requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: networkDeviceId
+        in: query
+        description: |
+          The list of Network Device Uuids. (Ex. `6bef213c-19ca-4170-8375-b694e251101c`)
+
+          Examples:
+
+          `networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c` (single networkDeviceId requested)
+
+          `networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c&networkDeviceId=32219612-819e-4b5e-a96b-cf22aca13dd9&networkDeviceId=2541e9a7-b80d-4955-8aa2-79b233318ba0` (multiple networkDeviceIds with & separator)
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: networkDeviceIpAddress
+        in: query
+        description: "The list of Network Device management IP Address. (Ex. `121.1.1.10`)\n\nThis field supports wildcard (`*`) character-based search. \nEx: `*1.1*` or `1.1*` or `*1.1`\n\nExamples:\n\n`networkDeviceIpAddress=121.1.1.10`\n\n`networkDeviceIpAddress=121.1.1.10&networkDeviceIpAddress=172.20.1.10&networkDeviceIpAddress=10.10.20.10` (multiple networkDevice IP Address with & separator)\n"
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: networkDeviceMacAddress
+        in: query
+        description: "The list of Network Device MAC Address. (Ex. `64:f6:9d:07:9a:00`)\n\nThis field supports wildcard (`*`) character-based search. \nEx: `*AB:AB:AB*` or `AB:AB:AB*` or `*AB:AB:AB`\n\nExamples:\n\n`networkDeviceMacAddress=64:f6:9d:07:9a:00`\n\n`networkDeviceMacAddress=64:f6:9d:07:9a:00&networkDeviceMacAddress=70:56:9d:07:ac:77` (multiple networkDevice MAC addresses with & separator)\n"
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            format: mac
+      - name: interfaceId
+        in: query
+        description: |
+          The list of Interface Uuids. (Ex. `6bef213c-19ca-4170-8375-b694e251101c`)
+
+          Examples:
+
+          `interfaceId=6bef213c-19ca-4170-8375-b694e251101c` (single interface uuid )
+
+          `interfaceId=6bef213c-19ca-4170-8375-b694e251101c&32219612-819e-4b5e-a96b-cf22aca13dd9&2541e9a7-b80d-4955-8aa2-79b233318ba0` (multiple Interface uuid with & separator)
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+      - name: interfaceName
+        in: query
+        description: "The list of Interface name (Ex. `GigabitEthernet1/0/1`)\nThis field supports wildcard (`*`) character-based search. \nEx: `*1/0/1*` or `1/0/1*` or `*1/0/1`\n\nExamples:\n\n`interfaceNames=GigabitEthernet1/0/1` (single interface name)\n\n`interfaceNames=GigabitEthernet1/0/1&GigabitEthernet2/0/1&GigabitEthernet3/0/1` (multiple interface names with & separator)\n"
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Reponse object containing total count of the records after applying requested filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /data/api/v1/interfaces/query:
+    post:
+      tags:
+      - interfaceList
+      summary: Gets the list of interfaces across the Network Devices based on the provided complex filters and aggregation functions
+      description: "Gets the list of interfaces across the Network Devices based on the provided complex filters and aggregation functions\n\n\nThe elements are grouped and sorted by deviceUuid first, and are then sorted by the given sort field, or by the default value: name.\n\n\nThe supported sorting options are: \nname, adminStatus, description, duplexConfig, duplexOper, interfaceIfIndex,interfaceType, macAddress,mediaType, operStatus, portChannelId, portMode, portType,speed, vlanId\n\n**How the filtering behavior works**\n\nThe filters field in each post body can be used in numerous ways:\n\nEach filter in the list of filters will applied ''together''\n\nIn the example below, this would request filtering to retrieve FullDuplex interfaces `and` portMode either trunk or access.\n```\n\"filters\": [\n    {\n      \"key\": \"duplexOper\",\n      \"operator\": \"eq\",\n      \"value\": \"FullDuplex\"\n    },\n    {\n      \"key\": \"portMode\",\n      \"operator\": \"in\",\n      \"value\": [\n        \"trunk\",\n        \"access\"\n      ]\n    }\n]\n```\n\nEach filter object can contrastingly utilize its `logical operator` to provide nested filtering functionality.\n\nIn the example below you can see a logical \"OR\" filter being applied using the nested filtering functionality:\n\nThe primary filter object does not have its 'key', 'value', or 'operator' fields populated. Only the 'logicalOperator' field is populated, to indicate the filters within the nested filters list are to be logically conjoined.\n\n```\n\"filters\": [\n    {\n      \"logicalOperator\": \"or\",\n      \"filters\": [\n        {\n          \"key\": \"siteName\",\n          \"operator\": \"like\",\n          \"value\": \"Paris\"\n        },\n        {\n          \"key\": \"siteName\",\n          \"operator\": \"eq\",\n          \"value\": \"Eiffel Tower\"\n        }\n      ]\n    }\n]\n```\nPlease refer to the 'API Support Documentation' section to understand which fields and filters are supported.\n\n**How Pagination Works**\n\n'limit' field, is the total number of records you want to retrieve.\n\n'offset' field, is the record you want to start on.\n\nIf you have a limit of 100, each page would be viewed as 100 elements. So starting with an offset of 1, means look at the first page of data. Starting with an offset of 2, means start on the second element (2nd-101st)\n\n'sortBy' field is a list, but only single field sorting is supported on this API.\n\nThe supported sorting options are: \n\nname, adminStatus, description, duplexConfig, duplexOper, interfaceIfIndex,interfaceType, macAddress,mediaType, operStatus, portChannelId, portMode, portType,speed, vlanId\n\nwith 'asc' (ascending), or 'desc' (descending) ordering\n"
+      operationId: queryInterfacesWithFilter
+      requestBody:
+        description: Payload to query Network Device Interfaces
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterfacesQueryRequest'
+        required: true
+      responses:
+        "200":
+          description: Interfaces Query Response model on success
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/InterfacesQueryResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /data/api/v1/interfaces/query/count:
+    post:
+      tags:
+      - interfaceList
+      summary: The Total interfaces count across the Network devices.
+      description: Gets the total number of interfaces across the Network devices based on the provided complex filters and aggregation functions
+      operationId: queryInterfaceCountWithFilter
+      requestBody:
+        description: Payload to query Network Device Interfaces
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterfacesQueryRequest'
+        required: true
+      responses:
+        "200":
+          description: Reponse object containing total count of the records after applying requested filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+components:
+  schemas:
+    InterfaceGroupBy:
+      type: array
+      items:
+        type: string
+        description: List of field names to group by.
+        example: portyType
+    PaginationResponse:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: The reference to the limit applied in the Pagination Request.
+          example: 500
+        offset:
+          type: integer
+          description: The reference to the record offset applied in the Pagination Request.
+          example: 1
+        count:
+          type: integer
+          description: Total number of records related to the resource after applying applicable filtering
+          example: 1000
+        sortBy:
+          type: array
+          description: Reference to the sortBy that was applied in the Pagination Request.
+          items:
+            $ref: '#/components/schemas/PaginationResponse_sortBy'
+    InterfaceSummaryAnalyticsGroupResponse:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: unint64
+        group:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterfaceSummaryAnalyticsGroupResponse_group'
+    InterfaceData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Interface instance Uuid to identify the interface across the devices
+          format: uuid
+          example: c5330f8b-b65c-45a7-8c10-9f9dec7dcdd1
+        adminStatus:
+          type: string
+          description: The desired state of the interface
+          enum:
+          - NOT_APPLICABLE
+          - UP
+          - DOWN
+          - TESTING
+          - UNKNOWN
+        description:
+          type: string
+          description: The Interface description details
+          example: Sample Interface Description
+        duplexConfig:
+          type: string
+          description: The interface duplex config status.
+          enum:
+          - HalfDuplex
+          - FullDuplex
+          - Disagree
+          - AutoNegotiate
+          - UNKNOWN
+        duplexOper:
+          type: string
+          description: The interface duplex operational status
+          enum:
+          - HalfDuplex
+          - FullDuplex
+          - Disagree
+          - AutoNegotiate
+          - UNKNOWN
+        interfaceIfIndex:
+          type: integer
+          description: The interface ifIndex
+          example: 10
+        interfaceType:
+          type: string
+          description: Indicates the interface is a Physical or Virtual type
+          enum:
+          - Physical
+          - Virtual
+        ipv4Address:
+          type: string
+          description: The Interface Ipv4 Address
+          example: 10.1.2.2
+        ipv6AddressList:
+          type: array
+          description: List of interface IPV6 Address
+          items:
+            type: string
+            example: "200:40,200:1"
+        isL3Interface:
+          type: boolean
+          description: Indicates the interface is a L3 interface or not
+          example: true
+        isWan:
+          type: boolean
+          description: Indicates the interface is a WAN Link or not
+          example: true
+        macAddr:
+          type: string
+          description: The Mac Address of the interface
+          example: AC:4A:67:A8:9B:80
+        mediaType:
+          type: string
+          description: The interface media type
+          example: ETHERNETCSMACD
+        name:
+          type: string
+          description: The name of the interface
+          example: GigabitEthernet1/0/1
+        operStatus:
+          type: string
+          description: The current operational state of the interface
+          enum:
+          - NOT_APPLICABLE
+          - UP
+          - DOWN
+          - TESTING
+          - UNKNOWN
+          - DORMANT
+          - NOTPRESENT
+          - LOWERLAYERDOWN
+        peerStackMember:
+          type: integer
+          description: Interface peer stack member Id
+          example: 2
+        peerStackPort:
+          type: string
+          description: Interface peer stack member port
+          example: "1"
+        portChannelId:
+          type: string
+          description: Interface Port-Channel Id
+          example: "7"
+        portMode:
+          type: string
+          description: Interface Port Mode
+          enum:
+          - access
+          - trunk
+          - routed
+          - dynamic_auto
+          - dynamic_desirable
+          - StackWise
+        portType:
+          type: string
+          description: The Interface ifType
+          example: routed
+        rxDiscards:
+          type: number
+          description: Rx Discards in %
+          example: 1.2
+        rxError:
+          type: number
+          description: Rx Errors in %
+          example: 2
+        rxRate:
+          type: number
+          description: Rx rate in bps
+          example: 1.22
+        rxUtilization:
+          type: number
+          description: Rx Utilization in %
+          example: 7.32
+        speed:
+          type: string
+          description: Speed of the Interface in Kbps
+          example: "1000000"
+        stackPortType:
+          type: string
+          description: The interface's stack Port Type
+          enum:
+          - SVL
+          - DAD
+          - BACKSTACK
+        timestamp:
+          type: integer
+          description: Interface statistics data collected timestamp in UNIX epochtime in milliseconds. Value is inclusive
+          format: int64
+          example: 1705435200000
+        txDiscards:
+          type: number
+          description: Tx Discards in %
+          example: 1.2
+        txError:
+          type: number
+          description: Tx Errors in %
+          example: 2
+        txRate:
+          type: number
+          description: Tx rate in bps
+          example: 1.22
+        txUtilization:
+          type: number
+          description: Tx Utilization in %
+          example: 7.32
+        vlanId:
+          type: string
+          description: Interface associated Vlan Identifier
+          example: "10"
+        networkDeviceId:
+          type: string
+          description: The Network Device Uuid
+          format: uuid
+          example: eff4fe02-25a9-4a13-9e35-bd8a6a365e79
+        networkDeviceIpAddress:
+          type: string
+          description: The interface associated Network device IP address
+          example: 121.1.20.12
+        networkDeviceMacAddress:
+          type: string
+          description: The interface associated Network device Mac Address
+          format: mac
+          example: AA:BB:CC:DD:EE:FF
+        siteHierarchy:
+          $ref: '#/components/schemas/siteHierarchy'
+        siteHierarchyId:
+          $ref: '#/components/schemas/siteHierarchyId'
+      description: Assurance Network Device interface details
+    InterfaceWithAggregateResponse:
+      type: object
+      properties:
+        aggregateAttributes:
+          $ref: '#/components/schemas/InterfaceResponseAggregateAttributes'
+      description: |
+        Interface data with Aggregated value based on the data provided in the input payload.
+      allOf:
+      - $ref: '#/components/schemas/InterfaceData'
+    InterfacesViews:
+      type: string
+      description: "Views which are supported by this API. Each view represents a specific data set.\n\n### Response data provided by each view:  \n\n1. **configuration**\n[id,name,adminStatus,description,duplexConfig,duplexOper,interfaceIfIndex,interfaceType,ipv4Address,ipv6AddressList,isL3Interface,isWan,macAddress,mediaType,name,operStatus, portChannelId,portMode, portType,speed,timestamp,vlanId,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId]  \n\n2. **statistics**\n[id,name,rxDiscards,rxError,rxRate,rxUtilization,txDiscards,txError,txRate,txUtilization,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId]  \n4. **stackPort**\n[id,name,peerStackMember,peerStackPort,stackPortType,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId] \n\nWhen this query parameter is not added by default all configuration attributes will be available in the response.\n\n**[configuration,statistics,stackPort]**\n"
+      enum:
+      - configuration
+      - statistics
+      - stackPort
+    InterfacesAttributes:
+      type: string
+      description: Field names which are supported by this API as attributes or filter keys
+      enum:
+      - id
+      - adminStatus
+      - description
+      - duplexConfig
+      - duplexOper
+      - interfaceIfIndex
+      - interfaceType
+      - ipv4Address
+      - ipv6AddressList
+      - isL3Interface
+      - isWan
+      - macAddress
+      - mediaType
+      - name
+      - operStatus
+      - peerStackMember
+      - peerStackPort
+      - portChannelId
+      - portMode
+      - portType
+      - rxDiscards
+      - rxError
+      - rxRate
+      - rxUtilization
+      - speed
+      - stackPortType
+      - timestamp
+      - txDiscards
+      - txError
+      - txRate
+      - txUtilization
+      - vlanId
+      - networkDeviceId
+      - networkDeviceIpAddress
+      - networkDeviceMacAddress
+      - siteName
+      - siteHierarchy
+      - siteHierarchyId
+    InterfacesFilters:
+      type: array
+      items:
+        $ref: '#/components/schemas/InterfacesFilter'
+    InterfacesFilter:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/InterfacesAttributes'
+        operator:
+          $ref: '#/components/schemas/Operator'
+        logicalOperator:
+          $ref: '#/components/schemas/LogicalOperator'
+        value:
+          type: object
+          description: |
+            Field value(s) to filter the data set. Array of values is used for   "in" or "out" operator. Values will be of whatever type the   specific field being filtered is defined with.
+
+            For other operators, filter value is of whatever type the specific   field being filtered is defined with.
+
+            In the case of an "and" or "or" operator, this values array will be   ignored, and the values arrays in each of the *nested filters*   will be used.
+        filters:
+          type: array
+          description: |
+            Nested array of filters in case of AND/OR based filters. Only one   level of nesting will be supported.
+
+            Structure of nested filter is the same as parent with all operators   supported except AND or OR.
+          items:
+            $ref: '#/components/schemas/InterfacesFilter'
+      description: |
+        In case of single filter, please use `key`, `operator` and `value` combination. If multiple filters need to be applied using a logical   operation, please use `logicalOperator` and populate the list of 'filters' with a   combination of FilterObj. Filters can be nested to build complex   queries.
+    InterfacesQueryRequest:
+      type: object
+      properties:
+        views:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterfacesViews'
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterfacesAttributes'
+        filters:
+          $ref: '#/components/schemas/InterfacesFilters'
+        aggregateAttributes:
+          $ref: '#/components/schemas/InterfaceAggregateAttributes'
+        page:
+          $ref: '#/components/schemas/Pagination'
+      allOf:
+      - $ref: '#/components/schemas/startAndEndTime'
+    InterfacesResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          description: Successfully returned list of Interfaces
+          items:
+            $ref: '#/components/schemas/InterfaceData'
+        page:
+          $ref: '#/components/schemas/PaginationResponse'
+        version:
+          type: string
+          example: "1.0"
+      description: Interfaces Response model on success
+    InterfaceResponse:
+      type: object
+      properties:
+        response:
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/InterfaceData'
+        version:
+          type: string
+          example: "1.0"
+      description: Interfaces Response model on success
+    InterfacesQueryResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterfaceWithAggregateResponse'
+        page:
+          $ref: '#/components/schemas/PaginationResponse'
+        version:
+          type: string
+          example: "1.0"
+    InterfaceAggregateAttributes:
+      type: array
+      items:
+        $ref: '#/components/schemas/InterfaceAggregateAttribute'
+    InterfaceResponseAggregateAttributes:
+      type: array
+      items:
+        $ref: '#/components/schemas/InterfaceResponseAggregateAttribute'
+    InterfaceResponseAggregateAttribute:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/InterfaceAnalyticsAggregateName'
+      allOf:
+      - $ref: '#/components/schemas/AggregateResponseAttributes'
+    InterfaceAnalyticsAggregateName:
+      type: string
+      description: |-
+        Field name on which the aggregate function should be applied when querying the data. The fields supported for aggregation in the API
+            response object are,
+            [rxDiscards,rxError,rxRate,rxUtilization,txDiscards,txError,txRate,txUtilization,pdPowerAdminMax, pdPowerBudget,pdPowerConsumed,pdPowerRemaining,pdMaxPowerDrawn]
+      enum:
+      - txDiscards
+      - rxDiscards
+      - txError
+      - rxError
+      - txRate
+      - rxRate
+      - txUtilization
+      - rxUtilization
+      - pdPowerAdminMax
+      - pdPowerBudget
+      - pdPowerConsumed
+      - pdPowerRemaining
+      - pdMaxPowerDrawn
+    AggregateResponseAttributes:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The field name of the aggregate attributes
+        values:
+          type: array
+          description: List of values based on the functions requested in the input data
+          items:
+            $ref: '#/components/schemas/AggregateResponseAttributes_values'
+    InterfaceAggregateAttribute:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/InterfaceAnalyticsAggregateName'
+        function:
+          $ref: '#/components/schemas/Function'
+      example:
+        name: txUtilization
+        function: max
+    PaginationWithAggregateSortByRequest:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to fetch in a page
+          example: 100
+          default: 500
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        sortBy:
+          type: array
+          description: Records are sorted based on the fields specified in the array.
+          items:
+            $ref: '#/components/schemas/PaginationWithAggregateSortByRequest_sortBy'
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorObject'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured   processing this request.
+      example:
+        response:
+        - errorCode: 2600
+          message: Error message
+          detail: Error details
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    ErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: Application specific error code returned by the server
+        message:
+          type: string
+          description: Brief message about the error condition
+        detail:
+          type: string
+          description: "A more detailed explanation of the error condition the   parameter and its value, that caused the condition and why it caused it."
+    CountIntegerResponse:
+      title: Count Integer Response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/CountIntegerResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Reports
+    siteHierarchy:
+      type: string
+      description: The full hierarchy breakdown of the site tree in name form   starting from Global site name and ending with the specific site site.   'Global' is the Root name of the site hierarchy tree. Site name including   the hierarchy where the network device or client is located. For clients   site is derived based on site assigned to network device where the client   is connected to. For Wireless client its the connected Access Point site   and for Wired client its the connected switch site. For network device its   the site assigned to it.
+      example: Global/USA/CA/HQ/Building1/Floor1
+    siteHierarchyId:
+      type: string
+      description: The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID.
+      example: globalUuid/areaUuid/buildingUuid/floorUuid
+    Operator:
+      type: string
+      description: Type of filter operator to use for querying data | in and out operator takes multiple values and applies the filters
+      enum:
+      - in
+      - neq
+      - lt
+      - gt
+      - lte
+      - gte
+      - eq
+      - notIn
+      - like
+    LogicalOperator:
+      type: string
+      description: |
+        Operator to use when attempting to apply a logical conjunction of more   than 1 filter
+
+        Logical operations include: 'and', 'or'.
+      enum:
+      - and
+      - or
+    startAndEndTime:
+      type: object
+      properties:
+        startTime:
+          type: integer
+          description: |
+            Start time from which the API queries the dataset related to the resource. It must be specified in terms of milliseconds since UNIX epoch. Value is inclusive.
+
+            If `startTime` is not provided, API will default to current time.
+          format: int64
+          example: 1705348800000
+        endTime:
+          type: integer
+          description: |
+            End time to which the API queries the dataset related to the resource. It must be specified in terms of milliseconds since UNIX epoch. Value is inclusive.
+
+            If `endTime` is not provided, API will default to current time.
+          format: int64
+          example: 1705435200000
+      description: start and end time of data set to query. Data is aggregated   based on time window and timestamped with window start time. | For example - 1. When data events falls in a 5 minute window from 12-13-2023 11:25 PM to 12-13-2023 11:30 PM the timestamp of the aggregated data is 12-13-2023 11:25 PM - 1702509900000 (Unix epochtime). If user needs data from 12-13-2023 11:25 PM to 12-13-2023 11:30 PM user must use below timestamps | startTime = 1702509900000 (12-13-2023 11:25 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM) | 2. When data to be queried is for 3 hours period from 12-13-2023 08:30 PM to 12-13-2023 11:30 PM. User must use below timestamps | startTime = 1702528200000 (12-13-2023 08:30 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM) | 2. When data to be queried is for 24 hours period from 12-12-2023 11:30 PM to 12-13-2023 11:30 PM. User must use below timestamps | startTime = 1702423800000 (12-12-2023 11:30 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM) | 3. When data to be queried is for 7 days period from 12-06-2023 11:30 PM to 12-13-2023 11:30 PM. User must use below timestamps | startTime = 1701905400000 (12-06-2023 11:30 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM)
+    Pagination:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to fetch in a page
+          example: 100
+          default: 500
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        sortBy:
+          type: array
+          description: Records are sorted based on the fields specified in the   array.
+          items:
+            $ref: '#/components/schemas/Pagination_sortBy'
+    Function:
+      type: string
+      description: Type of aggregate function to apply on the field when querying   data
+      example: sum
+      enum:
+      - sum
+      - min
+      - max
+      - avg
+      - count
+      - latest
+      - distinctCount
+      - median
+    PaginationResponse_sortBy:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Field name by which sort is requested
+          example: name
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for descending
+          example: asc
+          enum:
+          - asc
+          - desc
+      description: List of field names and corresponding order used to sort the records.
+    InterfaceSummaryAnalyticsGroupResponse_group:
+      type: object
+      properties:
+        id:
+          type: string
+          description: This the group key. Its the concatination of groupBy attributes
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterfaceAggregateAttributes'
+        aggregateAttributes:
+          $ref: '#/components/schemas/InterfaceResponseAggregateAttribute'
+    AggregateResponseAttributes_values:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/Function'
+        value:
+          type: number
+          description: The value for the attribute field in the given time range
+    PaginationWithAggregateSortByRequest_sortBy:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Field name by which sort is requested
+          example: name
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for descending
+          example: asc
+          enum:
+          - asc
+          - desc
+        function:
+          $ref: '#/components/schemas/Function'
+      description: List of field names and corresponding order used to sort the records.
+    CountIntegerResponse_response:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The total number of records related to the resource
+          format: int64
+          example: 1000
+    Pagination_sortBy:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Field name by which sort is requested
+          example: name
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for   descending
+          example: asc
+          enum:
+          - asc
+          - desc
+      description: List of field names and corresponding order used to sort   the records.
+  responses:
+    InterfaceSummaryAnalyticsGroupResponse:
+      description: Collection of Clients Response model on success with aggregate attributes
+      content:
+        '*/*':
+          schema:
+            $ref: '#/components/schemas/InterfaceSummaryAnalyticsGroupResponse'
+    InterfacesResponse:
+      description: Interfaces Response model on success
+      content:
+        '*/*':
+          schema:
+            $ref: '#/components/schemas/InterfacesResponse'
+    InterfaceResponse:
+      description: Interfaces Response model on success
+      content:
+        '*/*':
+          schema:
+            $ref: '#/components/schemas/InterfaceResponse'
+    InterfacesQueryResponse:
+      description: Interfaces Query Response model on success
+      content:
+        '*/*':
+          schema:
+            $ref: '#/components/schemas/InterfacesQueryResponse'
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "500":
+      description: The server could not fulfill the request due to internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "1XX":
+      description: Informational Responses - The server received the request and sent an informational response.
+    "2XX":
+      description: "Successful Responses - The server received the client request, understood it, and accepted it."
+    "3XX":
+      description: Redirection Messages - The client must take additional action to complete the request.
+    "4XX":
+      description: Client Error Responses - The client request caused the error.
+    "5XX":
+      description: Server Error Responses - The server failed to fulfill the request.
+    defaultError:
+      description: Unexpected Error
+    CountIntegerResponse:
+      description: Reponse object containing total count of the records after applying requested filters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CountIntegerResponse'
+  parameters:
+    InterfaceDataViews:
+      name: view
+      in: query
+      description: Interface data model views
+      required: false
+      style: form
+      explode: false
+      schema:
+        $ref: '#/components/schemas/InterfacesViews'
+    interfaceDataAttributes:
+      name: attribute
+      in: query
+      description: |
+        The following list of attributes can be provided in the attribute field
+
+        [id,adminStatus, description,duplexConfig,duplexOper,interfaceIfIndex,interfaceType,ipv4Address,ipv6AddressList,isL3Interface,isWan,macAddress,mediaType,name,operStatus,peerStackMember,peerStackPort, portChannelId,portMode, portType,rxDiscards,rxError,rxRate,rxUtilization,speed,stackPortType,timestamp,txDiscards,txError,txRate,txUtilization,vlanId,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId]
+
+        If length of attribute list is too long, please use 'views' param instead.
+
+        Examples:
+
+        attributes=name (single attribute requested)
+
+        attributes=name,description,duplexOper (multiple attributes with comma separator)
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    startTime:
+      name: startTime
+      in: query
+      description: |
+        Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+
+        If `startTime` is not provided, API will default to current time.
+      schema:
+        type: integer
+        format: int64
+      example: 1705348800000
+    endTime:
+      name: endTime
+      in: query
+      description: |
+        End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      required: false
+      schema:
+        type: integer
+        format: int64
+      example: 1705435200000
+    limit_1000:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        maximum: 1000
+        minimum: 1
+        type: integer
+        default: 500
+    offset:
+      name: offset
+      in: query
+      description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+      schema:
+        minimum: 1
+        type: integer
+        default: 1
+    sortBy:
+      name: sortBy
+      in: query
+      description: A field within the response to sort by.
+      schema:
+        type: string
+    order:
+      name: order
+      in: query
+      description: The sort order of the field ascending or descending.
+      schema:
+        type: string
+        default: asc
+        enum:
+        - asc
+        - desc
+    siteHierarchies:
+      name: siteHierarchy
+      in: query
+      description: |
+        The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+        Examples:
+
+        `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+        `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteHierarchyIds:
+      name: siteHierarchyId
+      in: query
+      description: |
+        The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+        Examples:
+
+        `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+        `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteNames:
+      name: siteName
+      in: query
+      description: |
+        The name of the site. (Ex. `FloorName`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*San*, *San, San*`
+
+        Examples:
+
+        `?siteName=building1` (single siteName requested)
+
+        `?siteName=building1&siteName=building2&siteName=building3` (multiple siteNames requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteIds:
+      name: siteId
+      in: query
+      description: |
+        The UUID of the site. (Ex. `flooruuid`)
+
+        Examples:
+
+        `?siteId=id1` (single id requested)
+
+        `?siteId=id1&siteId=id2&siteId=id3` (multiple ids requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    interfaceDataViews:
+      name: view
+      in: query
+      description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific view associated fields. The default view is ``configuration``.\n\n### Response data proviced by each view:  \n\n1. **configuration**\n[id,adminStatus,description,duplexConfig,duplexOper,interfaceIfIndex,interfaceType,ipv4Address,ipv6AddressList,isL3Interface,isWan,macAddress,mediaType,name,operStatus, portChannelId,portMode, portType,speed,timestamp,vlanId,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId]  \n\n2. **statistics**\n[id,name,rxDiscards,rxError,rxRate,rxUtilization,txDiscards,txError,txRate,txUtilization,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId]  \n\n3. **stackPort**\n[id,name,peerStackMember,peerStackPort,stackPortType,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId]  \n\nThe default view is configuration, If need to access an additional view, simply include the view name in the query parameter.\n\nExamples:\n\nview=configuration (single view requested)\n\nview=configuration&view=statistic&stackPort (multiple views requested)\n"
+      required: false
+      style: form
+      explode: true
+      schema:
+        maxItems: 5
+        minItems: 1
+        type: array
+        items:
+          type: string
+        default: "configuration,statistics,stackPort"
+    networkDeviceIds:
+      name: networkDeviceId
+      in: query
+      description: |
+        The list of Network Device Uuids. (Ex. `6bef213c-19ca-4170-8375-b694e251101c`)
+
+        Examples:
+
+        `networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c` (single networkDeviceId requested)
+
+        `networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c&networkDeviceId=32219612-819e-4b5e-a96b-cf22aca13dd9&networkDeviceId=2541e9a7-b80d-4955-8aa2-79b233318ba0` (multiple networkDeviceIds with & separator)
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    networkDeviceIpAddresses:
+      name: networkDeviceIpAddress
+      in: query
+      description: "The list of Network Device management IP Address. (Ex. `121.1.1.10`)\n\nThis field supports wildcard (`*`) character-based search. \nEx: `*1.1*` or `1.1*` or `*1.1`\n\nExamples:\n\n`networkDeviceIpAddress=121.1.1.10`\n\n`networkDeviceIpAddress=121.1.1.10&networkDeviceIpAddress=172.20.1.10&networkDeviceIpAddress=10.10.20.10` (multiple networkDevice IP Address with & separator)\n"
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    networkDeviceMacAddresses:
+      name: networkDeviceMacAddress
+      in: query
+      description: "The list of Network Device MAC Address. (Ex. `64:f6:9d:07:9a:00`)\n\nThis field supports wildcard (`*`) character-based search. \nEx: `*AB:AB:AB*` or `AB:AB:AB*` or `*AB:AB:AB`\n\nExamples:\n\n`networkDeviceMacAddress=64:f6:9d:07:9a:00`\n\n`networkDeviceMacAddress=64:f6:9d:07:9a:00&networkDeviceMacAddress=70:56:9d:07:ac:77` (multiple networkDevice MAC addresses with & separator)\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          format: mac
+    interfaceIds:
+      name: interfaceId
+      in: query
+      description: |
+        The list of Interface Uuids. (Ex. `6bef213c-19ca-4170-8375-b694e251101c`)
+
+        Examples:
+
+        `interfaceId=6bef213c-19ca-4170-8375-b694e251101c` (single interface uuid )
+
+        `interfaceId=6bef213c-19ca-4170-8375-b694e251101c&32219612-819e-4b5e-a96b-cf22aca13dd9&2541e9a7-b80d-4955-8aa2-79b233318ba0` (multiple Interface uuid with & separator)
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+          format: uuid
+    interfaceNames:
+      name: interfaceName
+      in: query
+      description: "The list of Interface name (Ex. `GigabitEthernet1/0/1`)\nThis field supports wildcard (`*`) character-based search. \nEx: `*1/0/1*` or `1/0/1*` or `*1/0/1`\n\nExamples:\n\n`interfaceNames=GigabitEthernet1/0/1` (single interface name)\n\n`interfaceNames=GigabitEthernet1/0/1&GigabitEthernet2/0/1&GigabitEthernet3/0/1` (multiple interface names with & separator)\n"
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string

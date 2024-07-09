@@ -1,0 +1,1104 @@
+---
+openapi: 3.0.0
+info:
+  title: Assurance Custom issue definitions API documentation
+  description: Assurance Custom issue definitions API documentation
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Cisco Catalyst Center License
+    url: https://www.cisco.com/c/en/us/products/collateral/software/dna-software-ebook-cte.html
+  version: 1.0.0
+externalDocs:
+  description: Catalyst Center Developer API resources
+  url: https://developer.cisco.com/dnacenter/
+servers:
+- url: https://developer.cisco.com
+tags:
+- name: customIssueDefinitions
+  description: Assurance Custom issue definition API documentation
+- name: developers
+  description: Assurance Custom issue definition API documentation
+paths:
+  /intent/api/v1/customIssueDefinitions:
+    get:
+      tags:
+      - customIssueDefinitions
+      summary: Get all the custom issue definitions based on the given filters.
+      description: "Retrieve the existing syslog-based custom issue definitions. The supported filters are id, name, profileId,  definition enable status, priority, severity, facility and mnemonic. The issue definition configurations may vary across profiles, hence specifying the profile Id in the query parameter is important and the default profile is ``global``.\n\n  The assurance profile definitions can be obtain via the API endpoint ``/api/v1/siteprofile?namespace=assurance``. \n  The details about the each fields are below,\n  \n|Field Name | Description |\n| --- | --- |\n| `id` | The issue definition identifier\n| `name` | The name of the issue definition|\n| `description` | The description about the issue definition|\n| `profileId` | The issue definition  associated profile Id| \n| `rules` | One or more rules contain conditions for generating issues. Currently, the supported limit for rules is set to 1. A rule contains severity, facility, mnemonic pattern, occurrences and durationInMinutes fields.|\n| `severity` | The syslog severity levels supported include **0, 1, 2, 3, 4, 5, 6** |\n    |0| Emergency|\n    |1| Alert|\n    |2| Critical|\n    |3| Error|\n    |4| Warning|\n    |5| Notice|\n    |6| Info|\n| `facility` | The syslog facility name|\n| `pattern` | The message pattern specified within the issue definition.| \n| `occurrences`| The number of occurrences count required for the issue to trigger. The default occurrences count is 1|\n| `durationInMinutes` | The duration in minutes for which the issue must persist to trigger. The maximum supported duration is 15 minutes. The default is 1 minutes| \n| `isEnabled` |  The status of issue definition, can be either enabled or disabled. The default is disabled.|\n| `priority` | The Issue definition priority level. The supported levels are **P1, P2, P3, P4**.|\n| `isDeletable` | Specifies whether the definition can be deleted using the DELETE Post API. The deletion is only supported for the ``default`` profile associated definitions.|\n| `isNotificationEnabled` | The status of notification enablement can be either enabled or disabled. The default is disabled.|\n| `createdTime` |  The creation time of the issue definition, represented in UNIX epoch time in milliseconds|\n| `lastUpdatedTime` |  The last time of the issue definition, represented in UNIX epoch time in milliseconds|\n"
+      operationId: readCustomIssueDefinitions
+      parameters:
+      - name: id
+        in: query
+        description: |
+          The custom issue definition identifier and unique identifier across the profile.
+          Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested) id=6bef213c-19ca-4170-8375-b694e251101c&id=19ca-4170-8375-b694e251101c-6bef213c (multiple Id request in the query param)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: uuid
+      - name: profileId
+        in: query
+        description: |
+          The profile identifier to fetch the profile associated custom issue definitions. The default is global. For the custom profile, it is profile UUID. Example : 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          readOnly: true
+          default: global
+      - name: name
+        in: query
+        description: |
+          The list of UDI issue names. (Ex."TestUdiIssues")
+          This field supports substring matches in PCRE format. E.g. ".*TestU.*"
+          Examples: names=TestUdiIssues (single entity uuid requested)
+          name=TestUdiIssues&name=TestUdiIssues123&name=TestUdiIssues456 (multiple issue names separated by & operator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: priority
+        in: query
+        description: |
+          The Issue priority value, possible values are P1, P2, P3, P4
+
+
+          ``P1``: A critical issue that needs immediate attention and can have a wide impact on network operations.
+
+          ``P2``: A major issue that can potentially impact multiple devices or clients.
+
+          ``P3``: A minor issue that has a localized or minimal impact.
+
+          ``P4``: A warning issue that may not be an immediate problem but addressing it can optimize the network performance.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: isEnabled
+        in: query
+        description: "The enable status of the custom issue definition, either true or false."
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      - name: severity
+        in: query
+        description: |
+          The syslog severity level.
+          | Severity Level        | Name |
+          | ---------------------- | ----------- |
+          |0| Emergency|
+          |1| Alert|
+          |2| Critical|
+          |3| Error|
+          |4| Warning|
+          |5| Notice|
+          |6| Info|
+          Examples:
+            severity=1&severity=2 (multi value support with & separator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          format: int32
+          items:
+            type: integer
+      - name: facility
+        in: query
+        description: The syslog facility name
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: mnemonic
+        in: query
+        description: The syslog mnemonic name
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: limit
+        in: query
+        description: The maximum number of records to return
+        required: false
+        style: form
+        explode: true
+        schema:
+          maximum: 50
+          minimum: 0
+          type: integer
+          format: int32
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: sortBy
+        in: query
+        description: A field within the response to sort by.
+        schema:
+          type: string
+      - name: order
+        in: query
+        description: The sort order of the field ascending or descending.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      responses:
+        "200":
+          description: The response object for the custom issues definition.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomIssueDefinitionsResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "406":
+          description: The client requested a response in a content format that this server does not support.
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "502":
+          description: There is a bad gateway connection from the client to the server.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and time-out.
+    post:
+      tags:
+      - customIssueDefinitions
+      summary: Creates one or more new user-defined issue definitions.
+      description: "Create a new custom issue definition using the provided input request data. The unique identifier for this issue definition is ``id``. Please note that the issue names cannot be duplicated. The definition is based on the syslog. The request should have the following details and Severity, facility, mnemonic & pattern should match.\n\n|Field Name | Description |\n| --- | --- |\n| `name` | The name of the issue definition|\n| `description` | The description about the issue definition\n| `isEnabled` |  The status of issue definition, can be either enabled or disabled. Issues will be generated solely when this flag is enabled, based on the specified pattern. The default is disabled.|\n| `priority` | The Issue definition priority level. The supported levels are **P1, P2, P3, P4**.|\n| `isNotificationEnabled` | The status of notification enablement can be either enabled or disabled. The default is disabled.\n| `severity` | The syslog severity levels supported include **0, 1, 2, 3, 4, 5, 6** \n    |0| Emergency|\n    |1| Alert|\n    |2| Critical|\n    |3| Error|\n    |4| Warning|\n    |5| Notice|\n    |6| Info|\n| `facility` | The syslog facility name|\n| `pattern` | The pattern is anticipated to encompass the message text, where dynamic values are substituted with ``*``<br/><br/>For example, in Syslog message \"**111769: *08 Mar 2024 19:59:14 GMT: %BGP-5-ADJCHANGE: neighbor 11.10.10.1 Down**.<br/>- Input ``neighbor 11.10.10.1 *``, if you expect to track BGP up/down messages with remote 11.10.10.1.<br>- Input ``neighbor * Down``, if you expect to track all BGP down messages with all remote IPs.<br>- Input ``neighbor * *``, if you expect to track all BGP down/up messages with all remote IPs| \n| `occurrences`| The number of occurrences count required for the issue to trigger. The default occurrences count is 1|\n| `durationInMinute` | The duration in minutes for which the issue must persist to trigger. The maximum supported duration is 15 minute. The default is 1 minutes| \n"
+      operationId: postCustomIssueDefinitions
+      requestBody:
+        description: The issue definition details.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomIssueDefinitionDetail'
+        required: true
+      responses:
+        "200":
+          description: The response object for the custom issues definition.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomIssueDefinitionResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "405":
+          description: The client made a request using an http method which is not supported for this resource.
+        "406":
+          description: The client requested a response in a content format that this server does not support.
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "502":
+          description: There is a bad gateway connection from the client to the server.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and time-out.
+  /intent/api/v1/customIssueDefinitions/count:
+    get:
+      tags:
+      - customIssueDefinitions
+      summary: Get the total custom issue definitions count based on the provided filters.
+      description: |
+        Get the total number of Custom issue definitions count based on the provided filters. The supported filters are id, name, profileId and definition enable status, severity, facility and mnemonic.
+      operationId: readCusomIssueDefinitionsCount
+      parameters:
+      - name: id
+        in: query
+        description: |
+          The custom issue definition identifier and unique identifier across the profile.
+          Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested) id=6bef213c-19ca-4170-8375-b694e251101c&id=19ca-4170-8375-b694e251101c-6bef213c (multiple Id request in the query param)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: uuid
+      - name: profileId
+        in: query
+        description: |
+          The profile identifier to fetch the profile associated custom issue definitions. The default is global. For the custom profile, it is profile UUID. Example : 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          readOnly: true
+          default: global
+      - name: name
+        in: query
+        description: |
+          The list of UDI issue names. (Ex."TestUdiIssues")
+          This field supports substring matches in PCRE format. E.g. ".*TestU.*"
+          Examples: names=TestUdiIssues (single entity uuid requested)
+          name=TestUdiIssues&name=TestUdiIssues123&name=TestUdiIssues456 (multiple issue names separated by & operator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: priority
+        in: query
+        description: |
+          The Issue priority value, possible values are P1, P2, P3, P4
+
+
+          ``P1``: A critical issue that needs immediate attention and can have a wide impact on network operations.
+
+          ``P2``: A major issue that can potentially impact multiple devices or clients.
+
+          ``P3``: A minor issue that has a localized or minimal impact.
+
+          ``P4``: A warning issue that may not be an immediate problem but addressing it can optimize the network performance.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: isEnabled
+        in: query
+        description: "The enable status of the custom issue definition, either true or false."
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      - name: severity
+        in: query
+        description: |
+          The syslog severity level.
+          | Severity Level        | Name |
+          | ---------------------- | ----------- |
+          |0| Emergency|
+          |1| Alert|
+          |2| Critical|
+          |3| Error|
+          |4| Warning|
+          |5| Notice|
+          |6| Info|
+          Examples:
+            severity=1&severity=2 (multi value support with & separator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          format: int32
+          items:
+            type: integer
+      - name: facility
+        in: query
+        description: The syslog facility name
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: mnemonic
+        in: query
+        description: The syslog mnemonic name
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Reponse object containing total count of the records after applying requested filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "406":
+          description: The client requested a response in a content format that this server does not support.
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "502":
+          description: There is a bad gateway connection from the client to the server.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and time-out.
+  /intent/api/v1/customIssueDefinitions/{id}:
+    get:
+      tags:
+      - customIssueDefinitions
+      summary: Get the custom issue definition for the given custom issue definition Id.
+      description: |
+        Get the custom issue definition for the given custom issue definition Id.
+      operationId: readCustomIssueDefinitionById
+      parameters:
+      - name: id
+        in: path
+        description: Get the custom issue definition for the given custom issue definition Id.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The response object for the custom issues definition.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomIssueDefinitionResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "406":
+          description: The client requested a response in a content format that this server does not support.
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "502":
+          description: There is a bad gateway connection from the client to the server.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and time-out.
+    put:
+      tags:
+      - customIssueDefinitions
+      summary: Updates an existing custom issue definition based on the provided Id.
+      description: Updates an existing custom issue definition based on the provided Id.
+      operationId: putCustomIssueDefinitionById
+      parameters:
+      - name: id
+        in: path
+        description: The custom issue definition Identifier
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: The custom issue definition update request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomIssueDefinitionDetail'
+        required: true
+      responses:
+        "200":
+          description: The response object for the custom issues definition.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomIssueDefinitionResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "405":
+          description: The client made a request using an http method which is not supported for this resource.
+        "406":
+          description: The client requested a response in a content format that this server does not support.
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "502":
+          description: There is a bad gateway connection from the client to the server.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and time-out.
+    delete:
+      tags:
+      - customIssueDefinitions
+      summary: Deletes an existing custom issue definition.
+      description: "Deletes an existing custom issue definition based on the Id. Only the Global profile issue has the access to delete the issue definition, so no profile id is required."
+      operationId: deleteCustomIssueDefinitionById
+      parameters:
+      - name: id
+        in: path
+        description: The custom issue definition unique identifier
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "204":
+          description: The server has successfully executed the delete request.
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "405":
+          description: The client made a request using an http method which is not supported for this resource.
+        "406":
+          description: The client requested a response in a content format that this server does not support.
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "502":
+          description: There is a bad gateway connection from the client to the server.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and time-out.
+components:
+  schemas:
+    profileId:
+      type: string
+      description: The profile id associated issue definitions
+      readOnly: true
+      example: 03aab500-7979-46d4-b1bb-bfeba4f3cfe0
+      default: global
+    triggerId:
+      type: string
+      description: The common trigger definition id
+      format: uuid
+      readOnly: true
+      example: 7979b500-03aa-46d4-b1bb-bfeba4f3cfe0
+    rules:
+      type: array
+      description: The list of more than one rule definition. Currently supported limit of rule is 1. Keep it as array for future usage.
+      items:
+        $ref: '#/components/schemas/rule'
+    rule:
+      type: object
+      properties:
+        type:
+          type: string
+          description: "The type of the rules. For now, the rule can be defined based on the  syslog."
+          readOnly: true
+          example: syslog
+        severity:
+          type: integer
+          description: |
+            The syslog severity level.
+            | Severity Level        | Name |
+            | ---------------------- | ----------- |
+            |0| Emergency|
+            |1| Alert|
+            |2| Critical|
+            |3| Error|
+            |4| Warning|
+            |5| Notice|
+            |6| Info|
+          format: int32
+          example: 1
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+        facility:
+          type: string
+          description: The syslog facility name
+          example: PLATFORM_ENV
+        mnemonic:
+          type: string
+          description: The syslog mnemonic name
+          example: FRU_PS_FAN_OK
+        pattern:
+          type: string
+          description: |
+            Message pattern is expected to contain just message text with dynamic values replaced with ``*.``<br/><br/>For example, in Syslog message "111769: *08 Mar 2024 19:59:14 GMT: %BGP-5-ADJCHANGE: neighbor 11.10.10.1 Down" is "neighbor 11.10.10.1 Down".<br/><br/>- Input ``neighbor 11.10.10.1 *``, if you expect to track BGP up/down messages with remote 11.10.10.1.<br/><br/>- Input ``neighbor * Down``, if you expect to track all BGP down messages with all remote IPs.<br/><br/>- Input ``neighbor * *``, if you expect to track all BGP down/up messages with all remote IPs
+          example: neighbor * *
+        occurrences:
+          type: integer
+          description: The number of occurrences count required for the issue to trigger.
+          example: 2
+        durationInMinutes:
+          type: integer
+          description: The duration in minutes for which the issue must persist to trigger. The maximum supported duration is 15 minutes.
+          example: 10
+    CustomIssueDefinitionDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The Custom issue definition unique identifier in Uuid format
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          description: The name of the issue definition
+          example: TestUdiIssueDefName
+        description:
+          type: string
+          description: The description about the issue definition
+          example: TestIssueDescription
+        profileId:
+          $ref: '#/components/schemas/profileId'
+        triggerId:
+          $ref: '#/components/schemas/triggerId'
+        rules:
+          $ref: '#/components/schemas/rules'
+        isEnabled:
+          type: boolean
+          description: Indicates whether the issue definition is enabled or not.
+          example: true
+        priority:
+          type: string
+          description: The Issue definition priority level
+          example: P1
+          enum:
+          - P1
+          - P2
+          - P3
+          - P4
+        isDeletable:
+          type: boolean
+          description: "This field indicates whether the issue definition is deletable. Only the global profile issue definitions can be deleted. When deleting an issue definition, the respective custom profile definition will also be automatically removed."
+          readOnly: true
+          example: false
+        isNotificationEnabled:
+          type: boolean
+          description: Indicates whether the Custom Issue Notification subscription is enabled or not.
+          example: true
+        createdTime:
+          type: integer
+          description: The issue created timestamp in Milliseconds. It must be specified in UNIX epochtime in milliseconds
+          format: int64
+          readOnly: true
+          example: 1795339356000
+        lastUpdatedTime:
+          type: integer
+          description: The issue last updated timestamp in Milliseconds.
+          format: int64
+          readOnly: true
+          example: 1710958556000
+    CustomIssueDefinitionResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/CustomIssueDefinitionDetail'
+      description: The response object for the custom issue definition.
+    CustomIssueDefinitionUpdateResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          description: Successfully return list of Custom defined issues definition
+          items:
+            $ref: '#/components/schemas/StatusMessage'
+        version:
+          type: string
+          example: "1.0"
+      description: The response object for the custom issues definition update operation. has the details about the status
+    ResponseStatusMessage:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/ResponseStatusMessage_response'
+        version:
+          type: string
+          example: "1.0"
+      description: The response object for the custom issue definition delete operation status.
+    CreateStatusMessage:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/StatusMessage'
+        version:
+          type: string
+          example: "1.0"
+      description: The response object for the custom issue definition delete opertion status.
+      example:
+        response:
+        - id: 03aab500-7979-46d4-b1bb-bfeba4f3cfe0
+          status: success
+          message: Issue definition created successfully
+        - id: 2aa928b0-c9a1-40a7-b7e1-cd8e447e7b34
+          status: failed
+          message: Issue with this name is already exists
+        version: "1.0"
+    UpdateStatusMessage:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/StatusMessage'
+      description: The response object for the custom issue update.
+    StatusMessage:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The Uuid of the issue definition
+          format: uuid
+        status:
+          type: string
+          description: The status of the issue definition update operation
+          example: failed
+        message:
+          type: string
+          description: The more details about the status in case of failure.
+          example: Failed to update the definition
+    CustomIssueDefinitionsResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          description: Successfully return list of custom issues definition
+          items:
+            $ref: '#/components/schemas/CustomIssueDefinitionDetail'
+        page:
+          $ref: '#/components/schemas/PaginationResponse'
+        version:
+          type: string
+          example: "1.0"
+      description: The response object for the custom issues definition.
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorObject'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured   processing this request.
+      example:
+        response:
+        - errorCode: 2600
+          message: Error message
+          detail: Error details
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    ErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: Application specific error code returned by the server
+        message:
+          type: string
+          description: Brief message about the error condition
+        detail:
+          type: string
+          description: "A more detailed explanation of the error condition the   parameter and its value, that caused the condition and why it caused it."
+    CountIntegerResponse:
+      title: Count Integer Response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/CountIntegerResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Reports
+    PaginationResponse:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: The reference to the limit applied in the Pagination   Request.
+          example: 10
+        offset:
+          type: integer
+          description: The reference to the record offset applied in the   Pagination Request.
+          example: 1
+        count:
+          type: integer
+          description: Total number of records related to the resource after   applying applicable filtering
+          example: 20
+        sortBy:
+          type: array
+          description: Reference to the sortBy that was applied in the Pagination   Request.
+          items:
+            $ref: '#/components/schemas/PaginationResponse_sortBy'
+    ResponseStatusMessage_response:
+      type: object
+      properties:
+        status:
+          type: string
+          description: The request status details.
+    CountIntegerResponse_response:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The total number of records related to the resource
+          format: int64
+          example: 1000
+    PaginationResponse_sortBy:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Field name by which sort is requested
+          example: siteHierarchy
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for   descending
+          example: asc
+          enum:
+          - asc
+          - desc
+      description: List of field names and corresponding order used to sort   the records.
+  responses:
+    CustomIssueDefinitionsResponse:
+      description: The response object for the custom issues definition.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CustomIssueDefinitionsResponse'
+    CustomIssueDefinitionResponse:
+      description: The response object for the custom issues definition.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CustomIssueDefinitionResponse'
+    CustomIssueDefinitionUpdateResponse:
+      description: The response object for the custom issues definition.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CustomIssueDefinitionUpdateResponse'
+    ResponseStatusMessage:
+      description: The response object for the Custom issue definition delete operation status
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseStatusMessage'
+    CreateStatusMessage:
+      description: The response object for the custom issue definition delete operation status
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateStatusMessage'
+    UpdateStatusMessage:
+      description: The response object for the custom issue definition update operation status
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateStatusMessage'
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "401":
+      description: The client's authentication credentials included with the request are missing or invalid.
+    "403":
+      description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+    "406":
+      description: The client requested a response in a content format that this server does not support.
+    "500":
+      description: The server could not fulfill the request due to internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "502":
+      description: There is a bad gateway connection from the client to the server.
+    "503":
+      description: The server is (temporarily) unavailable.
+    "504":
+      description: The server did not respond inside time restrictions and time-out.
+    "404":
+      description: The client made a request for a resource that does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "405":
+      description: The client made a request using an http method which is not supported for this resource.
+    "415":
+      description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+    "501":
+      description: The server has not implemented the functionality required to fulfill the request.
+    CountIntegerResponse:
+      description: Reponse object containing total count of the records after applying requested filters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CountIntegerResponse'
+  parameters:
+    profileId:
+      name: profileId
+      in: query
+      description: |
+        The profile identifier to fetch the profile associated custom issue definitions. The default is global. For the custom profile, it is profile UUID. Example : 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        readOnly: true
+        default: global
+    isEnabled:
+      name: isEnabled
+      in: query
+      description: "The enable status of the custom issue definition, either true or false."
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: boolean
+    severity:
+      name: severity
+      in: query
+      description: |
+        The syslog severity level.
+        | Severity Level        | Name |
+        | ---------------------- | ----------- |
+        |0| Emergency|
+        |1| Alert|
+        |2| Critical|
+        |3| Error|
+        |4| Warning|
+        |5| Notice|
+        |6| Info|
+        Examples:
+          severity=1&severity=2 (multi value support with & separator)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        format: int32
+        items:
+          type: integer
+    facility:
+      name: facility
+      in: query
+      description: The syslog facility name
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    mnemonic:
+      name: mnemonic
+      in: query
+      description: The syslog mnemonic name
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    priority:
+      name: priority
+      in: query
+      description: |
+        The Issue priority value, possible values are P1, P2, P3, P4
+
+
+        ``P1``: A critical issue that needs immediate attention and can have a wide impact on network operations.
+
+        ``P2``: A major issue that can potentially impact multiple devices or clients.
+
+        ``P3``: A minor issue that has a localized or minimal impact.
+
+        ``P4``: A warning issue that may not be an immediate problem but addressing it can optimize the network performance.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    id:
+      name: id
+      in: query
+      description: |
+        The custom issue definition identifier and unique identifier across the profile.
+        Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested) id=6bef213c-19ca-4170-8375-b694e251101c&id=19ca-4170-8375-b694e251101c-6bef213c (multiple Id request in the query param)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        format: uuid
+    name:
+      name: name
+      in: query
+      description: |
+        The list of UDI issue names. (Ex."TestUdiIssues")
+        This field supports substring matches in PCRE format. E.g. ".*TestU.*"
+        Examples: names=TestUdiIssues (single entity uuid requested)
+        name=TestUdiIssues&name=TestUdiIssues123&name=TestUdiIssues456 (multiple issue names separated by & operator)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    limit:
+      name: limit
+      in: query
+      description: The maximum number of records to return
+      required: false
+      style: form
+      explode: true
+      schema:
+        maximum: 50
+        minimum: 0
+        type: integer
+        format: int32
+    offset:
+      name: offset
+      in: query
+      description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+      schema:
+        minimum: 1
+        type: integer
+        default: 1
+    sortBy:
+      name: sortBy
+      in: query
+      description: A field within the response to sort by.
+      schema:
+        type: string
+    order:
+      name: order
+      in: query
+      description: The sort order of the field ascending or descending.
+      schema:
+        type: string
+        default: asc
+        enum:
+        - asc
+        - desc
