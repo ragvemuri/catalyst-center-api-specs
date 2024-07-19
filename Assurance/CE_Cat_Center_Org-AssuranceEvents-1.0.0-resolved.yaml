@@ -21,7 +21,7 @@ tags:
 - name: assuranceEvents
   description: APIs related to assurance events
 paths:
-  /data/api/v1/assuranceEvents:
+  /dna/data/api/v1/assuranceEvents:
     get:
       tags:
       - assuranceEvents
@@ -423,7 +423,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/assuranceEvents/count:
+  /dna/data/api/v1/assuranceEvents/count:
     get:
       tags:
       - assuranceEvents
@@ -689,7 +689,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/assuranceEvents/{id}:
+  /dna/data/api/v1/assuranceEvents/{id}:
     get:
       tags:
       - assuranceEvents
@@ -857,7 +857,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/assuranceEvents/{id}/childEvents:
+  /dna/data/api/v1/assuranceEvents/{id}/childEvents:
     get:
       tags:
       - assuranceEvents
@@ -919,7 +919,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/assuranceEvents/query:
+  /dna/data/api/v1/assuranceEvents/query:
     post:
       tags:
       - assuranceEvents
@@ -994,7 +994,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/assuranceEvents/query/count:
+  /dna/data/api/v1/assuranceEvents/query/count:
     post:
       tags:
       - assuranceEvents

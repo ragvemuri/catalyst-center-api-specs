@@ -21,7 +21,7 @@ tags:
     description: Catalyst Center Assurance user guide
     url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
 paths:
-  /data/api/v1/siteHealthSummaries:
+  /dna/data/api/v1/siteHealthSummaries:
     get:
       tags:
       - siteHealthSummaries
@@ -232,7 +232,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/siteHealthSummaries/{id}:
+  /dna/data/api/v1/siteHealthSummaries/{id}:
     get:
       tags:
       - siteHealthSummaries
@@ -355,7 +355,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/siteHealthSummaries/count:
+  /dna/data/api/v1/siteHealthSummaries/count:
     get:
       tags:
       - siteHealthSummaries
@@ -488,7 +488,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/siteHealthSummaries/summaryAnalytics:
+  /dna/data/api/v1/siteHealthSummaries/summaryAnalytics:
     get:
       tags:
       - siteHealthSummaries

@@ -27,7 +27,7 @@ tags:
     description: Catalyst Center Assurance user guide
     url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
 paths:
-  /data/api/v1/clients:
+  /dna/data/api/v1/clients:
     get:
       tags:
       - clients
@@ -330,7 +330,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/clients/{id}:
+  /dna/data/api/v1/clients/{id}:
     get:
       tags:
       - clients
@@ -445,7 +445,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/clients/count:
+  /dna/data/api/v1/clients/count:
     get:
       tags:
       - clients
@@ -686,7 +686,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/clients/query:
+  /dna/data/api/v1/clients/query:
     post:
       tags:
       - clients
@@ -791,7 +791,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/clients/query/count:
+  /dna/data/api/v1/clients/query/count:
     post:
       tags:
       - clients
@@ -889,7 +889,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/clients/{id}/trendAnalytics:
+  /dna/data/api/v1/clients/{id}/trendAnalytics:
     post:
       tags:
       - clients
@@ -972,7 +972,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/clients/summaryAnalytics:
+  /dna/data/api/v1/clients/summaryAnalytics:
     post:
       tags:
       - clients
@@ -1039,7 +1039,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/clients/topNAnalytics:
+  /dna/data/api/v1/clients/topNAnalytics:
     post:
       tags:
       - clients
@@ -1107,7 +1107,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/clients/trendAnalytics:
+  /dna/data/api/v1/clients/trendAnalytics:
     post:
       tags:
       - clients
@@ -2568,7 +2568,7 @@ components:
     ChannelWidth:
       type: string
       description: Is the channel bandwidth used by the radio for WiFi communication.
-      example: 40MHz
+      example: "40"
     Protocol:
       type: string
       description: 802.11 protocol type used by wireless client to connect to Access Point
@@ -3974,7 +3974,7 @@ components:
             apMode: Local
             radioId: 2
             channel: "100"
-            channelWidth: 40MHz
+            channelWidth: "40"
             protocol: 802.11ac
             protocolCapability: 802.11ax
             upnId: string
@@ -4103,7 +4103,7 @@ components:
             apMode: Local
             radioId: 2
             channel: "100"
-            channelWidth: 40MHz
+            channelWidth: "40"
             protocol: 802.11ac
             protocolCapability: 802.11ax
             upnId: string
@@ -4225,7 +4225,7 @@ components:
             apMode: Local
             radioId: 2
             channel: "100"
-            channelWidth: 40MHz
+            channelWidth: "40"
             protocol: 802.11ac
             protocolCapability: 802.11ax
             upnId: string

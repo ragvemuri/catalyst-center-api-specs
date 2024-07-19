@@ -24,7 +24,7 @@ tags:
     description: Catalyst Center Assurance user guide
     url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
 paths:
-  /data/api/v1/networkDevices:
+  /dna/data/api/v1/networkDevices:
     get:
       tags:
       - networkDevices
@@ -315,7 +315,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/networkDevices/count:
+  /dna/data/api/v1/networkDevices/count:
     get:
       tags:
       - networkDevices
@@ -558,7 +558,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/networkDevices/{id}:
+  /dna/data/api/v1/networkDevices/{id}:
     get:
       tags:
       - networkDevices
@@ -645,7 +645,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/networkDevices/{id}/trendAnalytics:
+  /dna/data/api/v1/networkDevices/{id}/trendAnalytics:
     post:
       tags:
       - networkDevices
@@ -718,7 +718,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/networkDevices/query:
+  /dna/data/api/v1/networkDevices/query:
     post:
       tags:
       - networkDevices
@@ -758,7 +758,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/networkDevices/query/count:
+  /dna/data/api/v1/networkDevices/query/count:
     post:
       tags:
       - networkDevices
@@ -799,7 +799,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/networkDevices/summaryAnalytics:
+  /dna/data/api/v1/networkDevices/summaryAnalytics:
     post:
       tags:
       - networkDevices
@@ -855,7 +855,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/networkDevices/trendAnalytics:
+  /dna/data/api/v1/networkDevices/trendAnalytics:
     post:
       tags:
       - networkDevices

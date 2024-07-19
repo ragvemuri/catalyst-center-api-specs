@@ -23,7 +23,7 @@ tags:
 - name: developers
   description: Assurance Custom issue definition API documentation
 paths:
-  /intent/api/v1/customIssueDefinitions:
+  /dna/intent/api/v1/customIssueDefinitions:
     get:
       tags:
       - customIssueDefinitions
@@ -257,7 +257,7 @@ paths:
           description: The server is (temporarily) unavailable.
         "504":
           description: The server did not respond inside time restrictions and time-out.
-  /intent/api/v1/customIssueDefinitions/count:
+  /dna/intent/api/v1/customIssueDefinitions/count:
     get:
       tags:
       - customIssueDefinitions
@@ -404,7 +404,7 @@ paths:
           description: The server is (temporarily) unavailable.
         "504":
           description: The server did not respond inside time restrictions and time-out.
-  /intent/api/v1/customIssueDefinitions/{id}:
+  /dna/intent/api/v1/customIssueDefinitions/{id}:
     get:
       tags:
       - customIssueDefinitions

@@ -21,7 +21,7 @@ tags:
     description: Catalyst Center Assurance user guide
     url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
 paths:
-  /intent/api/v1/issues/resolve:
+  /dna/intent/api/v1/assuranceIssues/resolve:
     post:
       tags:
       - issues
@@ -76,7 +76,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /intent/api/v1/issues/ignore:
+  /dna/intent/api/v1/assuranceIssues/ignore:
     post:
       tags:
       - issues
@@ -131,7 +131,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /intent/api/v1/issues/{id}/update:
+  /dna/intent/api/v1/assuranceIssues/{id}/update:
     post:
       tags:
       - issues

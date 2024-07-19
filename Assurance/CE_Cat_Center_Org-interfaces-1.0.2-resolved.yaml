@@ -24,7 +24,7 @@ tags:
     description: Catalyst Center Assurance user guide
     url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
 paths:
-  /data/api/v1/interfaces:
+  /dna/data/api/v1/interfaces:
     get:
       tags:
       - interfaceList
@@ -280,7 +280,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/interfaces/{id}:
+  /dna/data/api/v1/interfaces/{id}:
     get:
       tags:
       - interfaceList
@@ -375,7 +375,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/interfaces/count:
+  /dna/data/api/v1/interfaces/count:
     get:
       tags:
       - interfaceList
@@ -568,7 +568,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/interfaces/query:
+  /dna/data/api/v1/interfaces/query:
     post:
       tags:
       - interfaceList
@@ -613,7 +613,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/interfaces/query/count:
+  /dna/data/api/v1/interfaces/query/count:
     post:
       tags:
       - interfaceList

@@ -20,7 +20,7 @@ tags:
     description: Catalyst Center Assurance user guide
     url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
 paths:
-  /data/api/v1/issues/{id}:
+  /dna/data/api/v1/assuranceIssues/{id}:
     get:
       tags:
       - issues
@@ -138,7 +138,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/issues:
+  /dna/data/api/v1/assuranceIssues:
     get:
       tags:
       - issues
@@ -648,7 +648,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/issues/count:
+  /dna/data/api/v1/assuranceIssues/count:
     get:
       tags:
       - issues
@@ -1055,7 +1055,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/issues/query:
+  /dna/data/api/v1/assuranceIssues/query:
     post:
       tags:
       - issues
@@ -1135,7 +1135,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/issues/query/count:
+  /dna/data/api/v1/assuranceIssues/query/count:
     post:
       tags:
       - issues
@@ -1199,7 +1199,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/issues/topNAnalytics:
+  /dna/data/api/v1/assuranceIssues/topNAnalytics:
     post:
       tags:
       - issues
@@ -1289,7 +1289,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/issues/trendAnalytics:
+  /dna/data/api/v1/assuranceIssues/trendAnalytics:
     post:
       tags:
       - issues
@@ -1379,7 +1379,7 @@ paths:
           description: Server Error Responses - The server failed to fulfill the request.
         default:
           description: Unexpected Error
-  /data/api/v1/issues/summaryAnalytics:
+  /dna/data/api/v1/assuranceIssues/summaryAnalytics:
     post:
       tags:
       - issues
@@ -3275,7 +3275,7 @@ components:
         startTime: 1705348800000
         endTime: 1705435200000
         groupBy:
-        - areaId
+        - floorId
         filters:
         - key: deviceType
           operator: eq
@@ -3321,7 +3321,7 @@ components:
       value:
         startTime: 1705348800000
         endTime: 1705435200000
-        timeInterval: 15MIN
+        trendInterval: 15MIN
         groupBy:
         - priority
         filters:
@@ -3340,7 +3340,7 @@ components:
       value:
         startTime: 1705348800000
         endTime: 1705435200000
-        timeInterval: 15MIN
+        trendInterval: 15MIN
         groupBy: []
         filters:
         - key: priority
@@ -3399,90 +3399,90 @@ components:
           - name: name
             order: asc
     IssuesTopNAnalyticsResponseExample2:
-      description: "This response is for a request which has 2 elements in `groupBy` - [*\"priority\"*, *\"siteId\"*]"
+      description: "This response is for a request which has 2 elements in `groupBy` - [*\"priority\"*, *\"floorId\"*]"
       value:
         version: "1.0"
         response:
-        - id: priority=p1_siteId=99d370e2-dad1-41c2-9730-e08f62cb53a0
+        - id: priority=p1_floorId=99d370e2-dad1-41c2-9730-e08f62cb53a0
           attributes:
           - name: priority
             value: P1
-          - name: siteId
-            value: 99d370e2-dad1-41c2-9730-e08f62cb53a0
+          - name: floorId
+            value: 37df40e2-dad1-41c2-9730-e08f62cb52a0
           - name: siteHierarchy
-            value: Global/California
+            value: Global/California/SJC24/Floor1
           - name: siteHierarchyId
-            value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/99d370e2-dad1-41c2-9730-e08f62cb53a0/
+            value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/99d370e2-dad1-41c2-9730-e08f62cb53a0/5aec4526-20b9-4542-9486-fd906c05d766/37df40e2-dad1-41c2-9730-e08f62cb52a0
           aggregateAttributes:
           - name: issueId
             function: distinctCount
             value: 14
-        - id: priority=p2_siteId=99d370e2-dad1-41c2-9730-e08f62cb53a0
+        - id: priority=p2_areaId=99d370e2-dad1-41c2-9730-e08f62cb53a0
           attributes:
           - name: priority
             value: P2
-          - name: siteId
-            value: 99d370e2-dad1-41c2-9730-e08f62cb53a0
+          - name: floorId
+            value: 37df40e2-dad1-41c2-9730-e08f62cb52a0
           - name: siteHierarchy
-            value: Global/California
+            value: Global/California/SJC24/Floor1
           - name: siteHierarchyId
-            value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/99d370e2-dad1-41c2-9730-e08f62cb53a0/
+            value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/99d370e2-dad1-41c2-9730-e08f62cb53a0/5aec4526-20b9-4542-9486-fd906c05d766/37df40e2-dad1-41c2-9730-e08f62cb52a0
           aggregateAttributes:
           - name: issueId
             function: distinctCount
             value: 9
-        - id: priority=p1_siteId=f8d85686-9405-4791-a08f-7fb88c119320
+        - id: priority=p1_floorId=f8d85686-9405-4791-a08f-7fb88c119320
           attributes:
           - name: priority
             value: P1
-          - name: siteId
+          - name: floorId
             value: f8d85686-9405-4791-a08f-7fb88c119320
           - name: siteHierarchy
-            value: Global/California/SJC-24
+            value: Global/California/SJC-24/Floor3
           - name: siteHierarchyId
-            value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/99d370e2-dad1-41c2-9730-e08f62cb53a0/f8d85686-9405-4791-a08f-7fb88c119320/
+            value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/f5ec4526-20b9-4542-9486-fd906c05d7e3/76a370e2-dad1-41c2-9730-e08f62cb58fe/f8d85686-9405-4791-a08f-7fb88c119320/
           aggregateAttributes:
           - name: issueId
             function: distinctCount
             value: 10
-        - id: priority=p2_siteId=f8d85686-9405-4791-a08f-7fb88c119320
+        - id: priority=p2_floorId=f8d85686-9405-4791-a08f-7fb88c119320
           attributes:
           - name: priority
             value: P2
-          - name: siteId
+          - name: floorId
             value: SJC-24
           - name: siteHierarchy
-            value: Global/California/SJC-24
+            value: Global/California/SJC-24/Floor3
           - name: siteHierarchyId
-            value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/99d370e2-dad1-41c2-9730-e08f62cb53a0/f8d85686-9405-4791-a08f-7fb88c119320/
+            value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/f5ec4526-20b9-4542-9486-fd906c05d7e3/76a370e2-dad1-41c2-9730-e08f62cb58fe/f8d85686-9405-4791-a08f-7fb88c119320/
           aggregateAttributes:
           - name: issueId
             function: distinctCount
             value: 6
-        - id: priority=p1_siteId=c5b7bf20-17e2-413f-81af-ff0304490cc9
+        - id: priority=p1_floorId=c5b7bf20-17e2-413f-81af-ff0304490cc9
           attributes:
           - name: priority
             value: P1
-          - name: siteId
+          - name: floorId
             value: c5b7bf20-17e2-413f-81af-ff0304490cc9
           - name: siteHierarchy
-            value: Global/California/SJC-15
+            value: Global/California/SJC-15/Floor2
           - name: siteHierarchyId
-            value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/99d370e2-dad1-41c2-9730-e08f62cb53a0/c5b7bf20-17e2-413f-81af-ff0304490cc9/
+            value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/99d370e2-dad1-41c2-9730-e08f62cb53a0/88ec4526-20b9-4542-9486-fd906c05d30b/c5b7bf20-17e2-413f-81af-ff0304490cc9/
           aggregateAttributes:
           - name: issueId
             function: distinctCount
             value: 4
-        - id: priority=p2_siteId=c5b7bf20-17e2-413f-81af-ff0304490cc9
+        - id: priority=p2_floorId=c5b7bf20-17e2-413f-81af-ff0304490cc9
           attributes:
           - name: priority
             value: P2
-          - name: siteId
+          - name: floorId
             value: c5b7bf20-17e2-413f-81af-ff0304490cc9
           - name: siteHierarchy
-            value: Global/California/SJC-15
+            value: Global/California/SJC-15/Floor2
           - name: siteHierarchyId
-            value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/99d370e2-dad1-41c2-9730-e08f62cb53a0/c5b7bf20-17e2-413f-81af-ff0304490cc9/
+            value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/99d370e2-dad1-41c2-9730-e08f62cb53a0/88ec4526-20b9-4542-9486-fd906c05d30b/c5b7bf20-17e2-413f-81af-ff0304490cc9/
           aggregateAttributes:
           - name: issueId
             function: distinctCount
@@ -3502,26 +3502,26 @@ components:
           attributes: []
           aggregateAttributes: []
           groups:
-          - id: siteId=99d370e2-dad1-41c2-9730-e08f62cb53a0
+          - id: floorId=f5ec4526-20b9-4542-9486-fd906c05d7e3
             attributes:
-            - name: siteId
-              value: 99d370e2-dad1-41c2-9730-e08f62cb53a0
+            - name: floorId
+              value: c5b7bf20-17e2-413f-81af-ff0304490cc9
             - name: siteHierarchy
-              value: Global/SJC-10
+              value: Global/California/SJC-15/Floor2
             - name: siteHierarchyId
-              value: /99d370e2-dad1-41c2-9730-e08f62cb53a0/f5ec4526-20b9-4542-9486-fd906c05d7e3/
+              value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/99d370e2-dad1-41c2-9730-e08f62cb53a0/88ec4526-20b9-4542-9486-fd906c05d30b/c5b7bf20-17e2-413f-81af-ff0304490cc9/
             aggregateAttributes:
             - name: issueId
               function: distinctCount
               value: 14
-          - id: siteId=f8d85686-9405-4791-a08f-7fb88c119320
+          - id: floorId=f8d85686-9405-4791-a08f-7fb88c119320
             attributes:
-            - name: siteId
+            - name: floorId
               value: f8d85686-9405-4791-a08f-7fb88c119320
             - name: siteHierarchy
-              value: Global/SJC-15
+              value: Global/California/SJC-24/Floor3
             - name: siteHierarchyId
-              value: /99d370e2-dad1-41c2-9730-e08f62cb53a0/f8d85686-9405-4791-a08f-7fb88c119320/
+              value: /f5ec4526-20b9-4542-9486-fd906c05d7e3/f5ec4526-20b9-4542-9486-fd906c05d7e3/76a370e2-dad1-41c2-9730-e08f62cb58fe/f8d85686-9405-4791-a08f-7fb88c119320/
             aggregateAttributes:
             - name: issueId
               function: distinctCount

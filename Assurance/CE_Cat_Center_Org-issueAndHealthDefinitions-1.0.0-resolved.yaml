@@ -24,7 +24,7 @@ tags:
     description: Catalyst Center Assurance user guide
     url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
 paths:
-  /intent/api/v1/systemIssueDefinitions:
+  /dna/intent/api/v1/systemIssueDefinitions:
     get:
       tags:
       - systemIssueAndHealthScoreDefinitions
@@ -256,7 +256,7 @@ paths:
           description: Client Error Responses - The client request caused the error.
         "5XX":
           description: Server Error Responses - The server failed to fulfill the request.
-  /intent/api/v1/systemIssueDefinitions/{id}:
+  /dna/intent/api/v1/systemIssueDefinitions/{id}:
     get:
       tags:
       - systemIssueAndHealthScoreDefinitions
@@ -456,7 +456,7 @@ paths:
           description: Client Error Responses - The client request caused the error.
         "5XX":
           description: Server Error Responses - The server failed to fulfill the request.
-  /intent/api/v1/systemIssueDefinitions/count:
+  /dna/intent/api/v1/systemIssueDefinitions/count:
     get:
       tags:
       - systemIssueAndHealthScoreDefinitions
@@ -599,7 +599,7 @@ paths:
           description: Client Error Responses - The client request caused the error.
         "5XX":
           description: Server Error Responses - The server failed to fulfill the request.
-  /intent/api/v1/healthScoreDefinitions:
+  /dna/intent/api/v1/healthScoreDefinitions:
     get:
       tags:
       - systemIssueAndHealthScoreDefinitions
@@ -756,7 +756,7 @@ paths:
           description: Client Error Responses - The client request caused the error.
         "5XX":
           description: Server Error Responses - The server failed to fulfill the request.
-  /intent/api/v1/healthScoreDefinitions/{id}:
+  /dna/intent/api/v1/healthScoreDefinitions/{id}:
     get:
       tags:
       - systemIssueAndHealthScoreDefinitions
@@ -949,7 +949,7 @@ paths:
           description: Client Error Responses - The client request caused the error.
         "5XX":
           description: Server Error Responses - The server failed to fulfill the request.
-  /intent/api/v1/healthScoreDefinitions/bulkUpdate:
+  /dna/intent/api/v1/healthScoreDefinitions/bulkUpdate:
     post:
       tags:
       - systemIssueAndHealthScoreDefinitions
@@ -1048,7 +1048,7 @@ paths:
           description: Client Error Responses - The client request caused the error.
         "5XX":
           description: Server Error Responses - The server failed to fulfill the request.
-  /intent/api/v1/healthScoreDefinitions/count:
+  /dna/intent/api/v1/healthScoreDefinitions/count:
     get:
       tags:
       - systemIssueAndHealthScoreDefinitions
