@@ -8,6 +8,9 @@ info:
     name: Cisco TAC World Wide
     url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
     email: tac@cisco.com
+  license:
+    name: Cisco Catalyst Center License
+    url: https://www.cisco.com/c/en/us/products/collateral/software/dna-software-ebook-cte.html
   version: 1.0.3
 externalDocs:
   description: Catalyst Center Developer API resources
