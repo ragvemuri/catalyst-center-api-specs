@@ -1,0 +1,2031 @@
+---
+openapi: 3.0.3
+info:
+  title: OpenAPI specification for Assurance Intelligent Capture
+  description: OpenAPI specification for Assurance Intelligent Capture (ICAP)
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Cisco Catalyst Center License
+    url: https://www.cisco.com/c/en/us/products/collateral/software/dna-software-ebook-cte.html
+  version: 1.0.0
+externalDocs:
+  description: Catalyst Center Developer API resources
+  url: https://developer.cisco.com/dnacenter/
+servers:
+- url: https://developer.cisco.com
+tags:
+- name: icap
+  description: Operations related to Catalyst Center - Assurance Intelligent Capture
+  externalDocs:
+    description: Catalyst Center Assurance user guide
+    url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
+paths:
+  /dna/data/api/v1/icap/captureFiles:
+    get:
+      tags:
+      - icap
+      summary: Lists ICAP packet capture files matching specified criteria
+      description: |-
+        Lists the ICAP packet capture (pcap) files matching the specified criteria.
+
+        Packet capture file names follow the naming pattern `{macAddress}_{linkType}_{timestamp}.pcap`.
+
+        Each type of capture file can only be filtered based on specific MAC address types, as follows:
+
+        |Capture Type | MAC Address Type |
+        | --- | --- |
+        | `ANOMALY` | Client MAC and/or AP Base Radio MAC |
+        | `FULL` | Client MAC |
+        | `ONBOARDING` | Client MAC and/or AP Base Radio MAC |
+        | `OTA` | AP Base Radio MAC |
+
+        At least one MAC address filter must be specified. An error is returned if the capture type and
+        MAC address(es) specified are incompatible. For `ANOMALY` and `ONBOARDING` capture types, if both
+        client MAC and AP MAC are specified, then only the capture files that match both criteria are returned.
+
+        Note that `ONBOARDING` capture files are created per-AP and contain onboarding packets for multiple
+        clients attempting to connect to that AP. As a result, when `ONBOARDING` captures are filtered
+        based on client MAC, the list of capture files returned are the ones that contain packets for the
+        client of interest (but may also contain packets for other clients as well). Therefore, it may be
+        necessary to perform additional post-processing of the pcap file after retrieval. Common pcap
+        analysis tools like Wireshark should also be able to easily display only packets for a certain MAC
+        address.
+      operationId: readIcapCaptureFiles
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: type
+        in: query
+        description: Capture Type
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FULL
+          - ONBOARDING
+          - OTA
+          - ANOMALY
+      - name: clientMac
+        in: query
+        description: |
+          The macAddress of client
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: apMac
+        in: query
+        description: |
+          The base radio macAddress of the access point
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: sortBy
+        in: query
+        description: A field within the response to sort by.
+        schema:
+          type: string
+      - name: order
+        in: query
+        description: The sort order of the field ascending or descending.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      responses:
+        "200":
+          description: Collection of ICAP Capture File Response model on success
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/CaptureFilesResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/icap/captureFiles/count:
+    get:
+      tags:
+      - icap
+      summary: Retrieves the total number of packet capture files matching specified criteria
+      description: |-
+        Retrieves the total number of packet capture files matching the specified criteria.
+
+        Packet capture file names follow the naming pattern **{macAddress}_{linkType}_{timestamp}.pcap**.
+
+        Each type of capture file can only be filtered based on specific MAC address types, as follows:
+
+        |Capture Type | MAC Address Type |
+        | --- | --- |
+        | `ANOMALY` | Client MAC or AP Base Radio MAC |
+        | `FULL` | Client MAC |
+        | `ONBOARDING` | Client MAC or AP Base Radio MAC |
+        | `OTA` | AP Base Radio MAC |
+
+        At least one MAC address filter must be specified. An error is returned if the capture type and
+        MAC address(es) specified are incompatible. For `ANOMALY` and `ONBOARDING` capture types, if both
+        client MAC and AP MAC are specified, then only the capture files that match both criteria are counted.
+
+        Note that `ONBOARDING` capture files are created per-AP and contain onboarding packets for multiple
+        clients attempting to connect to that AP. As a result, when `ONBOARDING` captures are filtered
+        based on client MAC, the list of capture files returned are the ones that contain packets for the
+        client of interest (but may also contain packets for other clients as well) and the count returned
+        is for this list of files.
+      operationId: readIcapCaptureFilesCount
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: type
+        in: query
+        description: Capture Type
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FULL
+          - ONBOARDING
+          - OTA
+          - ANOMALY
+      - name: clientMac
+        in: query
+        description: |
+          The macAddress of client
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: apMac
+        in: query
+        description: |
+          The base radio macAddress of the access point
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      responses:
+        "200":
+          description: Reponse object containing total count of the records after applying requested filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/icap/captureFiles/{id}:
+    get:
+      tags:
+      - icap
+      summary: Retrieves details of a specific ICAP packet capture file
+      description: Retrieves details of a specific ICAP packet capture file
+      operationId: readIcapCaptureFileDetailsById
+      parameters:
+      - name: id
+        in: path
+        description: |
+          The name of the packet capture file, as given by the GET /captureFiles API response.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      responses:
+        "200":
+          description: Single ICAP Capture File Response model on success
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/CaptureFileResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/icap/captureFiles/{id}/download:
+    get:
+      tags:
+      - icap
+      summary: Downloads a specific ICAP packet capture file
+      description: Downloads a specific ICAP packet capture file
+      operationId: downloadIcapCaptureFileById
+      parameters:
+      - name: id
+        in: path
+        description: |
+          The name of the packet capture file, as given by the GET /captureFiles API response.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      responses:
+        "200":
+          description: Download ICAP Packet Capture file model on success
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/icap/spectrumSensorReports:
+    get:
+      tags:
+      - icap
+      summary: Retrieves the spectrum sensor reports sent by WLC for provided AP Mac
+      description: Retrieves the spectrum sensor reports sent by WLC for provided AP Mac
+      operationId: readIcapSpectrumSensorReportsByApMac
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: apMac
+        in: query
+        description: |
+          The base ethernet macAddress of the access point
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: dataType
+        in: query
+        description: |
+          Data type reported by the sensor
+
+          |Data Type | Description |
+          | --- | --- |
+          | `0` | Duty Cycle |
+          | `1` | Max Power |
+          | `2` | Average Power |
+          | `3` | Max Power in dBm with adjusted base of +48 |
+          | `4` | Average Power in dBm with adjusted base of +48 |
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+        example: 2
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: timeSortOrder
+        in: query
+        description: The sort order of the field ascending or descending.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      responses:
+        "200":
+          description: Collection of sensor raw data response model on success
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/SpectrumSensorRawDataQueryResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/icap/spectrumInterferenceDeviceReports:
+    get:
+      tags:
+      - icap
+      summary: Retrieves the spectrum interference devices reports sent by WLC for provided AP Mac
+      description: Retrieves the spectrum interference devices reports sent by WLC for provided AP Mac
+      operationId: readIcapSpectrumInterferenceDevicesReportsByApMac
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: apMac
+        in: query
+        description: |
+          The base ethernet macAddress of the access point
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: timeSortOrder
+        in: query
+        description: The sort order of the field ascending or descending.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      responses:
+        "200":
+          description: Collection of IDR raw data response model on success
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/SpectrumInterferenceDeviceRawDataQueryResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/icap/clients/{id}/stats:
+    post:
+      tags:
+      - icap
+      summary: Retrieves specific client statistics over specified period of time.
+      description: |-
+        Retrieves the time series statistics of a specific client by applying complex filters. If startTime and endTime are not provided, the API defaults to the last 24 hours.
+
+        **The input payload contains the following fields,**
+        |Field Name | Description |
+        | --- | --- |
+        | `startTime` | The start time indicates when the API begins retrieving data related to the resource. It must be specified in the UNIX epoch time format, measured in milliseconds. This value is inclusive, and if left unspecified, the default is 1 day before the endTime. |
+        | `endTime` | The end time indicates the upper limit until which the API retrieves data related to the resource. It must be defined in the UNIX epoch time format, measured in milliseconds. This value is inclusive, and if left unspecified, the default is the latest available data. |
+        |`filters`| This is used to specify one or more conditions for filtering the queried data. Refer to `ClientStatsFilterField` model for the supported filters |
+        |`page`| It includes the **limit, offset, and timeSortOrder** fields. *limit* denotes the number of records to retrieve per page, *offset* signifies the initial data position, and *timeSortOrder* is used sort the response based on the timestamp either in ascending or descending order. |
+      operationId: icapClientsRawDataById
+      parameters:
+      - name: id
+        in: path
+        description: "id is the client mac address. It can be specified in one of the notational conventions \n01:23:45:67:89:AB or 01-23-45-67-89-AB or 0123.4567.89AB and is case insensitive\n"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        $ref: '#/components/requestBodies/ClientStatsRawDataQueryRequest'
+      responses:
+        "200":
+          description: Collection of client raw data responses model on success
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ClientStatsRawDataQueryResponse'
+              examples:
+                clientStatsRawDataQueryResponse:
+                  $ref: '#/components/examples/clientStatsRawDataQueryResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/icap/radios/{id}/stats:
+    post:
+      tags:
+      - icap
+      summary: Retrieves specific radio statistics over specified period of time.
+      description: |-
+        Retrieves the time series statistics of a specific radio by applying complex filters. If startTime and endTime are not provided, the API defaults to the last 24 hours.
+
+        **The input payload contains the following fields,**
+        |Field Name | Description |
+        | --- | --- |
+        | `startTime` | The start time indicates when the API begins retrieving data related to the resource. It must be specified in the UNIX epoch time format, measured in milliseconds. This value is inclusive, and if left unspecified, the default is 1 day before the endTime. |
+        | `endTime` | The end time indicates the upper limit until which the API retrieves data related to the resource. It must be defined in the UNIX epoch time format, measured in milliseconds. This value is inclusive, and if left unspecified, the default is the latest available data. |
+        |`filters`| This is used to specify one or more conditions for filtering the queried data. Refer to `RadioStatsFilterField` model for the supported filters |
+        |`page`| It includes the **limit, offset, and timeSortOrder** fields. *limit* denotes the number of records to retrieve per page, *offset* signifies the initial data position, and *timeSortOrder* is used sort the response based on the timestamp either in ascending or descending order. |
+      operationId: icapRadiosRawDataById
+      parameters:
+      - name: id
+        in: path
+        description: |
+          id is the composite key made of AP Base Ethernet macAddress and Radio Slot Id. Format apMac_RadioId
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        $ref: '#/components/requestBodies/RadioStatsRawDataQueryRequest'
+      responses:
+        "200":
+          description: Collection of Radio raw data response model on success
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/RadioStatsRawDataQueryResponse'
+              examples:
+                clientStatsRawDataQueryResponse:
+                  $ref: '#/components/examples/radioStatsRawDataQueryResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+components:
+  schemas:
+    CaptureFilesResponseModel:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/CaptureFileDetail'
+        page:
+          $ref: '#/components/schemas/CapturesPagination'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Collection of ICAP Packet Captures response model
+    CaptureFileResponseModel:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/CaptureFileDetail'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Collection of ICAP Configuration response model
+    CaptureFileDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique value to identify the capture file details. It the file name.
+          example: FULL-f01898b131cb_80211_1719248963529467.pcap
+        fileName:
+          type: string
+          description: Name of the PCAP file containing the captured packets.
+          example: f01898b131cb_80211_1719248963529467.pcap
+        fileSize:
+          type: integer
+          description: Size of the packet capture file in bytes.
+          format: int64
+          example: 6104112
+        type:
+          type: string
+          description: Type of the capture detail
+          example: FULL
+          enum:
+          - FULL
+          - ONBOARDING
+          - OTA
+          - ANOMALY
+        clientMac:
+          type: string
+          description: Mac Address of the client. This is applicable only for FULL capture detail
+          example: AA:BB:CC:DD:EE:FF
+        apMac:
+          type: string
+          description: "Base radio Mac Address of the Access Point. This is applicable only for ONBOARDING, OTA and ANOMALY capture detail"
+          example: 11:22:33:44:55:AA
+        fileCreationTimestamp:
+          type: integer
+          description: Timestamp at which the capture file was created. It is specified in UNIX epochtime in milliseconds
+          format: int64
+          example: 1719248963000
+        lastUpdatedTimestamp:
+          type: integer
+          description: Last known time when the capture file was updated. It is specified in UNIX epochtime format in milliseconds
+          format: int64
+          example: 16994442370000
+      description: ICAP Capture File Details
+    DataType:
+      type: integer
+      description: |
+        Data type reported by the sensor
+
+        |Data Type | Description |
+        | --- | --- |
+        | `0` | Duty Cycle |
+        | `1` | Max Power |
+        | `2` | Average Power |
+        | `3` | Max Power in dBm with adjusted base of +48 |
+        | `4` | Average Power in dBm with adjusted base of +48 |
+      example: 2
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+    SpectrumSensorDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique value to identify the spectrum sensor details.
+          example: Dhdp25ABYBzUpb6ZnCWs
+        spanKHz:
+          type: integer
+          description: Channel Bandwidth in Kilo Hertz (KHz).
+          format: int64
+          example: 345000
+        dataType:
+          type: integer
+          description: Data type of the band.
+          format: int64
+          example: 2
+        apMac:
+          type: string
+          description: Mac Address of the AP when is configured to scan the radio spectrum.
+          example: AA:BB:CC:DD:EE:FF
+        dataAvg:
+          type: number
+          description: Average signal strength detected by the radio
+          example: -94.69
+        dataMin:
+          type: number
+          description: Minimum signal strength detected by the radio.
+          example: -101
+        dataMax:
+          type: number
+          description: Maximum signal strength detected by the radio
+          example: -85
+        dataUnits:
+          type: string
+          description: Units of the amplitude
+          example: dBm
+        centralFrequencyKHz:
+          type: integer
+          description: Central frequency used by the radio to scan the spectrum in Kilo Hertz (KHz)
+          format: int64
+          example: 5662500
+        band:
+          type: string
+          description: Frequency band used by the radio to scan the spectrum. Band value is represented in Giga Hertz - GHz
+          example: BAND_5_GHZ
+          enum:
+          - BAND_2_4_GHZ
+          - BAND_5_GHZ
+          - BAND_6_GHZ
+        timestamp:
+          type: integer
+          description: Timestamp at which radio collected the sensor data and reported
+          format: int64
+          example: 1721668045034
+        data:
+          type: array
+          example:
+          - -101
+          - -94.5
+          - -87.0
+          items:
+            type: number
+            description: signal amplitude
+        dataSize:
+          type: integer
+          description: Number of data points in the 'data' array
+          format: int64
+          example: 3
+        channels:
+          type: array
+          description: List of channels for which data is collected in this sample
+          example:
+          - 100
+          - 104
+          - 108
+          - 112
+          - 116
+          - 120
+          - 124
+          - 128
+          - 132
+          - 136
+          - 140
+          - 144
+          - 149
+          - 153
+          - 157
+          - 161
+          - 165
+          items:
+            type: integer
+            description: Channel Number
+      description: ICAP Spectrum Sensor Details
+    SpectrumSensorRawDataQueryResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpectrumSensorDetail'
+        page:
+          $ref: '#/components/schemas/PaginationTrendOffset'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+    SpectrumInterferenceDeviceRawDataQueryResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpectrumInterferenceDeviceDetail'
+        page:
+          $ref: '#/components/schemas/PaginationTrendOffset'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+    SpectrumInterferenceDeviceDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique value to identify one data point of the interference device details.
+          example: GbP-65ABH-e-PHBKiGIT
+        apMac:
+          type: string
+          description: Mac Address of the AP used to detect the interfering device.
+          example: AA:BB:CC:DD:EE:FF
+        centralFrequencyKHz:
+          type: integer
+          description: Central frequency used by the radio to scan the spectrum in Kilo Hertz (KHz)
+          format: int64
+          example: 2479567
+        bandWidthKHz:
+          type: integer
+          description: Channel Bandwidth in Kilo Hertz (KHz).
+          format: int64
+          example: 781
+        lowEndFrequencyKHz:
+          type: integer
+          description: Lowest frequency used by the radio to scan the spectrum in Kilo Hertz (KHz)
+          format: int64
+          example: 2478265
+        highEndFrequencyKHz:
+          type: integer
+          description: Highest frequency used by the radio to scan the spectrum in Kilo Hertz (KHz)
+          format: int64
+          example: 2480870
+        powerDbm:
+          type: number
+          description: Signal power in dBm for the interference device
+          example: -68.8
+        band:
+          type: string
+          description: Frequency band used to detect the interfering device. Band value is represented in Giga Hertz - GHz
+          example: BAND_5_GHZ
+          enum:
+          - BAND_2_4_GHZ
+          - BAND_5_GHZ
+          - BAND_6_GHZ
+        dutyCycle:
+          type: number
+          description: The percentage of time each device type operates or transmits on that channel
+          example: 10
+        timestamp:
+          type: integer
+          description: Timestamp at which radio collected the interference device data and reported
+          format: int64
+          example: 1721668045034
+        deviceType:
+          type: string
+          description: Type of interference device
+          example: Jammer
+        severityIndex:
+          type: integer
+          description: It's an indicator of the severity of the interference. Value is between 0 and 100
+          format: int64
+          example: 70
+        detectedChannels:
+          type: array
+          description: List of channels that are affected due to the interference device
+          example:
+          - 1
+          - 2
+          - 3
+          items:
+            type: integer
+            description: Channel Number
+      description: ICAP Spectrum Interference Device Details
+    ClientStatsDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique value to identify client statistics sample. It is the client macAddress or data stream unique id
+          example: 11:22:33:44:55:66
+        clientMac:
+          type: string
+          description: Mac Address of the Client connected to Access Point.
+          example: 11:22:33:44:55:66
+        apMac:
+          type: string
+          description: Mac Address of the Access Point to which the client is connected.
+          example: AA:BB:CC:DD:EE:FF
+        radioId:
+          type: integer
+          description: Radio slot Id of the Access Point where the wireless client is connected
+          example: 2
+        timestamp:
+          type: integer
+          description: Last known time when the client statistics is updated. It is specified in UNIX epochtime format in milliseconds
+          format: int64
+          example: 1722733225070
+        band:
+          type: string
+          description: WiFi frequency band that client or Access Point operates. Band value is represented in Giga Hertz - GHz
+          example: BAND_5_GHZ
+          enum:
+          - BAND_2_4_GHZ
+          - BAND_5_GHZ
+          - BAND_6_GHZ
+        ssid:
+          type: string
+          description: SSID is the name of wireless network to which clientconnects to. It is also referred to as WLAN ID - Wireless Local Area Network Identifier
+          example: alpha
+        rssi:
+          type: integer
+          description: Received Signal Strength Indicator (RSSI) is   the measure of how well the wireless client can hear the   signal from Access Point. Measurement in dBm
+          example: -52
+        snr:
+          type: integer
+          description: Signal-to-Noise ratio (SNR) is the powerratio   between signal strength and noise level.Measurement in   decibels (dB).
+          example: 41
+        txBytes:
+          type: integer
+          description: Amount of data sent by the client measured in bytes.
+          format: int64
+          example: 406695572
+        rxBytes:
+          type: integer
+          description: Amount of data received by the client measured in bytes.
+          format: int64
+          example: 2753889933
+        rxPackets:
+          type: integer
+          description: Total number of packets received by the Client
+          format: int64
+          example: 3163
+        txPackets:
+          type: integer
+          description: Total number of packets sent by the Client
+          format: int64
+          example: 5647
+        rxMgmtPackets:
+          type: integer
+          description: Number of Management packets received by the Client
+          format: int64
+          example: 100
+        txMgmtPackets:
+          type: integer
+          description: Number of Management packets sent by the Client
+          format: int64
+          example: 100
+        rxDataPackets:
+          type: integer
+          description: Number of Data packets received by the Client
+          format: int64
+          example: 2963
+        txDataPackets:
+          type: integer
+          description: Number of Data packets sent by the Client
+          format: int64
+          example: 5447
+        txUnicastDataPackets:
+          type: integer
+          description: Number of unicast Data packets sent by the Client
+          format: int64
+          example: 0
+        rxCtrlPackets:
+          type: integer
+          description: Number of Control packets received by the Client
+          format: int64
+          example: 100
+        txCtrlPackets:
+          type: integer
+          description: Number of Control packets sent by the Client
+          format: int64
+          example: 100
+        rxRetries:
+          type: integer
+          description: Number of packets retransmitted by Access Point to Wireless client
+          format: int64
+          example: 1652
+        rxRate:
+          type: integer
+          description: Number of bytes per second traffic received by the Client
+          format: int64
+          example: 1951
+        txRate:
+          type: integer
+          description: Number of bytes per second traffic sent by the Client
+          format: int64
+          example: 60182
+        clientIp:
+          $ref: '#/components/schemas/IPv4Address'
+      description: ICAP client connection and statistics details
+    ClientStatsRawDataQueryRequest:
+      type: object
+      properties:
+        startTime:
+          $ref: '#/components/schemas/startTime'
+        endTime:
+          $ref: '#/components/schemas/endTime'
+        filters:
+          $ref: '#/components/schemas/ClientStatsFilters'
+        page:
+          $ref: '#/components/schemas/PaginationTrendOffset'
+      description: |
+        Request payload used for raw data query API. It contains |
+        'filters' - To provide list of complex filters with combination of AND filters and OR filters to be applied on the API resource |
+    RadioStatsRawDataQueryRequest:
+      type: object
+      properties:
+        startTime:
+          $ref: '#/components/schemas/startTime'
+        endTime:
+          $ref: '#/components/schemas/endTime'
+        filters:
+          $ref: '#/components/schemas/RadioStatsFilters'
+        page:
+          $ref: '#/components/schemas/PaginationTrendOffset'
+      description: |
+        Request payload used for raw data query API. It contains |
+        'filters' - To provide list of complex filters with combination of AND filters and OR filters to be applied on the API resource |
+    ClientStatsFilterField:
+      type: string
+      description: Supported filter attributes related to clients
+      enum:
+      - clientMac
+      - apMac
+      - radioId
+      - band
+      - ssid
+      - clientIp
+    StatsFilterOperator:
+      type: string
+      description: Type of filter operator to use for querying data | in and out operator takes multiple values and applies the filters
+      enum:
+      - in
+      - neq
+      - eq
+      - notIn
+      - like
+    ClientStatsFilterObj:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/ClientStatsFilterField'
+        operator:
+          $ref: '#/components/schemas/StatsFilterOperator'
+        logicalOperator:
+          $ref: '#/components/schemas/LogicalOperator'
+        value:
+          type: object
+          description: "Field value(s) to filter the data set. Array of values is used for   \"in\" or \"out\" operator. Values will be of whatever type the   specific field being filtered is defined with.\n\nFor other operators, filter value is of whatever type the specific   field being filtered is defined with.\n\nIn the case of an \"and\" or \"or\" operator, this values array will be   ignored, and the values arrays in each of the *nested filters* will be used.\nThe data type of a value, or each item inside the value in case it is a list, must match the type defined in the Client response model \n"
+        filters:
+          type: array
+          description: |
+            Nested array of filters in case of AND/OR based filters. Only one   level of nesting will be supported.
+
+            Structure of nested filter is the same as parent with all operators   supported except AND or OR.
+          items:
+            $ref: '#/components/schemas/ClientStatsFilterObj'
+    ClientStatsFilters:
+      maxItems: 10
+      type: array
+      description: |
+        List of filters to apply when querying the data
+
+
+        Filtering on numerical fields (integer, number,etc.) will support the
+        numerical operators:
+
+
+        [eq, lt, gt, lte, gte]
+
+
+        Filtering on text fields (string), will support the string operators:
+
+
+        [eq, in, notIn, like]
+
+
+        For the list of supported fields, please refer to the ClientFilterField model
+        model.
+      items:
+        $ref: '#/components/schemas/ClientStatsFilterObj'
+    ClientStatsRawDataQueryResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientStatsDetail'
+        page:
+          $ref: '#/components/schemas/PaginationTrendOffset'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+    RadioStatsDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique value to identify Radio statistics details. It is the composite key made of AP macAddress and Radio Slot Id. Format apMac_RadioId
+          example: 11:22:33:44:55:66_1
+        apMac:
+          type: string
+          description: Mac Address of the Access Point to which the client is connected.
+          example: AA:BB:CC:DD:EE:FF
+        radioId:
+          type: integer
+          description: Radio slot Id of the Access Point where the wireless client is connected
+          example: 1
+        timestamp:
+          type: integer
+          description: Last known time when the radio statistics is updated. It is specified in UNIX epochtime format in milliseconds
+          format: int64
+          example: 16994442370000
+        band:
+          type: string
+          description: WiFi frequency band that client or Access Point operates. Band value is represented in Giga Hertz - GHz
+          example: BAND_5_GHZ
+          enum:
+          - BAND_2_4_GHZ
+          - BAND_5_GHZ
+          - BAND_6_GHZ
+        utilization:
+          type: integer
+          description: Total Radio Utilization value in percentage.
+          example: 10
+        nonWifiUtilization:
+          type: integer
+          description: Non Wifi Radio Utilization value in percentage.
+          example: 0
+        rxOtherBSSUtilization:
+          type: integer
+          description: Wifi Rx Other BSS Radio Utilization value in percentage. Utilization from Rogue APs
+          example: 8
+        rxInBSSUtilization:
+          type: integer
+          description: Wifi Rx In BSS Radio Utilization value in percentage. Utilization from neighbor APs
+          example: 0
+        txUtilization:
+          type: integer
+          description: Wifi Tx Radio Utilization value in percentage. Utilization from this AP when transmitting the data.
+          example: 1
+        noiseFloor:
+          type: integer
+          description: Noise floor configured on the Radio in dBm.
+          example: -85
+        channel:
+          type: string
+          description: Radio operating channel number
+          example: "64"
+        channelWidth:
+          type: string
+          description: Radio operating channel width in MHz
+          example: "40"
+        txPower:
+          type: integer
+          description: Radio operating Tx Power in dBm
+          example: -2
+        maxTxPower:
+          type: integer
+          description: Maximum allowed Radio Tx Power in dBm
+          example: 0
+        txBytes:
+          type: integer
+          description: Amount of data sent by the radio measured in bytes.
+          format: int64
+          example: 406695572
+        rxBytes:
+          type: integer
+          description: Amount of data received by the radio measured in bytes.
+          format: int64
+          example: 2753889933
+        rxPackets:
+          type: integer
+          description: Total number of packets received by the radio
+          format: int64
+          example: 3163
+        txPackets:
+          type: integer
+          description: Total number of packets sent by the radio
+          format: int64
+          example: 5647
+        rxMgmtPackets:
+          type: integer
+          description: Number of Management packets received by the radio
+          format: int64
+          example: 100
+        txMgmtPackets:
+          type: integer
+          description: Number of Management packets sent by the radio
+          format: int64
+          example: 100
+        rxErrors:
+          type: integer
+          description: Number of packets received errors radio
+          format: int64
+          example: 1652
+        txErrors:
+          type: integer
+          description: Number of packets transmit errors radio
+          format: int64
+          example: 1052
+      description: ICAP Radio connection and statistics details
+    RadioStatsFilterField:
+      type: string
+      description: Supported filter attributes related to radios
+      enum:
+      - apMac
+      - radioId
+      - band
+    RadioStatsFilterObj:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/RadioStatsFilterField'
+        operator:
+          $ref: '#/components/schemas/StatsFilterOperator'
+        logicalOperator:
+          $ref: '#/components/schemas/LogicalOperator'
+        value:
+          type: object
+          description: "Field value(s) to filter the data set. Array of values is used for   \"in\" or \"out\" operator. Values will be of whatever type the   specific field being filtered is defined with.\n\nFor other operators, filter value is of whatever type the specific   field being filtered is defined with.\n\nIn the case of an \"and\" or \"or\" operator, this values array will be   ignored, and the values arrays in each of the *nested filters* will be used.\nThe data type of a value, or each item inside the value in case it is a list, must match the type defined in the Client response model \n"
+        filters:
+          type: array
+          description: |
+            Nested array of filters in case of AND/OR based filters. Only one   level of nesting will be supported.
+
+            Structure of nested filter is the same as parent with all operators   supported except AND or OR.
+          items:
+            $ref: '#/components/schemas/RadioStatsFilterObj'
+    RadioStatsFilters:
+      maxItems: 10
+      type: array
+      description: |
+        List of filters to apply when querying the data
+
+
+        Filtering on numerical fields (integer, number,etc.) will support the
+        numerical operators:
+
+
+        [eq, lt, gt, lte, gte]
+
+
+        Filtering on text fields (string), will support the string operators:
+
+
+        [eq, in, notIn, like]
+
+
+        For the list of supported fields, please refer to the RadioFilterField model
+        model.
+      items:
+        $ref: '#/components/schemas/RadioStatsFilterObj'
+    RadioStatsRawDataQueryResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/RadioStatsDetail'
+        page:
+          $ref: '#/components/schemas/PaginationTrendOffset'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+    CapturesPagination:
+      type: object
+      properties:
+        limit:
+          maximum: 100
+          minimum: 1
+          type: integer
+          description: Number of records to fetch in a page
+          example: 100
+          default: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        count:
+          type: integer
+          description: Total number of records related to the resource after applying applicable filtering. Field is ignored for request and updated by API in the response
+          example: 100
+        sortBy:
+          type: string
+          description: Attributes related to resource that can be used to sort the response.
+          enum:
+          - clientMac
+          - apMac
+          - lastUpdatedTimestamp
+          - fileSize
+          - fileName
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for descending
+          enum:
+          - asc
+          - desc
+    PaginationTrendOffset:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to fetch in a page
+          example: 100
+          default: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        count:
+          type: integer
+          description: Number of records returned after applying applicable filtering. Field is ignored for request and updated by API in the response
+          example: 100
+        timeSortOrder:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for descending
+          enum:
+          - asc
+          - desc
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorObject'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured   processing this request.
+      example:
+        response:
+        - errorCode: 2600
+          message: Error message
+          detail: Error details
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    ErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: Application specific error code returned by the server
+        message:
+          type: string
+          description: Brief message about the error condition
+        detail:
+          type: string
+          description: "A more detailed explanation of the error condition the   parameter and its value, that caused the condition and why it caused it."
+    CountIntegerResponse:
+      title: Count Integer Response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/CountIntegerResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Reports
+    IPv4Address:
+      title: IPv4 Address
+      type: string
+      format: ipv4
+      example: 250.162.252.170
+    startTime:
+      type: integer
+      description: Start time from which the API queries the dataset related to the resource. It must be specified in terms of milliseconds since UNIX epoch. Value is inclusive.
+      format: int64
+      example: 1705348800000
+    endTime:
+      type: integer
+      description: End time to which the API queries the dataset related to the resource. It must be specified in terms of milliseconds since UNIX epoch. Value is inclusive.
+      format: int64
+      example: 1705435200000
+    LogicalOperator:
+      type: string
+      description: |
+        Operator to use when attempting to apply a logical conjunction of more   than 1 filter
+
+        Logical operations include: 'and', 'or'.
+      enum:
+      - and
+      - or
+    CountIntegerResponse_response:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The total number of records related to the resource
+          format: int64
+          example: 1000
+  responses:
+    CaptureFilesResponseModel:
+      description: Collection of ICAP Capture File Response model on success
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/CaptureFilesResponseModel'
+    CaptureFileResponseModel:
+      description: Single ICAP Capture File Response model on success
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/CaptureFileResponseModel'
+    DownloadCaptureFileResponseModel:
+      description: Download ICAP Packet Capture file model on success
+      content:
+        application/octet-stream:
+          schema:
+            type: string
+            format: binary
+    SpectrumSensorRawDataQueryResponse:
+      description: Collection of sensor raw data response model on success
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/SpectrumSensorRawDataQueryResponse'
+    SpectrumInterferenceDeviceRawDataQueryResponse:
+      description: Collection of IDR raw data response model on success
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/SpectrumInterferenceDeviceRawDataQueryResponse'
+    ClientStatsRawDataQueryResponse:
+      description: Collection of client raw data responses model on success
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ClientStatsRawDataQueryResponse'
+          examples:
+            clientStatsRawDataQueryResponse:
+              $ref: '#/components/examples/clientStatsRawDataQueryResponse'
+    RadioStatsRawDataQueryResponse:
+      description: Collection of Radio raw data response model on success
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/RadioStatsRawDataQueryResponse'
+          examples:
+            clientStatsRawDataQueryResponse:
+              $ref: '#/components/examples/radioStatsRawDataQueryResponse'
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "500":
+      description: The server could not fulfill the request due to internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "1XX":
+      description: Informational Responses - The server received the request and sent an informational response.
+    "2XX":
+      description: "Successful Responses - The server received the client request, understood it, and accepted it."
+    "3XX":
+      description: Redirection Messages - The client must take additional action to complete the request.
+    "4XX":
+      description: Client Error Responses - The client request caused the error.
+    "5XX":
+      description: Server Error Responses - The server failed to fulfill the request.
+    defaultError:
+      description: Unexpected Error
+    CountIntegerResponse:
+      description: Reponse object containing total count of the records after applying requested filters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CountIntegerResponse'
+    "404":
+      description: The client made a request for a resource that does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  parameters:
+    captureType:
+      name: type
+      in: query
+      description: Capture Type
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: string
+        enum:
+        - FULL
+        - ONBOARDING
+        - OTA
+        - ANOMALY
+    clientMac:
+      name: clientMac
+      in: query
+      description: |
+        The macAddress of client
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+    apMac:
+      name: apMac
+      in: query
+      description: |
+        The base radio macAddress of the access point
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+    ApMac:
+      name: apMac
+      in: query
+      description: |
+        The base ethernet macAddress of the access point
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: string
+    apEthernetMac:
+      name: apEthernetMac
+      in: query
+      description: |
+        The base ethernet macAddress of the access point
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+    dataType:
+      name: dataType
+      in: query
+      description: |
+        Data type reported by the sensor
+
+        |Data Type | Description |
+        | --- | --- |
+        | `0` | Duty Cycle |
+        | `1` | Max Power |
+        | `2` | Average Power |
+        | `3` | Max Power in dBm with adjusted base of +48 |
+        | `4` | Average Power in dBm with adjusted base of +48 |
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: integer
+        enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      example: 2
+    timeSortOrder:
+      name: timeSortOrder
+      in: query
+      description: The sort order of the field ascending or descending.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        default: asc
+        enum:
+        - asc
+        - desc
+    callerId:
+      name: X-CALLER-ID
+      in: header
+      description: |
+        Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+      required: false
+      schema:
+        type: string
+        default: unknown
+      example: ui:client360
+    startTime:
+      name: startTime
+      in: query
+      description: |
+        Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      schema:
+        type: integer
+        format: int64
+      example: 1705348800000
+    endTime:
+      name: endTime
+      in: query
+      description: |
+        End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      required: false
+      schema:
+        type: integer
+        format: int64
+      example: 1705435200000
+    limit_100:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        maximum: 100
+        minimum: 1
+        type: integer
+        default: 100
+    offset:
+      name: offset
+      in: query
+      description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+      schema:
+        minimum: 1
+        type: integer
+        default: 1
+    sortBy:
+      name: sortBy
+      in: query
+      description: A field within the response to sort by.
+      schema:
+        type: string
+    order:
+      name: order
+      in: query
+      description: The sort order of the field ascending or descending.
+      schema:
+        type: string
+        default: asc
+        enum:
+        - asc
+        - desc
+  examples:
+    clientStatsRawDataQueryRequest:
+      summary: Client Stats Raw Data Request
+      value:
+        startTime: 1709110800000
+        endTime: 1709197200000
+        filters:
+        - key: rssi
+          operator: gt
+          value: -50
+        - key: apMac
+          operator: in
+          value:
+          - 11:22:33:44:55:66
+          - A1:B1:C1:D1:E1:F1
+        - logicalOperator: or
+          filters:
+          - key: rxBytes
+            operator: lt
+            value: 1000
+          - key: txBytes
+            operator: gt
+            value: 3000
+        page:
+          limit: 100
+          offset: 2
+          timeSortOrder: desc
+    clientStatsRawDataQueryResponse:
+      summary: Client Stats Raw Data Response
+      value:
+        response:
+        - id: WPG0T5EB5I3wVW9cC-pj
+          clientMac: 11:22:33:44:55:66
+          apMac: AA:BB:CC:DD:EE:FF
+          radioId: 2
+          timestamp: 1722733225070
+          band: BAND_5_GHZ
+          ssid: alpha
+          rssi: -52
+          snr: 41
+          txBytes: 406695572
+          rxBytes: 2753889933
+          rxPackets: 3163
+          txPackets: 5647
+          rxMgmtPackets: 100
+          txMgmtPackets: 100
+          rxDataPackets: 2963
+          txDataPackets: 5447
+          txUnicastDataPackets: 0
+          rxCtrlPackets: 100
+          txCtrlPackets: 100
+          rxRetries: 1652
+          rxRate: 1951
+          txRate: 60182
+          clientIp: 250.162.252.170
+        - id: WfG0T5EB5I3wVW9cC-pj
+          clientMac: 11:22:33:44:55:66
+          apMac: AA:BB:CC:DD:EE:FF
+          radioId: 2
+          timestamp: 1722743225070
+          band: BAND_5_GHZ
+          ssid: alpha
+          rssi: -72
+          snr: 31
+          txBytes: 506695572
+          rxBytes: 3753889933
+          rxPackets: 4163
+          txPackets: 6647
+          rxMgmtPackets: 200
+          txMgmtPackets: 200
+          rxDataPackets: 3963
+          txDataPackets: 6447
+          txUnicastDataPackets: 10
+          rxCtrlPackets: 200
+          txCtrlPackets: 200
+          rxRetries: 2652
+          rxRate: 2951
+          txRate: 70182
+          clientIp: 250.162.252.170
+        page:
+          limit: 100
+          offset: 2
+          count: 1000
+          timeSortOrder: desc
+        version: "1.0"
+    radioStatsRawDataQueryRequest:
+      summary: Radio Stats Query Request
+      value:
+        startTime: 1709110800000
+        endTime: 1709197200000
+        filters:
+        - key: txPower
+          operator: gt
+          value: -2
+        - key: channelWidth
+          operator: in
+          value:
+          - 20
+          - 40
+        - logicalOperator: or
+          filters:
+          - key: rxBytes
+            operator: lt
+            value: 1000
+          - key: txBytes
+            operator: gt
+            value: 3000
+        page:
+          limit: 100
+          offset: 2
+          timeSortOrder: desc
+    radioStatsRawDataQueryResponse:
+      summary: Radio Stats Query Response
+      value:
+        response:
+        - timestamp: 1707759900000
+          apMac: AA:BB:CC:DD:EE:FF
+          radioId: 1
+          band: BAND_5_GHZ
+          utilization: 10
+          nonWifiUtilization: 0
+          rxOtherBSSUtilization: 8
+          rxInBSSUtilization: 0
+          txUtilization: 1
+          noiseFloor: -85
+          channel: 64
+          channelWidth: 40
+          txPower: -2
+          maxTxPower: 0
+          txBytes: 406695572
+          rxBytes: 2753889933
+          rxPackets: 3163
+          txPackets: 5647
+          rxMgmtPackets: 100
+          txMgmtPackets: 100
+          rxErrors: 1652
+          txErrors: 1052
+        - timestamp: 1707760200000
+          apMac: AA:BB:CC:DD:EE:FF
+          radioId: 1
+          band: BAND_6_GHZ
+          utilization: 20
+          nonWifiUtilization: 1
+          rxOtherBSSUtilization: 18
+          rxInBSSUtilization: 0
+          txUtilization: 1
+          noiseFloor: -85
+          channel: 5
+          channelWidth: 80
+          txPower: 2
+          maxTxPower: 6
+          txBytes: 506695572
+          rxBytes: 3753889933
+          rxPackets: 4163
+          txPackets: 6647
+          rxMgmtPackets: 200
+          txMgmtPackets: 200
+          rxErrors: 2652
+          txErrors: 2052
+        page:
+          limit: 100
+          offset: 2
+          count: 100
+          timeSortOrder: desc
+        version: "1.0"
+  requestBodies:
+    ClientStatsRawDataQueryRequest:
+      description: Payload to query raw data for a client
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ClientStatsRawDataQueryRequest'
+          examples:
+            clientStatsRawDataRequest:
+              $ref: '#/components/examples/clientStatsRawDataQueryRequest'
+      required: true
+    RadioStatsRawDataQueryRequest:
+      description: Payload to query raw data for a radio
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/RadioStatsRawDataQueryRequest'
+          examples:
+            radioStatsRawDataRequest:
+              $ref: '#/components/examples/radioStatsRawDataQueryRequest'
+      required: true
