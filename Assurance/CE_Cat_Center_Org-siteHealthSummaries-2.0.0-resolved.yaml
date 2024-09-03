@@ -1,0 +1,2178 @@
+---
+openapi: 3.0.0
+info:
+  title: OpenAPI Spec for Assurance
+  description: "### OpenAPI specification defined for the purpose of providing visibility into the overall health data of specific sites or groupings of sites present in Catalyst Center\n\n**Relevant Concepts**\n\n| Term | Description |\n| --- | --- |\n| `Good` | Health scores which fall within the [inclusive] range of 8 - 10 |\n| `Access` | Network devices that belong to the access layer [1st of 3 layers in Network Hierarchy]. These generally include: Wireless Controllers, APs, and Switches |\n| `Distribution` | Network devices that belong to the distribution layer [2nd of 3 layers in Network Hierarchy]. These generally include: Routers and Switches layer [2nd of 3 layers in Network Hierarchy]. These generally include: Routers and Switches |\n|`Core` | Network devices that belong to the core layer [3rd of 3 layers in Network Hierarchy]. These generally include: Switches |\n|`Wireless` | Network devices that make up the wireless network. These generally include: Wireless Controllers and APs. |\n| `Wired` | Network devices that make up the wired network. These generally include: Switches and Routers. |\n| `Clients` | Devices which are connected to the network. These can be either wired or wireless. |\n| `Site` | A geographical location where devices are added |\n\n**API Support Documentation**\n\n**Views**\n\nSpecified 'views' can be requested for non-count APIs. Each view corresponds to different sets of data. \n\n'views' an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n'views' is also an optional field in the post request bodies.\n\n| View | Response Data |\n| --- | --- |\n| `site` | id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude |\n| `network` | id, networkDeviceCount, networkDeviceGoodHealthCount,wirelessDeviceCount, wirelessDeviceGoodHealthCount, accessDeviceCount, accessDeviceGoodHealthCount, coreDeviceCount, coreDeviceGoodHealthCount, distributionDeviceCount, distributionDeviceGoodHealthCount, routerDeviceCount, routerDeviceGoodHealthCount, apDeviceCount, apDeviceGoodHealthCount, wlcDeviceCount, wlcDeviceGoodHealthCount, switchDeviceCount, switchDeviceGoodHealthCount, networkDeviceGoodHealthPercentage, accessDeviceGoodHealthPercentage, coreDeviceGoodHealthPercentage, distributionDeviceGoodHealthPercentage, routerDeviceGoodHealthPercentage, apDeviceGoodHealthPercentage, wlcDeviceGoodHealthPercentage, switchDeviceGoodHealthPercentage, wirelessDeviceGoodHealthPercentage |\n| `client` | id, clientCount, clientGoodHealthCount, wiredClientCount, wirelessClientCount, wiredClientGoodHealthCount, wirelessClientGoodHealthCount, clientGoodHealthPercentage, wiredClientGoodHealthPercentage, wirelessClientGoodHealthPercentage, clientDataUsage |\n| `issue` | id, p1IssueCount, p2IssueCount, p3IssueCount, p4IssueCount, issueCount |\n\n  When this query parameter is not added the default summaries are:  \n  \n  [`site`,`client`,`network`,`issue`]\n  \n  **Examples**:\n  \n  1. Query Param:\n  \n    ?view=client (single view requested)\n  \n    ?view=client&view=network&view=issue (multiple views requested)\n  \n  2. Post body:\n  \n    views=[\"client\",\"network\",\"issue\"]\n  \n### **Attributes** ###\n\nSpecified 'attributes' can be requested for non-count APIs. Each attribute requested will be part of the API response.\n\n**Supported Attributes:**\n`id`, `siteHierarchy`, `siteHierarchyId`, `siteType`, `latitude`, `longitude`, `networkDeviceCount`, `networkDeviceGoodHealthCount`,`wirelessDeviceCount`, `wirelessDeviceGoodHealthCount`, `accessDeviceCount`, `accessDeviceGoodHealthCount`, `coreDeviceCount`, `coreDeviceGoodHealthCount`, `distributionDeviceCount`, `distributionDeviceGoodHealthCount`, `routerDeviceCount`, `routerDeviceGoodHealthCount`, `apDeviceCount`, `apDeviceGoodHealthCount`, `wlcDeviceCount`, `wlcDeviceGoodHealthCount`, `switchDeviceCount`, `switchDeviceGoodHealthCount`, `networkDeviceGoodHealthPercentage`, `accessDeviceGoodHealthPercentage`, `coreDeviceGoodHealthPercentage`, `distributionDeviceGoodHealthPercentage`, `routerDeviceGoodHealthPercentage`, `apDeviceGoodHealthPercentage`, `wlcDeviceGoodHealthPercentage`, `switchDeviceGoodHealthPercentage`, `wirelessDeviceGoodHealthPercentage`, `clientCount`, `wiredClientCount`, `clientGoodHealthCount`, `wirelessClientCount`, `wiredClientGoodHealthCount`, `wirelessClientGoodHealthCount`, `clientGoodHealthPercentage`, `wiredClientGoodHealthPercentage`, `wirelessClientGoodHealthPercentage`, `clientDataUsage`, `p1IssueCount`, `p2IssueCount`, `p3IssueCount`, `p4IssueCount`, `issueCount`\n**Supported Analytics Attributes:**\n`networkDeviceCount`,`networkDeviceGoodHealthCount`,`wirelessDeviceCount`, `wirelessDeviceGoodHealthCount`, `accessDeviceCount`, `accessDeviceGoodHealthCount`, `coreDeviceCount`, `coreDeviceGoodHealthCount`, `distributionDeviceCount`, `distributionDeviceGoodHealthCount`, `routerDeviceCount`, `routerDeviceGoodHealthCount`, `apDeviceCount`, `apDeviceGoodHealthCount`, `wlcDeviceCount`, `wlcDeviceGoodHealthCount`, `switchDeviceCount`, `switchDeviceGoodHealthCount`, `networkDeviceGoodHealthPercentage`, `accessDeviceGoodHealthPercentage`, `coreDeviceGoodHealthPercentage`, `distributionDeviceGoodHealthPercentage`, `routerDeviceGoodHealthPercentage`, `apDeviceGoodHealthPercentage`, `wlcDeviceGoodHealthPercentage`, `switchDeviceGoodHealthPercentage`, `wirelessDeviceGoodHealthPercentage`, `clientCount`, `wiredClientCount`, `clientGoodHealthCount`, `wirelessClientCount`, `wiredClientGoodHealthCount`, `wirelessClientGoodHealthCount`, `clientGoodHealthPercentage`, `wiredClientGoodHealthPercentage`, `wirelessClientGoodHealthPercentage`, `clientDataUsage`, `p1IssueCount`, `p2IssueCount`, `p3IssueCount`, `p4IssueCount`, `issueCount`\n\nIf length of attribute list is too long, when using the query parameter for GET requests, please use `view` param instead.\n\n  Examples:\n  \n  1. query param:\n  \n    ?attribute=siteHierarchy (single attribute requested)\n  \n    ?attribute=siteHierarchy&attribute=clientCount (multiple attributes requested)\n  \n  2. post body:\n  \n    attributes=[\"siteHierarchy\",\"clientCount\"]\n"
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Cisco Catalyst Center License
+    url: https://www.cisco.com/c/en/us/products/collateral/software/dna-software-ebook-cte.html
+  version: 2.0.0
+externalDocs:
+  description: Catalyst Center Developer API resources
+  url: https://developer.cisco.com/dnacenter/
+servers:
+- url: https://developer.cisco.com/dna/data/api/v1
+tags:
+- name: siteHealthSummaries
+  description: Operations related to retrieving overall health information for Catalyst Center Sites
+  externalDocs:
+    description: Catalyst Center Assurance user guide
+    url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
+paths:
+  /siteHealthSummaries:
+    get:
+      tags:
+      - siteHealthSummaries
+      summary: Read list of site health summaries.
+      description: |
+        Get a paginated list of site health summaries. Use the available query parameters to identify a subset of sites you want health summaries for.
+        This API provides the latest health data from a given `endTime`
+        If data is not ready for the provided endTime, the request will fail, and the error message will indicate the recommended endTime to use to retrieve a complete data set.
+        This behavior may occur if the provided endTime=currentTime, since we are not a real time system.
+        When `endTime` is not provided, the API returns the latest data.
+        This API also provides issue data. The `startTime` query param can be used to specify the beginning point of time range to retrieve the active issue counts in. When this param is not provided, the default `startTime` will be 24 hours before endTime.
+        Valid values for `sortBy` param in this API are limited to the attributes provided in the `site` view.
+        Default sortBy is 'siteHierarchy' in order 'asc' (ascending)
+      operationId: readSiteHealthSummaries
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 20
+          minimum: 1
+          type: integer
+          default: 10
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: sortBy
+        in: query
+        description: A field within the response to sort by.
+        schema:
+          type: string
+      - name: order
+        in: query
+        description: The sort order of the field ascending or descending.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteType
+        in: query
+        description: |
+          The type of the site. A site can be an area, building, or floor.
+
+          Default when not provided will be `[floor,building,area]`
+
+          Examples:
+
+          `?siteType=area` (single siteType requested)
+
+          `?siteType=area&siteType=building&siteType=floor` (multiple siteTypes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+          default: "floor,building,area"
+      - name: id
+        in: query
+        description: |
+          The list of entity Uuids. (Ex."6bef213c-19ca-4170-8375-b694e251101c")
+          Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested)
+          id=6bef213c-19ca-4170-8375-b694e251101c&id=32219612-819e-4b5e-a96b-cf22aca13dd9&id=2541e9a7-b80d-4955-8aa2-79b233318ba0 (multiple entity uuid with '&' separator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: view
+        in: query
+        description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n### Response data proviced by each view:  \n\n1. **site**\n[id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude]  \n\n2. **network**\n[id, networkDeviceCount, networkDeviceGoodHealthCount,wirelessDeviceCount, wirelessDeviceGoodHealthCount, accessDeviceCount, accessDeviceGoodHealthCount, coreDeviceCount, coreDeviceGoodHealthCount, distributionDeviceCount, distributionDeviceGoodHealthCount, routerDeviceCount, routerDeviceGoodHealthCount, apDeviceCount, apDeviceGoodHealthCount, wlcDeviceCount, wlcDeviceGoodHealthCount, switchDeviceCount, switchDeviceGoodHealthCount, networkDeviceGoodHealthPercentage, accessDeviceGoodHealthPercentage, coreDeviceGoodHealthPercentage, distributionDeviceGoodHealthPercentage, routerDeviceGoodHealthPercentage, apDeviceGoodHealthPercentage, wlcDeviceGoodHealthPercentage, switchDeviceGoodHealthPercentage, wirelessDeviceGoodHealthPercentage]  \n\n3. **client**\n[id, clientCount, clientGoodHealthCount, wiredClientCount, wirelessClientCount, wiredClientGoodHealthCount, wirelessClientGoodHealthCount, clientGoodHealthPercentage, wiredClientGoodHealthPercentage, wirelessClientGoodHealthPercentage, clientDataUsage]  \n\n4. **issue**\n[id, p1IssueCount, p2IssueCount, p3IssueCount, p4IssueCount, issueCount]  \n\nWhen this query parameter is not added the default summaries are:  \n\n**[site,client,network,issue]**\n\nExamples:\n\nview=client (single view requested)\n\nview=client&view=network&view=issue (multiple views requested)\n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          maxItems: 5
+          minItems: 1
+          type: array
+          items:
+            type: string
+          default: "site,client,network,issue"
+      - name: attribute
+        in: query
+        description: |
+          Supported Attributes:
+
+          [id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude, networkDeviceCount, networkDeviceGoodHealthCount,wirelessDeviceCount, wirelessDeviceGoodHealthCount, accessDeviceCount, accessDeviceGoodHealthCount, coreDeviceCount, coreDeviceGoodHealthCount, distributionDeviceCount, distributionDeviceGoodHealthCount, routerDeviceCount, routerDeviceGoodHealthCount, apDeviceCount, apDeviceGoodHealthCount, wlcDeviceCount, wlcDeviceGoodHealthCount, switchDeviceCount, switchDeviceGoodHealthCount, networkDeviceGoodHealthPercentage, accessDeviceGoodHealthPercentage, coreDeviceGoodHealthPercentage, distributionDeviceGoodHealthPercentage, routerDeviceGoodHealthPercentage, apDeviceGoodHealthPercentage, wlcDeviceGoodHealthPercentage, switchDeviceGoodHealthPercentage, wirelessDeviceGoodHealthPercentage, clientCount, clientGoodHealthCount, wiredClientCount, wirelessClientCount, wiredClientGoodHealthCount, wirelessClientGoodHealthCount, clientGoodHealthPercentage, wiredClientGoodHealthPercentage, wirelessClientGoodHealthPercentage, clientDataUsage, p1IssueCount, p2IssueCount, p3IssueCount, p4IssueCount, issueCount]
+
+          If length of attribute list is too long, please use 'view' param instead.
+
+          Examples:
+
+          attribute=siteHierarchy (single attribute requested)
+
+          attribute=siteHierarchy&attribute=clientCount (multiple attributes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Site health summaries response model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/siteHealthSummaries'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /siteHealthSummaries/{id}:
+    get:
+      tags:
+      - siteHealthSummaries
+      summary: Read site health summary data by site id.
+      description: |
+        Get a health summary for a specific site by providing the unique site id in the url path.
+        This API provides the latest health data from a given `endTime`
+        If data is not ready for the provided endTime, the request will fail, and the error message will indicate the recommended endTime to use to retrieve a complete data set.
+        This behavior may occur if the provided endTime=currentTime, since we are not a real time system.
+        When `endTime` is not provided, the API returns the latest data.
+        This API also provides issue data. The `startTime` query param can be used to specify the beginning point of time range to retrieve the active issue counts in. When this param is not provided, the default `startTime` will be 24 hours before endTime.
+      operationId: readSiteHealthSummaryById
+      parameters:
+      - name: id
+        in: path
+        description: unique site uuid
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: view
+        in: query
+        description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n### Response data proviced by each view:  \n\n1. **site**\n[id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude]  \n\n2. **network**\n[id, networkDeviceCount, networkDeviceGoodHealthCount,wirelessDeviceCount, wirelessDeviceGoodHealthCount, accessDeviceCount, accessDeviceGoodHealthCount, coreDeviceCount, coreDeviceGoodHealthCount, distributionDeviceCount, distributionDeviceGoodHealthCount, routerDeviceCount, routerDeviceGoodHealthCount, apDeviceCount, apDeviceGoodHealthCount, wlcDeviceCount, wlcDeviceGoodHealthCount, switchDeviceCount, switchDeviceGoodHealthCount, networkDeviceGoodHealthPercentage, accessDeviceGoodHealthPercentage, coreDeviceGoodHealthPercentage, distributionDeviceGoodHealthPercentage, routerDeviceGoodHealthPercentage, apDeviceGoodHealthPercentage, wlcDeviceGoodHealthPercentage, switchDeviceGoodHealthPercentage, wirelessDeviceGoodHealthPercentage]  \n\n3. **client**\n[id, clientCount, clientGoodHealthCount, wiredClientCount, wirelessClientCount, wiredClientGoodHealthCount, wirelessClientGoodHealthCount, clientGoodHealthPercentage, wiredClientGoodHealthPercentage, wirelessClientGoodHealthPercentage, clientDataUsage]  \n\n4. **issue**\n[id, p1IssueCount, p2IssueCount, p3IssueCount, p4IssueCount, issueCount]  \n\nWhen this query parameter is not added the default summaries are:  \n\n**[site,client,network,issue]**\n\nExamples:\n\nview=client (single view requested)\n\nview=client&view=network&view=issue (multiple views requested)\n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          maxItems: 5
+          minItems: 1
+          type: array
+          items:
+            type: string
+          default: "site,client,network,issue"
+      - name: attribute
+        in: query
+        description: |
+          Supported Attributes:
+
+          [id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude, networkDeviceCount, networkDeviceGoodHealthCount,wirelessDeviceCount, wirelessDeviceGoodHealthCount, accessDeviceCount, accessDeviceGoodHealthCount, coreDeviceCount, coreDeviceGoodHealthCount, distributionDeviceCount, distributionDeviceGoodHealthCount, routerDeviceCount, routerDeviceGoodHealthCount, apDeviceCount, apDeviceGoodHealthCount, wlcDeviceCount, wlcDeviceGoodHealthCount, switchDeviceCount, switchDeviceGoodHealthCount, networkDeviceGoodHealthPercentage, accessDeviceGoodHealthPercentage, coreDeviceGoodHealthPercentage, distributionDeviceGoodHealthPercentage, routerDeviceGoodHealthPercentage, apDeviceGoodHealthPercentage, wlcDeviceGoodHealthPercentage, switchDeviceGoodHealthPercentage, wirelessDeviceGoodHealthPercentage, clientCount, clientGoodHealthCount, wiredClientCount, wirelessClientCount, wiredClientGoodHealthCount, wirelessClientGoodHealthCount, clientGoodHealthPercentage, wiredClientGoodHealthPercentage, wirelessClientGoodHealthPercentage, clientDataUsage, p1IssueCount, p2IssueCount, p3IssueCount, p4IssueCount, issueCount]
+
+          If length of attribute list is too long, please use 'view' param instead.
+
+          Examples:
+
+          attribute=siteHierarchy (single attribute requested)
+
+          attribute=siteHierarchy&attribute=clientCount (multiple attributes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: |
+            Sites health summaries, summary response model, containing requested attributes
+
+            *Unique identifiers may not be populated in response (ex. siteHierarchy, id, etc)*
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/siteHealthSummariesNoAggregatesWrapper'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /siteHealthSummaries/{id}/trendAnalytics:
+    get:
+      tags:
+      - siteHealthSummaries
+      summary: Read a trend of site health summary data by site id
+      description: |
+        Retrieves the time series information of health and issue data for a site specified by the path parameter. The data will be grouped based on the specified trend time interval. If startTime and endTime are not provided, the API defaults to the last 24 hour period where a complete data set exists, and a trendInterval of 1 hour.
+
+        If a startTime or endTime is provided, both must be provided.
+
+        A request with a startTime and endTime provided, must also include a specified trendInterval.
+
+        If data is not ready for the provided endTime, the request will fail,
+        and the error message will indicate the recommended endTime to use to retrieve
+        a complete data set.
+
+        This behavior may occur if the provided endTime=currentTime, since we
+        are not a real time system.
+
+        If the time range requested is >= 24 hours, valid trend intervals are:
+        [1HR, 1DAY, 7DAY]
+
+        By default:
+        - the applied limit of records returned will be 500, and applied offset will be 1.
+        - the records will be sorted in time ascending (`asc`) order
+
+        This API is asynchronous due to the large amounts of data being processed and inherent latency associated with that.
+
+        **The process for using this API is as follows**:
+
+        1). Make request to API to generate intended trend data. This request can include any of the following query parameters:
+
+        [startTime, endTime, trendInterval, limit, offset, and order]
+
+        The request MUST include the following query parameters:
+
+        [attribute]
+
+        For a list of supported trend analytics attributes, see main description.
+
+        2). The response will be a 202 HTTP code, with information regarding the generated taskId for this submitted request and the URL to poll the status of this task.
+
+        ex. "/dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191"
+
+
+        3). Once the status is completed, the response data will be retrievable using this API with a taskId query param.
+
+        ex. /dna/data/api/v1/siteHealthSummaries/{id}/trendAnalytics?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191.
+
+        When a taskId is provided, it is the ONLY query parameter that should be provided to this API.
+      operationId: readSiteHealthTrendById
+      parameters:
+      - name: id
+        in: path
+        description: unique site uuid
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: trendInterval
+        in: query
+        description: "The time window to aggregate the metrics. \nInterval can be 5 minutes or 10 minutes or 1 hour or 1 day or 7 days\n"
+        schema:
+          type: string
+          enum:
+          - 5MIN
+          - 10MIN
+          - 1HR
+          - 1DAY
+          - 7DAY
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 500
+          minimum: 1
+          type: integer
+          default: 500
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: timeSortOrder
+        in: query
+        description: The sort order of a time sorted API response.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: attribute
+        in: query
+        description: |
+          Supported Analytics Attributes:
+
+          [networkDeviceCount, networkDeviceGoodHealthCount,wirelessDeviceCount, wirelessDeviceGoodHealthCount, accessDeviceCount, accessDeviceGoodHealthCount, coreDeviceCount, coreDeviceGoodHealthCount, distributionDeviceCount, distributionDeviceGoodHealthCount, routerDeviceCount, routerDeviceGoodHealthCount, apDeviceCount, apDeviceGoodHealthCount, wlcDeviceCount, wlcDeviceGoodHealthCount, switchDeviceCount, switchDeviceGoodHealthCount, networkDeviceGoodHealthPercentage, accessDeviceGoodHealthPercentage, coreDeviceGoodHealthPercentage, distributionDeviceGoodHealthPercentage, routerDeviceGoodHealthPercentage, apDeviceGoodHealthPercentage, wlcDeviceGoodHealthPercentage, switchDeviceGoodHealthPercentage, wirelessDeviceGoodHealthPercentage, clientCount, clientGoodHealthCount, wiredClientCount, wirelessClientCount, wiredClientGoodHealthCount, wirelessClientGoodHealthCount, clientGoodHealthPercentage, wiredClientGoodHealthPercentage, wirelessClientGoodHealthPercentage, clientDataUsage, p1IssueCount, p2IssueCount, p3IssueCount, p4IssueCount, issueCount]
+
+          attribute=networkDeviceCount (single attribute requested)
+
+          attribute=networkDeviceCount&attribute=clientCount (multiple attributes requested)
+        style: form
+        explode: true
+        schema:
+          minItems: 1
+          type: array
+          items:
+            type: string
+      - name: taskId
+        in: query
+        description: |
+          used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Site health summaries trend response model. This is the response model when the 'taskId' query param is used to get the computed trend data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteHealthSummariesTrend'
+              examples:
+                siteHealthTrend:
+                  $ref: '#/components/examples/SiteHealthTrend'
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /siteHealthSummaries/count:
+    get:
+      tags:
+      - siteHealthSummaries
+      summary: Read site count.
+      description: |
+        Get a count of sites. Use the available query parameters to get the count of a subset of sites.
+        This API provides the latest data from a given `endTime`
+        If data is not ready for the provided endTime, the request will fail, and the error message will indicate the recommended endTime to use to retrieve a complete data set.
+        This behavior may occur if the provided endTime=currentTime, since we are not a real time system.
+        When `endTime` is not provided, the API returns the latest data.
+      operationId: readSiteCount
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteType
+        in: query
+        description: |
+          The type of the site. A site can be an area, building, or floor.
+
+          Default when not provided will be `[floor,building,area]`
+
+          Examples:
+
+          `?siteType=area` (single siteType requested)
+
+          `?siteType=area&siteType=building&siteType=floor` (multiple siteTypes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+          default: "floor,building,area"
+      - name: id
+        in: query
+        description: |
+          The list of entity Uuids. (Ex."6bef213c-19ca-4170-8375-b694e251101c")
+          Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested)
+          id=6bef213c-19ca-4170-8375-b694e251101c&id=32219612-819e-4b5e-a96b-cf22aca13dd9&id=2541e9a7-b80d-4955-8aa2-79b233318ba0 (multiple entity uuid with '&' separator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Successfully returned the requested site count
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /siteHealthSummaries/summaryAnalytics:
+    get:
+      tags:
+      - siteHealthSummaries
+      summary: Read an aggregated summary of site health data.
+      description: |
+        Get an aggregated summary of all site health or use the query params to get an aggregated summary of health for a subset of sites.
+        This API provides the latest health data from a given `endTime`
+        If data is not ready for the provided endTime, the request will fail, and the error message will indicate the recommended endTime to use to retrieve a complete data set.
+        This behavior may occur if the provided endTime=currentTime, since we are not a real time system.
+        When `endTime` is not provided, the API returns the latest data.
+        This API also provides issue data. The `startTime` query param can be used to specify the beginning point of time range to retrieve the active issue counts in. When this param is not provided, the default `startTime` will be 24 hours before endTime.
+        Aggregated response data will NOT have unique identifier data populated.
+        List of unique identifier data: [`id`, `siteHierarchy`, `siteHierarchyId`, `siteType`, `latitude`, `longitude`]
+      operationId: readSiteHealthSummaryAnalytics
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteType
+        in: query
+        description: |
+          The type of the site. A site can be an area, building, or floor.
+
+          Default when not provided will be `[floor,building,area]`
+
+          Examples:
+
+          `?siteType=area` (single siteType requested)
+
+          `?siteType=area&siteType=building&siteType=floor` (multiple siteTypes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+          default: "floor,building,area"
+      - name: id
+        in: query
+        description: |
+          The list of entity Uuids. (Ex."6bef213c-19ca-4170-8375-b694e251101c")
+          Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested)
+          id=6bef213c-19ca-4170-8375-b694e251101c&id=32219612-819e-4b5e-a96b-cf22aca13dd9&id=2541e9a7-b80d-4955-8aa2-79b233318ba0 (multiple entity uuid with '&' separator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: view
+        in: query
+        description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n### Response data proviced by each view:  \n\n1. **site**\n[id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude]  \n\n2. **network**\n[id, networkDeviceCount, networkDeviceGoodHealthCount,wirelessDeviceCount, wirelessDeviceGoodHealthCount, accessDeviceCount, accessDeviceGoodHealthCount, coreDeviceCount, coreDeviceGoodHealthCount, distributionDeviceCount, distributionDeviceGoodHealthCount, routerDeviceCount, routerDeviceGoodHealthCount, apDeviceCount, apDeviceGoodHealthCount, wlcDeviceCount, wlcDeviceGoodHealthCount, switchDeviceCount, switchDeviceGoodHealthCount, networkDeviceGoodHealthPercentage, accessDeviceGoodHealthPercentage, coreDeviceGoodHealthPercentage, distributionDeviceGoodHealthPercentage, routerDeviceGoodHealthPercentage, apDeviceGoodHealthPercentage, wlcDeviceGoodHealthPercentage, switchDeviceGoodHealthPercentage, wirelessDeviceGoodHealthPercentage]  \n\n3. **client**\n[id, clientCount, clientGoodHealthCount, wiredClientCount, wirelessClientCount, wiredClientGoodHealthCount, wirelessClientGoodHealthCount, clientGoodHealthPercentage, wiredClientGoodHealthPercentage, wirelessClientGoodHealthPercentage, clientDataUsage]  \n\n4. **issue**\n[id, p1IssueCount, p2IssueCount, p3IssueCount, p4IssueCount, issueCount]  \n\nWhen this query parameter is not added the default summaries are:  \n\n**[site,client,network,issue]**\n\nExamples:\n\nview=client (single view requested)\n\nview=client&view=network&view=issue (multiple views requested)\n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          maxItems: 5
+          minItems: 1
+          type: array
+          items:
+            type: string
+          default: "site,client,network,issue"
+      - name: attribute
+        in: query
+        description: |
+          Supported Attributes:
+
+          [id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude, networkDeviceCount, networkDeviceGoodHealthCount,wirelessDeviceCount, wirelessDeviceGoodHealthCount, accessDeviceCount, accessDeviceGoodHealthCount, coreDeviceCount, coreDeviceGoodHealthCount, distributionDeviceCount, distributionDeviceGoodHealthCount, routerDeviceCount, routerDeviceGoodHealthCount, apDeviceCount, apDeviceGoodHealthCount, wlcDeviceCount, wlcDeviceGoodHealthCount, switchDeviceCount, switchDeviceGoodHealthCount, networkDeviceGoodHealthPercentage, accessDeviceGoodHealthPercentage, coreDeviceGoodHealthPercentage, distributionDeviceGoodHealthPercentage, routerDeviceGoodHealthPercentage, apDeviceGoodHealthPercentage, wlcDeviceGoodHealthPercentage, switchDeviceGoodHealthPercentage, wirelessDeviceGoodHealthPercentage, clientCount, clientGoodHealthCount, wiredClientCount, wirelessClientCount, wiredClientGoodHealthCount, wirelessClientGoodHealthCount, clientGoodHealthPercentage, wiredClientGoodHealthPercentage, wirelessClientGoodHealthPercentage, clientDataUsage, p1IssueCount, p2IssueCount, p3IssueCount, p4IssueCount, issueCount]
+
+          If length of attribute list is too long, please use 'view' param instead.
+
+          Examples:
+
+          attribute=siteHierarchy (single attribute requested)
+
+          attribute=siteHierarchy&attribute=clientCount (multiple attributes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: |
+            Sites health summaries, summary response model, containing requested attributes
+
+            *Unique identifiers may not be populated in response (ex. siteHierarchy, id, etc)*
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/siteHealthSummariesNoAggregatesWrapper'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+    post:
+      tags:
+      - siteHealthSummaries
+      summary: Query an aggregated summary of site health data.
+      description: "Query an aggregated summary of all site health\nThis API provides the latest health data from a given `endTime`\nIf data is not ready for the provided endTime, the request will fail, and the error message will indicate the recommended endTime to use to retrieve a complete data set.\nThis behavior may occur if the provided endTime=currentTime, since we are not a real time system.\nWhen `endTime` is not provided, the API returns the latest data.\nThis API also provides issue data. The `startTime` field can be used to specify the beginning of the time range to retrieve the active issue counts in. \nWhen the 'startTime' field is not provided, the default `startTime` will be 24 hours before endTime.\n\n Aggregated response data will NOT have unique identifier data populated.\n\n List of unique identifier data: [`id`, `siteHierarchy`,\n`siteHierarchyId`, `siteType`, `latitude`, `longitude`]\nPlease refer to the 'API Support Documentation' section to understand which fields are supported.\n"
+      operationId: querySiteHealthSummaryAnalytics
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteType
+        in: query
+        description: |
+          The type of the site. A site can be an area, building, or floor.
+
+          Default when not provided will be `[floor,building,area]`
+
+          Examples:
+
+          `?siteType=area` (single siteType requested)
+
+          `?siteType=area&siteType=building&siteType=floor` (multiple siteTypes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+          default: "floor,building,area"
+      - name: id
+        in: query
+        description: |
+          The list of entity Uuids. (Ex."6bef213c-19ca-4170-8375-b694e251101c")
+          Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested)
+          id=6bef213c-19ca-4170-8375-b694e251101c&id=32219612-819e-4b5e-a96b-cf22aca13dd9&id=2541e9a7-b80d-4955-8aa2-79b233318ba0 (multiple entity uuid with '&' separator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      requestBody:
+        description: Post body to query an aggregated site health summary
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SitesSummaryAnalyticsRequest'
+        required: true
+      responses:
+        "200":
+          description: |
+            Sites health summaries, summary response model, containing requested attributes
+
+            *Unique identifiers may not be populated in response (ex. siteHierarchy, id, etc)*
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/siteHealthSummariesNoAggregatesWrapper'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /siteHealthSummaries/trendAnalytics:
+    get:
+      tags:
+      - siteHealthSummaries
+      summary: Read a trend of site health summary data
+      description: |
+        Retrieves the time series information of health and issue data for sites specified by query parameters, or all sites. The data will be grouped based on the specified trend time interval. If startTime and endTime are not provided, the API defaults to the last 24 hour period where a complete data set exists, and a trendInterval of 1 hour.
+
+        If a startTime or endTime is provided, both must be provided.
+
+        A request with a startTime and endTime provided, must also include a specified trendInterval.
+
+        If data is not ready for the provided endTime, the request will fail,
+        and the error message will indicate the recommended endTime to use to retrieve
+        a complete data set.
+
+        This behavior may occur if the provided endTime=currentTime, since we
+        are not a real time system.
+
+        If the time range requested is >= 24 hours, valid trend intervals are:
+        [1HR, 1DAY, 7DAY]
+
+        By default:
+        - the applied limit of records returned will be 500, and applied offset will be 1.
+        - the records will be sorted in time ascending (`asc`) order
+
+        This API is asynchronous due to the large amounts of data being processed and inherent latency associated with that.
+
+        **The process for using this API is as follows**:
+
+        1). Make request to API to generate intended trend data. This request can include any of the following query parameters:
+
+        [startTime, endTime, siteHierarchy, siteHierarchyId, siteType, id, trendInterval, limit, offset, and order]
+
+        The request MUST include the following query parameters:
+
+        [attribute]
+
+        For a list of supported trend analytics attributes, see main description.
+
+        2). The response will be a 202 HTTP code, with information regarding the generated taskId for this submitted request and the URL to poll the status of this task.
+
+        ex. "/dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191"
+
+
+        3). Once the status is completed, the response data will be retrievable using this same API, by providing the query parameter:
+
+        [taskId].
+
+        ex. /dna/data/api/v1/siteHealthSummaries/trendAnalytics?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191.
+
+        When a taskId is provided, it is the ONLY query parameter that should be provided.
+      operationId: readSiteHealthTrend
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteType
+        in: query
+        description: |
+          The type of the site. A site can be an area, building, or floor.
+
+          Default when not provided will be `[floor,building,area]`
+
+          Examples:
+
+          `?siteType=area` (single siteType requested)
+
+          `?siteType=area&siteType=building&siteType=floor` (multiple siteTypes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+          default: "floor,building,area"
+      - name: id
+        in: query
+        description: |
+          The list of entity Uuids. (Ex."6bef213c-19ca-4170-8375-b694e251101c")
+          Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested)
+          id=6bef213c-19ca-4170-8375-b694e251101c&id=32219612-819e-4b5e-a96b-cf22aca13dd9&id=2541e9a7-b80d-4955-8aa2-79b233318ba0 (multiple entity uuid with '&' separator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: trendInterval
+        in: query
+        description: "The time window to aggregate the metrics. \nInterval can be 5 minutes or 10 minutes or 1 hour or 1 day or 7 days\n"
+        schema:
+          type: string
+          enum:
+          - 5MIN
+          - 10MIN
+          - 1HR
+          - 1DAY
+          - 7DAY
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 500
+          minimum: 1
+          type: integer
+          default: 500
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: timeSortOrder
+        in: query
+        description: The sort order of a time sorted API response.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: attribute
+        in: query
+        description: |
+          Supported Analytics Attributes:
+
+          [networkDeviceCount, networkDeviceGoodHealthCount,wirelessDeviceCount, wirelessDeviceGoodHealthCount, accessDeviceCount, accessDeviceGoodHealthCount, coreDeviceCount, coreDeviceGoodHealthCount, distributionDeviceCount, distributionDeviceGoodHealthCount, routerDeviceCount, routerDeviceGoodHealthCount, apDeviceCount, apDeviceGoodHealthCount, wlcDeviceCount, wlcDeviceGoodHealthCount, switchDeviceCount, switchDeviceGoodHealthCount, networkDeviceGoodHealthPercentage, accessDeviceGoodHealthPercentage, coreDeviceGoodHealthPercentage, distributionDeviceGoodHealthPercentage, routerDeviceGoodHealthPercentage, apDeviceGoodHealthPercentage, wlcDeviceGoodHealthPercentage, switchDeviceGoodHealthPercentage, wirelessDeviceGoodHealthPercentage, clientCount, clientGoodHealthCount, wiredClientCount, wirelessClientCount, wiredClientGoodHealthCount, wirelessClientGoodHealthCount, clientGoodHealthPercentage, wiredClientGoodHealthPercentage, wirelessClientGoodHealthPercentage, clientDataUsage, p1IssueCount, p2IssueCount, p3IssueCount, p4IssueCount, issueCount]
+
+          attribute=networkDeviceCount (single attribute requested)
+
+          attribute=networkDeviceCount&attribute=clientCount (multiple attributes requested)
+        style: form
+        explode: true
+        schema:
+          minItems: 1
+          type: array
+          items:
+            type: string
+      - name: taskId
+        in: query
+        description: |
+          used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Site health summaries trend response model. This is the response model when the 'taskId' query param is used to get the computed trend data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteHealthSummariesTrend'
+              examples:
+                siteHealthTrend:
+                  $ref: '#/components/examples/SiteHealthTrend'
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+components:
+  schemas:
+    siteHealthSummaries:
+      type: object
+      properties:
+        response:
+          type: array
+          description: |
+            Successfully returned list of Sites
+          items:
+            $ref: '#/components/schemas/SiteHealthSummary'
+        page:
+          $ref: '#/components/schemas/PaginationResponse'
+        version:
+          type: string
+          example: "1.0"
+      description: Site health summaries response model
+    SiteHealthSummary:
+      required:
+      - id
+      type: object
+      properties:
+        networkDeviceGoodHealthPercentage:
+          type: number
+          description: |
+            the percentage of network devices that are considered healthy
+
+            absence of data will result in null value
+          example: 84
+        networkDeviceGoodHealthCount:
+          type: integer
+          description: the number of network devices that are considered healthy
+          format: int64
+          example: 308
+        clientGoodHealthCount:
+          type: integer
+          description: the number of clients that are considered healthy
+          format: int64
+          example: 139
+        clientGoodHealthPercentage:
+          type: number
+          description: |
+            the percentage of clients (wired and wireless) that are considered healthy
+
+            absence of data will result in null value
+          example: 82
+        wiredClientGoodHealthPercentage:
+          type: number
+          description: |
+            the percentage of wired clients that are considered healthy
+
+            absence of data will result in null value
+          example: 100
+        wirelessClientGoodHealthPercentage:
+          type: number
+          description: |
+            the percentage of wireless clients that are considered healthy
+
+            absence of data will result in null value
+          example: 78
+        clientCount:
+          type: integer
+          description: the total number of clients (wired and wireless)
+          format: int64
+          example: 169
+        wiredClientCount:
+          type: integer
+          description: the total number of wired clients
+          format: int64
+          example: 32
+        wirelessClientCount:
+          type: integer
+          description: the total number of wireless clients
+          format: int64
+          example: 137
+        wiredClientGoodHealthCount:
+          type: integer
+          description: the number of wired clients that are considered healthy
+          format: int64
+          example: 32
+        wirelessClientGoodHealthCount:
+          type: integer
+          description: the number of wireless clients that are considered healthy
+          format: int64
+          example: 102
+        networkDeviceCount:
+          type: integer
+          description: the total number of network devices
+          format: int64
+          example: 366
+        accessDeviceCount:
+          type: integer
+          description: the total number of network devices defined under the "access" grouping
+          format: int64
+          example: 9
+        accessDeviceGoodHealthCount:
+          type: integer
+          description: the number of network devices defined under the "access" grouping that are considered healthy
+          format: int64
+          example: 9
+        coreDeviceCount:
+          type: integer
+          description: the total number of network devices defined under the "core" grouping
+          format: int64
+          example: 2
+        coreDeviceGoodHealthCount:
+          type: integer
+          description: the number of network devices defined under the "core" grouping that are considered healthy
+          format: int64
+          example: 2
+        distributionDeviceCount:
+          type: integer
+          description: the total number of network devices defined under the "distribution" grouping
+          format: int64
+          example: 1
+        distributionDeviceGoodHealthCount:
+          type: integer
+          description: the number of network devices defined under the "distribution" grouping that are considered healthy
+          format: int64
+          example: 1
+        routerDeviceCount:
+          type: integer
+          description: the total number of network devices defined under the "router" grouping
+          format: int64
+          example: 8
+        routerDeviceGoodHealthCount:
+          type: integer
+          description: the number of network devices defined under the "router" grouping that are considered healthy
+          format: int64
+          example: 7
+        wirelessDeviceCount:
+          type: integer
+          description: the total number of network devices defined under the "wireless" grouping
+          format: int64
+          example: 346
+        wirelessDeviceGoodHealthCount:
+          type: integer
+          description: the number of network devices defined under the "wireless" grouping that are considered healthy
+          format: int64
+          example: 290
+        apDeviceCount:
+          type: integer
+          description: the total number of network devices defined under the "ap" (Access Point) grouping
+          format: int64
+          example: 340
+        apDeviceGoodHealthCount:
+          type: integer
+          description: the number of network devices defined under the "ap" (Access Point) grouping that are considered healthy
+          format: int64
+          example: 284
+        wlcDeviceCount:
+          type: integer
+          description: the total number of network devices defined under the "wlc" (Wireless Controller) grouping
+          format: int64
+          example: 6
+        wlcDeviceGoodHealthCount:
+          type: integer
+          description: the number of network devices defined under the "wlc" (Wireless Controller) grouping that are considered healthy
+          format: int64
+          example: 6
+        switchDeviceCount:
+          type: integer
+          description: the total number of network devices defined under the "switch" grouping
+          format: int64
+          example: 12
+        switchDeviceGoodHealthCount:
+          type: integer
+          description: the number of network devices defined under the "switch" grouping that are considered healthy
+          format: int64
+          example: 12
+        accessDeviceGoodHealthPercentage:
+          type: number
+          description: |
+            the percentage of network devices defined under the "access" grouping that are considered healthy
+
+            absence of data will result in null value
+          example: 100
+        coreDeviceGoodHealthPercentage:
+          type: number
+          description: |
+            the percentage of network devices defined under the "core" grouping that are considered healthy
+
+            absence of data will result in null value
+          example: 100
+        distributionDeviceGoodHealthPercentage:
+          type: number
+          description: |
+            the percentage of network devices defined under the "distribution" grouping that are considered healthy
+
+            absence of data will result in null value
+          example: 100
+        routerDeviceGoodHealthPercentage:
+          type: number
+          description: |
+            the percentage of network devices defined under the "router" grouping that are considered healthy
+
+            absence of data will result in null value
+          example: 88
+        apDeviceGoodHealthPercentage:
+          type: number
+          description: |
+            the percentage of network devices defined under the "ap" (Access Point) grouping that are considered healthy
+
+            absence of data will result in null value
+          example: 84
+        wlcDeviceGoodHealthPercentage:
+          type: number
+          description: |
+            the percentage of network devices defined under the "wlc" (Wireless Controller) grouping that are considered healthy
+
+            absence of data will result in null value
+          example: 100
+        switchDeviceGoodHealthPercentage:
+          type: number
+          description: |
+            the percentage of network devices defined under the "switch" grouping that are considered healthy
+
+            absence of data will result in null value
+          example: 100
+        wirelessDeviceGoodHealthPercentage:
+          type: number
+          description: |
+            the percentage of network devices defined under the "wireless" grouping that are considered healthy
+
+            absence of data will result in null value
+          example: 84
+        clientDataUsage:
+          type: number
+          description: |
+            the amount of data used by clients (both tx and rx) in bytes.
+          example: 6123032232
+        p1IssueCount:
+          type: integer
+          description: the number of p1 issues
+          format: int64
+          example: 15
+        p2IssueCount:
+          type: integer
+          description: the number of p2 issues
+          format: int64
+          example: 15
+        p3IssueCount:
+          type: integer
+          description: the number of p3 issues
+          format: int64
+          example: 15
+        p4IssueCount:
+          type: integer
+          description: the number of p4 issues
+          format: int64
+          example: 15
+        issueCount:
+          type: integer
+          description: the total number of issues
+          format: int64
+          example: 60
+      description: catalyst center site and corresponding assurance health details
+      allOf:
+      - $ref: '#/components/schemas/site'
+    site:
+      type: object
+      properties:
+        id:
+          type: string
+          description: |
+            Unique uuid of the site.
+            For aggregation requests, the value will be null since the unique   identifier will not apply.
+          example: 50c01c29-b09e-49bf-b6ce-2e7d3395f3a3
+        siteHierarchy:
+          type: string
+          description: |
+            The full hierarchical breakdown of the site tree, including the   specific site name. All site trees start with Global.
+            For aggregation requests, the value will be null since the unique   identifier will not apply.
+          example: Global/AreaName/BuildingName/FloorName
+        siteHierarchyId:
+          type: string
+          description: |
+            The full hierarchy breakdown of the site tree in id form, including   the specific site id.
+            For aggregation requests, the value will be null since the unique   identifier will not apply
+          example: 31e57cb2-06af-4c5c-87d1-16af536095d2/54d3f243-509e-436d-9821  -ebe01daf80db/f52fbe48-fcc9-4551-947b-e144e20c0311/50c01c29-b09e  -49bf-b6ce-2e7d3395f3a3
+        siteType:
+          type: string
+          description: |
+            Type of site
+            For aggregation requests, the value may be null since the unique   identifier may not apply
+          enum:
+          - floor
+          - building
+          - area
+          - global
+        latitude:
+          type: number
+          description: |
+            buildings can have their latitude attribute populated to help with   locating.
+            non-buildings will have a null value for this field
+            For aggregation requests, the value will be null since the unique   identifier will not apply
+          example: 37.2
+        longitude:
+          type: number
+          description: |
+            buildings can have their longitude attribute populated to help with   locating
+            non-buildings will have a null value for this field
+            For aggregation requests, the value will be null since the unique   identifier will not apply
+          example: -121.8
+      description: generic catalyst center site object
+    PaginationResponse:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: The reference to the limit applied in the Pagination   Request.
+          example: 10
+        offset:
+          type: integer
+          description: The reference to the record offset applied in the   Pagination Request.
+          example: 1
+        count:
+          type: integer
+          description: Total number of records related to the resource after   applying applicable filtering
+          example: 20
+        sortBy:
+          type: array
+          description: Reference to the sortBy that was applied in the Pagination   Request.
+          items:
+            $ref: '#/components/schemas/PaginationResponse_sortBy'
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorObject'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured   processing this request.
+      example:
+        response:
+        - errorCode: 2600
+          message: Error message
+          detail: Error details
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    ErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: Application specific error code returned by the server
+        message:
+          type: string
+          description: Brief message about the error condition
+        detail:
+          type: string
+          description: "A more detailed explanation of the error condition the   parameter and its value, that caused the condition and why it caused it."
+    siteHealthSummariesNoAggregatesWrapper:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/SiteHealthSummary'
+        version:
+          type: string
+          example: "2.0"
+      description: "Sites health summaries aggregated response model  \n\n*Unique identifiers may not be populated in response (ex. siteHierarchy, id, etc)*\n"
+    SiteHealthSummariesTrend:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteHealthTrendObject'
+        page:
+          $ref: '#/components/schemas/TimeBasedPagination'
+        version:
+          type: string
+          description: The version of the response
+          example: "2.0"
+    SiteHealthTrendObject:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          description: For trend API timestamp is the default groupBy attribute.
+          format: int64
+          example: 1718218219000
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteHealthAnalyticsAttributeValuePair'
+      description: |
+        The aggregate trend response includes timestamp, attributes, aggregateAttributes, and group attributes. The attributes aggregateAttributes and groups are mutually exclusive. If a user requests trends without groupBy attributes, the response includes timestamp, attributes, and aggregateAttributes. However, if a user requests trends with groupBy attributes, the response includes timestamp, and the groups array contains attributes and aggregatedAttributes for each array element.
+    SiteHealthAnalyticsAttributeValuePair:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/SiteHealthAnalyticsAttribute'
+        value:
+          type: object
+          description: This is the value of the attribute requested for analytics API.
+    SiteHealthAnalyticsAttribute:
+      type: string
+      enum:
+      - networkDeviceGoodHealthPercentage
+      - clientGoodHealthPercentage
+      - wiredClientGoodHealthPercentage
+      - wirelessClientGoodHealthPercentage
+      - clientCount
+      - clientGoodHealthCount
+      - wiredClientCount
+      - wirelessClientCount
+      - wiredClientGoodHealthCount
+      - wirelessClientGoodHealthCount
+      - networkDeviceCount
+      - networkDeviceGoodHealthCount
+      - accessDeviceCount
+      - accessDeviceGoodHealthCount
+      - coreDeviceCount
+      - coreDeviceGoodHealthCount
+      - distributionDeviceCount
+      - distributionDeviceGoodHealthCount
+      - routerDeviceCount
+      - routerDeviceGoodHealthCount
+      - wirelessDeviceCount
+      - wirelessDeviceGoodHealthCount
+      - apDeviceCount
+      - apDeviceGoodHealthCount
+      - wlcDeviceCount
+      - wlcDeviceGoodHealthCount
+      - switchDeviceCount
+      - switchDeviceGoodHealthCount
+      - accessDeviceGoodHealthPercentage
+      - coreDeviceGoodHealthPercentage
+      - distributionDeviceGoodHealthPercentage
+      - routerDeviceGoodHealthPercentage
+      - apDeviceGoodHealthPercentage
+      - wlcDeviceGoodHealthPercentage
+      - switchDeviceGoodHealthPercentage
+      - wirelessDeviceGoodHealthPercentage
+      - clientDataUsage
+      - p1IssueCount
+      - p2IssueCount
+      - p3IssueCount
+      - p4IssueCount
+      - issueCount
+    TimeBasedPagination:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to fetch in a page
+          example: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        timeSortOrder:
+          type: string
+          description: Sort order. `asc` for ascending and  `desc` for descending
+          example: asc
+          default: asc
+          enum:
+          - asc
+          - desc
+        count:
+          type: integer
+          description: Number of records returned after applying applicable filtering. Field is ignored for request and updated by API in the response
+          example: 100
+    asyncInfoContainer:
+      properties:
+        response:
+          $ref: '#/components/schemas/asyncInfo'
+        version:
+          type: string
+          example: "1.0"
+      description: |
+        Generic model that will contain the asynchronous task/process information
+    asyncInfo:
+      properties:
+        taskLocation:
+          type: string
+          description: url resource where the client can fetch their task's lifecycle updates
+          example: /dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191
+        taskId:
+          type: string
+          description: the specific task id associated with the specific request made
+          example: bcbb2a8c-deae-4a3e-9459-0eb1dc12c191
+      description: |
+        Generic model with information on the asynchronous task/process
+         that was created to handle an API request
+    CountIntegerResponse:
+      title: Count Integer Response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/CountIntegerResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Reports
+    SitesSummaryAnalyticsRequest:
+      type: object
+      properties:
+        startTime:
+          $ref: '#/components/schemas/startTime'
+        endTime:
+          $ref: '#/components/schemas/endTime'
+        views:
+          type: array
+          description: list of applied views
+          items:
+            $ref: '#/components/schemas/SiteHealthView'
+        attributes:
+          type: array
+          description: list of applied attributes
+          items:
+            $ref: '#/components/schemas/SiteHealthKey'
+    startTime:
+      type: integer
+      description: Start time from which the API queries the dataset related to the resource. It must be specified in terms of milliseconds since UNIX epoch. Value is inclusive.
+      format: int64
+      example: 1705348800000
+    endTime:
+      type: integer
+      description: End time to which the API queries the dataset related to the resource. It must be specified in terms of milliseconds since UNIX epoch. Value is inclusive.
+      format: int64
+      example: 1705435200000
+    SiteHealthView:
+      type: string
+      description: "Views which are supported by this API. Each view represents a specific data set.\n\n### Response data proviced by each view:  \n\n1. **site**\n[id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude]  \n\n2. **network**\n[id, networkDeviceCount, networkDeviceGoodHealthCount,wirelessDeviceCount, wirelessDeviceGoodHealthCount, accessDeviceCount, accessDeviceGoodHealthCount, coreDeviceCount, coreDeviceGoodHealthCount, distributionDeviceCount, distributionDeviceGoodHealthCount, routerDeviceCount, routerDeviceGoodHealthCount, apDeviceCount, apDeviceGoodHealthCount, wlcDeviceCount, wlcDeviceGoodHealthCount, switchDeviceCount, switchDeviceGoodHealthCount, networkDeviceGoodHealthPercentage, accessDeviceGoodHealthPercentage, coreDeviceGoodHealthPercentage, distributionDeviceGoodHealthPercentage, routerDeviceGoodHealthPercentage, apDeviceGoodHealthPercentage, wlcDeviceGoodHealthPercentage, switchDeviceGoodHealthPercentage, wirelessDeviceGoodHealthPercentage]  \n\n3. **client**\n[id, clientCount, clientGoodHealthCount, wiredClientCount, wirelessClientCount, wiredClientGoodHealthCount, wirelessClientGoodHealthCount, clientGoodHealthPercentage, wiredClientGoodHealthPercentage, wirelessClientGoodHealthPercentage, clientDataUsage]  \n\n4. **issue**\n[id, p1IssueCount, p2IssueCount, p3IssueCount, p4IssueCount, issueCount]  \n\n\nWhen this list is not added the default summaries will be: \n\n**[site,client,network,issue]**\n"
+      enum:
+      - site
+      - client
+      - network
+      - issue
+    SiteHealthKey:
+      type: string
+      description: Field names which are supported by this API as attributes or filter keys
+      enum:
+      - id
+      - siteHierarchy
+      - siteHierarchyId
+      - siteType
+      - latitude
+      - longitude
+      - networkDeviceGoodHealthPercentage
+      - clientGoodHealthPercentage
+      - wiredClientGoodHealthPercentage
+      - wirelessClientGoodHealthPercentage
+      - clientCount
+      - clientGoodHealthCount
+      - wiredClientCount
+      - wirelessClientCount
+      - wiredClientGoodHealthCount
+      - wirelessClientGoodHealthCount
+      - networkDeviceCount
+      - networkDeviceGoodHealthCount
+      - accessDeviceCount
+      - accessDeviceGoodHealthCount
+      - coreDeviceCount
+      - coreDeviceGoodHealthCount
+      - distributionDeviceCount
+      - distributionDeviceGoodHealthCount
+      - routerDeviceCount
+      - routerDeviceGoodHealthCount
+      - wirelessDeviceCount
+      - wirelessDeviceGoodHealthCount
+      - apDeviceCount
+      - apDeviceGoodHealthCount
+      - wlcDeviceCount
+      - wlcDeviceGoodHealthCount
+      - switchDeviceCount
+      - switchDeviceGoodHealthCount
+      - accessDeviceGoodHealthPercentage
+      - coreDeviceGoodHealthPercentage
+      - distributionDeviceGoodHealthPercentage
+      - routerDeviceGoodHealthPercentage
+      - apDeviceGoodHealthPercentage
+      - wlcDeviceGoodHealthPercentage
+      - switchDeviceGoodHealthPercentage
+      - wirelessDeviceGoodHealthPercentage
+      - clientDataUsage
+      - p1IssueCount
+      - p2IssueCount
+      - p3IssueCount
+      - p4IssueCount
+      - issueCount
+    PaginationResponse_sortBy:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Field name by which sort is requested
+          example: siteHierarchy
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for   descending
+          example: asc
+          enum:
+          - asc
+          - desc
+      description: List of field names and corresponding order used to sort   the records.
+    CountIntegerResponse_response:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The total number of records related to the resource
+          format: int64
+          example: 1000
+  responses:
+    SiteHealthSummariesResponse:
+      description: Site health summaries response model
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/siteHealthSummaries'
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "500":
+      description: The server could not fulfill the request due to internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "1XX":
+      description: Informational Responses - The server received the request and sent an informational response.
+    "2XX":
+      description: "Successful Responses - The server received the client request, understood it, and accepted it."
+    "3XX":
+      description: Redirection Messages - The client must take additional action to complete the request.
+    "4XX":
+      description: Client Error Responses - The client request caused the error.
+    "5XX":
+      description: Server Error Responses - The server failed to fulfill the request.
+    defaultError:
+      description: Unexpected Error
+    SiteHealthSummariesNoAggregateResponse:
+      description: |
+        Sites health summaries, summary response model, containing requested attributes
+
+        *Unique identifiers may not be populated in response (ex. siteHierarchy, id, etc)*
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/siteHealthSummariesNoAggregatesWrapper'
+    "404":
+      description: The client made a request for a resource that does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    SiteHealthSummariesTrendResponse:
+      description: Site health summaries trend response model. This is the response model when the 'taskId' query param is used to get the computed trend data.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SiteHealthSummariesTrend'
+          examples:
+            siteHealthTrend:
+              $ref: '#/components/examples/SiteHealthTrend'
+    AsyncResponse:
+      description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/asyncInfoContainer'
+  parameters:
+    callerId:
+      name: X-CALLER-ID
+      in: header
+      description: |
+        Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+      required: false
+      schema:
+        type: string
+        default: unknown
+      example: intent
+    startTime:
+      name: startTime
+      in: query
+      description: |
+        Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      schema:
+        type: integer
+        format: int64
+      example: 1705348800000
+    endTime:
+      name: endTime
+      in: query
+      description: |
+        End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      required: false
+      schema:
+        type: integer
+        format: int64
+      example: 1705435200000
+    limit_20:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        maximum: 20
+        minimum: 1
+        type: integer
+        default: 10
+    offset:
+      name: offset
+      in: query
+      description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+      schema:
+        minimum: 1
+        type: integer
+        default: 1
+    sortBy:
+      name: sortBy
+      in: query
+      description: A field within the response to sort by.
+      schema:
+        type: string
+    order:
+      name: order
+      in: query
+      description: The sort order of the field ascending or descending.
+      schema:
+        type: string
+        default: asc
+        enum:
+        - asc
+        - desc
+    siteHierarchies:
+      name: siteHierarchy
+      in: query
+      description: |
+        The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+        Examples:
+
+        `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+        `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteHierarchyIds:
+      name: siteHierarchyId
+      in: query
+      description: |
+        The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+        Examples:
+
+        `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+        `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteTypes:
+      name: siteType
+      in: query
+      description: |
+        The type of the site. A site can be an area, building, or floor.
+
+        Default when not provided will be `[floor,building,area]`
+
+        Examples:
+
+        `?siteType=area` (single siteType requested)
+
+        `?siteType=area&siteType=building&siteType=floor` (multiple siteTypes requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        default: "floor,building,area"
+    ids:
+      name: id
+      in: query
+      description: |
+        The list of entity Uuids. (Ex."6bef213c-19ca-4170-8375-b694e251101c")
+        Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested)
+        id=6bef213c-19ca-4170-8375-b694e251101c&id=32219612-819e-4b5e-a96b-cf22aca13dd9&id=2541e9a7-b80d-4955-8aa2-79b233318ba0 (multiple entity uuid with '&' separator)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteHealthViews:
+      name: view
+      in: query
+      description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n### Response data proviced by each view:  \n\n1. **site**\n[id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude]  \n\n2. **network**\n[id, networkDeviceCount, networkDeviceGoodHealthCount,wirelessDeviceCount, wirelessDeviceGoodHealthCount, accessDeviceCount, accessDeviceGoodHealthCount, coreDeviceCount, coreDeviceGoodHealthCount, distributionDeviceCount, distributionDeviceGoodHealthCount, routerDeviceCount, routerDeviceGoodHealthCount, apDeviceCount, apDeviceGoodHealthCount, wlcDeviceCount, wlcDeviceGoodHealthCount, switchDeviceCount, switchDeviceGoodHealthCount, networkDeviceGoodHealthPercentage, accessDeviceGoodHealthPercentage, coreDeviceGoodHealthPercentage, distributionDeviceGoodHealthPercentage, routerDeviceGoodHealthPercentage, apDeviceGoodHealthPercentage, wlcDeviceGoodHealthPercentage, switchDeviceGoodHealthPercentage, wirelessDeviceGoodHealthPercentage]  \n\n3. **client**\n[id, clientCount, clientGoodHealthCount, wiredClientCount, wirelessClientCount, wiredClientGoodHealthCount, wirelessClientGoodHealthCount, clientGoodHealthPercentage, wiredClientGoodHealthPercentage, wirelessClientGoodHealthPercentage, clientDataUsage]  \n\n4. **issue**\n[id, p1IssueCount, p2IssueCount, p3IssueCount, p4IssueCount, issueCount]  \n\nWhen this query parameter is not added the default summaries are:  \n\n**[site,client,network,issue]**\n\nExamples:\n\nview=client (single view requested)\n\nview=client&view=network&view=issue (multiple views requested)\n"
+      required: false
+      style: form
+      explode: true
+      schema:
+        maxItems: 5
+        minItems: 1
+        type: array
+        items:
+          type: string
+        default: "site,client,network,issue"
+    siteHealthAttributes:
+      name: attribute
+      in: query
+      description: |
+        Supported Attributes:
+
+        [id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude, networkDeviceCount, networkDeviceGoodHealthCount,wirelessDeviceCount, wirelessDeviceGoodHealthCount, accessDeviceCount, accessDeviceGoodHealthCount, coreDeviceCount, coreDeviceGoodHealthCount, distributionDeviceCount, distributionDeviceGoodHealthCount, routerDeviceCount, routerDeviceGoodHealthCount, apDeviceCount, apDeviceGoodHealthCount, wlcDeviceCount, wlcDeviceGoodHealthCount, switchDeviceCount, switchDeviceGoodHealthCount, networkDeviceGoodHealthPercentage, accessDeviceGoodHealthPercentage, coreDeviceGoodHealthPercentage, distributionDeviceGoodHealthPercentage, routerDeviceGoodHealthPercentage, apDeviceGoodHealthPercentage, wlcDeviceGoodHealthPercentage, switchDeviceGoodHealthPercentage, wirelessDeviceGoodHealthPercentage, clientCount, clientGoodHealthCount, wiredClientCount, wirelessClientCount, wiredClientGoodHealthCount, wirelessClientGoodHealthCount, clientGoodHealthPercentage, wiredClientGoodHealthPercentage, wirelessClientGoodHealthPercentage, clientDataUsage, p1IssueCount, p2IssueCount, p3IssueCount, p4IssueCount, issueCount]
+
+        If length of attribute list is too long, please use 'view' param instead.
+
+        Examples:
+
+        attribute=siteHierarchy (single attribute requested)
+
+        attribute=siteHierarchy&attribute=clientCount (multiple attributes requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    trendInterval:
+      name: trendInterval
+      in: query
+      description: "The time window to aggregate the metrics. \nInterval can be 5 minutes or 10 minutes or 1 hour or 1 day or 7 days\n"
+      schema:
+        type: string
+        enum:
+        - 5MIN
+        - 10MIN
+        - 1HR
+        - 1DAY
+        - 7DAY
+    limit_500:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        maximum: 500
+        minimum: 1
+        type: integer
+        default: 500
+    timeSortOrder:
+      name: timeSortOrder
+      in: query
+      description: The sort order of a time sorted API response.
+      schema:
+        type: string
+        default: asc
+        enum:
+        - asc
+        - desc
+    siteHealthAnalyticsAttributes:
+      name: attribute
+      in: query
+      description: |
+        Supported Analytics Attributes:
+
+        [networkDeviceCount, networkDeviceGoodHealthCount,wirelessDeviceCount, wirelessDeviceGoodHealthCount, accessDeviceCount, accessDeviceGoodHealthCount, coreDeviceCount, coreDeviceGoodHealthCount, distributionDeviceCount, distributionDeviceGoodHealthCount, routerDeviceCount, routerDeviceGoodHealthCount, apDeviceCount, apDeviceGoodHealthCount, wlcDeviceCount, wlcDeviceGoodHealthCount, switchDeviceCount, switchDeviceGoodHealthCount, networkDeviceGoodHealthPercentage, accessDeviceGoodHealthPercentage, coreDeviceGoodHealthPercentage, distributionDeviceGoodHealthPercentage, routerDeviceGoodHealthPercentage, apDeviceGoodHealthPercentage, wlcDeviceGoodHealthPercentage, switchDeviceGoodHealthPercentage, wirelessDeviceGoodHealthPercentage, clientCount, clientGoodHealthCount, wiredClientCount, wirelessClientCount, wiredClientGoodHealthCount, wirelessClientGoodHealthCount, clientGoodHealthPercentage, wiredClientGoodHealthPercentage, wirelessClientGoodHealthPercentage, clientDataUsage, p1IssueCount, p2IssueCount, p3IssueCount, p4IssueCount, issueCount]
+
+        attribute=networkDeviceCount (single attribute requested)
+
+        attribute=networkDeviceCount&attribute=clientCount (multiple attributes requested)
+      style: form
+      explode: true
+      schema:
+        minItems: 1
+        type: array
+        items:
+          type: string
+    taskId:
+      name: taskId
+      in: query
+      description: |
+        used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+      schema:
+        type: string
+  examples:
+    SiteHealthTrend:
+      summary: Site health trend response example
+      value:
+        response:
+        - timestamp: 1718582400000
+          attributes:
+          - name: clientCount
+            value: 10
+        - timestamp: 1718586000000
+          attributes:
+          - name: clientCount
+            value: 12
+        - timestamp: 1718589600000
+          attributes:
+          - name: clientCount
+            value: 12
+        - timestamp: 1718593200000
+          attributes:
+          - name: clientCount
+            value: 12
+        - timestamp: 1718596800000
+          attributes:
+          - name: clientCount
+            value: 12
+        - timestamp: 1718600400000
+          attributes:
+          - name: clientCount
+            value: 12
+        page:
+          limit: 6
+          offset: 0
+          count: 3
+          timeSortOrder: asc
+        version: 2.0
