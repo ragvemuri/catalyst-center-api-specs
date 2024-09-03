@@ -1,0 +1,2601 @@
+---
+openapi: 3.0.0
+info:
+  title: Open API Spec to get the Site Analytics
+  description: "These APIs return site level analytics data based on critical KPIs (Key Performanc Indicator). The KPIs are: Onboarding Attemts, Onboarding Duration, Roaming Attempts, Roaming Duration, Coverage and Connection Speed"
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Cisco Catalyst Center License
+    url: https://www.cisco.com/c/en/us/products/collateral/software/dna-software-ebook-cte.html
+  version: 1.0.0
+servers:
+- url: https://developer.cisco.com
+tags:
+- name: siteAnalytics
+  description: Operations related to Catalyst Center - Site Analytics
+  externalDocs:
+    description: Catalyst Center Assurance user guide
+    url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
+paths:
+  /dna/data/api/v1/siteKpiSummaries:
+    get:
+      tags:
+      - siteAnalytics
+      summary: Get site analytics for the child sites of given parent site and other query parameters.
+      description: "Returns site analytics for all child sites of given parent site. If no parent site is provided, then this API returns analytics for all children of Global site. Data is also filtered based on set of filters specified in query parameters. If there is no start and/or end time, then end time will be defaulted to current time and start time will be defaulted to 24-hours ago from end time.\n\n\n**The process for using this API is as follows**:\n\n1). Make request to API to generate intended data.\n\n2). The success response will be a 202 HTTP code, with information regarding the generated taskId for this submitted request and the URL to poll the status of this task.\n\n\n Example: \"/dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191\"\n\n\n3). Once the task is completed, the response data will be retrievable using the same API, by providing the `taskId` query parameter:\n\nExample: GET /dna/data/api/v1/siteKpiSummaries?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191.  \n\nWhen a taskId is provided, it is the ONLY query parameter that should be provided."
+      operationId: readSiteKpiSummaries
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: taskId
+        in: query
+        description: |
+          used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+        schema:
+          type: string
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteId
+        in: query
+        description: |
+          The UUID of the site. (Ex. `flooruuid`)
+
+          Examples:
+
+          `?siteId=id1` (single id requested)
+
+          `?siteId=id1&siteId=id2&siteId=id3` (multiple ids requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteType
+        in: query
+        description: |
+          The type of the site. A site can be an area, building, or floor.
+
+          Default when not provided will be `[floor,building,area]`
+
+          Examples:
+
+          `?siteType=area` (single siteType requested)
+
+          `?siteType=area&siteType=building&siteType=floor` (multiple siteTypes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+          default: "floor,building,area"
+      - name: ssid
+        in: query
+        description: |
+          SSID is the name of wireless network to which client connects to. It is also referred to as WLAN ID - Wireless Local Area Network Identifier.
+          Examples:
+          `ssid=Alpha` (single ssid requested)
+          `ssid=Alpha&ssid=Guest` (multiple ssid requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: band
+        in: query
+        description: |
+          WiFi frequency band that client or Access Point operates. Band value is represented in Giga Hertz - GHz
+          Examples:
+          `band=5` (single band requested)
+          `band=2.4&band=6` (multiple band requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - "2.4"
+            - "5"
+            - "6"
+      - name: failureCategory
+        in: query
+        description: |
+          Category of failure when a client fails to meet the threshold.
+          Examples:
+          `failureCategory=AUTH` (single failure category requested)
+          `failureCategory=AUTH&failureCategory=DHCP` (multiple failure categories requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: failureReason
+        in: query
+        description: |
+          Reason for failure when a client fails to meet the threshold.
+          Examples:
+          `failureReason=MOBILITY_FAILURE` (single ssid requested)
+          `failureReason=REASON_IPLEARN_CONNECT_TIMEOUT&failureReason=ST_EAP_TIMEOUT`   (multiple ssid requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: view
+        in: query
+        description: "The name of the View. Each view represents a specific data set. Please refer to the `SiteAnalyticsView` Model for supported views. View is predefined set of attributes supported by the API. Only the attributes related to the given view will be part of the API response along with default attributes. If multiple views are provided, then response will contain attributes from all those views. If no views are specified, all attributes will be returned.\n\n| View Name | Included Attributes |\n| --- | --- |\n| `coverage` | coverageAverage, coverageSuccessPercentage, coverageSuccessCount, coverageTotalCount, coverageFailureCount, coverageClientCount, coverageImpactedEntities, coverageFailureImpactedEntities, coverageFailureMetrics |\n| `onboardingAttempts` | onboardingAttemptsSuccessPercentage, onboardingAttemptsSuccessCount, onboardingAttemptsTotalCount, onboardingAttemptsFailureCount, onboardingAttemptsClientCount, onboardingAttemptsImpactedEntities, onboardingAttemptsFailureImpactedEntities, onboardingAttemptsFailureMetrics |\n| `onboardingDuration` | onboardingDurationAverage, onboardingDurationSuccessPercentage, onboardingDurationSuccessCount, onboardingDurationTotalCount, onboardingDurationFailureCount, onboardingDurationClientCount, onboardingDurationImpactedEntities, onboardingDurationFailureImpactedEntities, onboardingDurationFailureMetrics |\n| `roamingAttempts` | roamingAttemptsSuccessPercentage, roamingAttemptsSuccessCount, roamingAttemptsTotalCount, roamingAttemptsFailureCount, roamingAttemptsClientCount, roamingAttemptsImpactedEntities, roamingAttemptsFailureImpactedEntities, roamingAttemptsFailureMetrics |        \n| `roamingDuration` | roamingDurationAverage, roamingDurationSuccessPercentage, roamingDurationSuccessCount, roamingDurationTotalCount, roamingDurationFailureCount, roamingDurationClientCount, roamingDurationImpactedEntities, roamingDurationFailureImpactedEntities, roamingDurationFailureMetrics |\n| `connectionSpeed` | connectionSpeedAverage, connectionSpeedSuccessPercentage, connectionSpeedSuccessCount, connectionSpeedTotalCount, connectionSpeedFailureCount, connectionSpeedClientCount, connectionSpeedImpactedEntities, connectionSpeedFailureImpactedEntities, connectionSpeedFailureMetrics |\nExamples: `view=connectionSpeed` (single view requested) `view=roamingDuration&view=roamingAttempts` (multiple views requested)       \n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          maxItems: 5
+          minItems: 1
+          type: array
+          items:
+            type: string
+            enum:
+            - coverage
+            - onboardingAttempts
+            - onboardingDuration
+            - roamingAttempts
+            - roamingDuration
+            - connectionSpeed
+      - name: attribute
+        in: query
+        description: |
+          List of attributes related to site analytics. If these are provided, then only those attributes will be part of response along with the default attributes.
+          Examples: `attribute=coverageAverage` (single attribute requested) `attribute=coverageFailureMetrics&attribute=coverageTotalCount` (multiple attributes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - coverageAverage
+            - coverageSuccessPercentage
+            - coverageSuccessCount
+            - coverageTotalCount
+            - coverageFailureCount
+            - coverageClientCount
+            - coverageImpactedEntities
+            - coverageFailureImpactedEntities
+            - coverageFailureMetrics
+            - onboardingAttemptsSuccessPercentage
+            - onboardingAttemptsSuccessCount
+            - onboardingAttemptsTotalCount
+            - onboardingAttemptsFailureCount
+            - onboardingAttemptsClientCount
+            - onboardingAttemptsImpactedEntities
+            - onboardingAttemptsFailureImpactedEntities
+            - onboardingAttemptsFailureMetrics
+            - onboardingDurationAverage
+            - onboardingDurationSuccessPercentage
+            - onboardingDurationSuccessCount
+            - onboardingDurationTotalCount
+            - onboardingDurationFailureCount
+            - onboardingDurationClientCount
+            - onboardingDurationImpactedEntities
+            - onboardingDurationFailureImpactedEntities
+            - onboardingDurationFailureMetrics
+            - roamingAttemptsSuccessPercentage
+            - roamingAttemptsSuccessCount
+            - roamingAttemptsTotalCount
+            - roamingAttemptsFailureCount
+            - roamingAttemptsClientCount
+            - roamingAttemptsImpactedEntities
+            - roamingAttemptsFailureImpactedEntities
+            - roamingAttemptsFailureMetrics
+            - roamingDurationAverage
+            - roamingDurationSuccessPercentage
+            - roamingDurationSuccessCount
+            - roamingDurationTotalCount
+            - roamingDurationFailureCount
+            - roamingDurationClientCount
+            - roamingDurationImpactedEntities
+            - roamingDurationFailureImpactedEntities
+            - roamingDurationFailureMetrics
+            - connectionSpeedAverage
+            - connectionSpeedSuccessPercentage
+            - connectionSpeedSuccessCount
+            - connectionSpeedTotalCount
+            - connectionSpeedFailureCount
+            - connectionSpeedClientCount
+            - connectionSpeedImpactedEntities
+            - connectionSpeedFailureImpactedEntities
+            - connectionSpeedFailureMetrics
+            - apCount
+            - wirelessClientCount
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 20
+          minimum: 1
+          type: integer
+          default: 10
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: sortBy
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - siteHierarchy
+          - siteType
+      - name: order
+        in: query
+        description: The sort order of the field ascending or descending.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      responses:
+        "200":
+          description: Response containing site anlytics details for given filters
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/SiteAnalyticsListResponseModel'
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/siteKpiSummaries/count:
+    get:
+      tags:
+      - siteAnalytics
+      summary: Get the total number of site analytics records available for for given set of query parameters.
+      description: "Returns the total number of site analytics records available for for given set of query parameters. If there is no start and/or end time, then end time will be defaulted to current time and start time will be defaulted to 24-hours ago from end time."
+      operationId: readSiteKpiSummariesCount
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteId
+        in: query
+        description: |
+          The UUID of the site. (Ex. `flooruuid`)
+
+          Examples:
+
+          `?siteId=id1` (single id requested)
+
+          `?siteId=id1&siteId=id2&siteId=id3` (multiple ids requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteType
+        in: query
+        description: |
+          The type of the site. A site can be an area, building, or floor.
+
+          Default when not provided will be `[floor,building,area]`
+
+          Examples:
+
+          `?siteType=area` (single siteType requested)
+
+          `?siteType=area&siteType=building&siteType=floor` (multiple siteTypes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+          default: "floor,building,area"
+      responses:
+        "200":
+          description: Reponse object containing total count of the records after applying requested filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/siteKpiSummaries/query:
+    post:
+      tags:
+      - siteAnalytics
+      summary: Get site analytics for the child sites of given parent site and other filters.
+      description: "Returns site analytics for all child sites of given parent site. If no parent site is provided, then this API returns analytics for all children of Global site. Data is also filtered based on set of filters. If there is no start and/or end time, then end time will be defaulted to current time and start time will be defaulted to 24-hours ago from end time.\n|Field Name | Description |\n| --- | --- |\n| `startTime` | start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |\n| `endTime` | end time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |\n| `filters`| used to define one or more conditions. Only the data that satisfy these filter conditions will be taken into consideration during the site analytics calculation.|\n| `attributes` | If these are provided, then only those attributes will be part of response along with the default attributes. Please refer to the `SiteAnalyticsResponseAttribute` Model for supported attributes.|\n| `views` | View is predefined set of attributes supported by the API. Only the attributes related to the given view will be part of the API response along with default attributes. If multiple views are provided, then response will contain attributes from all those views. Please refer to the `SiteAnalyticsView` Model for supported attributes. If no views are specified, all attributes will be returned.  |\n| `page`| contains **limit, offset, sortBy, order** fields. *limit* - Number of records to be returned in response, *offset* - starting offset of data,  *sortBy* - sort key name, *order* - order to sort        \n\n**The process for using this API is as follows**:\n\n1). Make request to API to generate intended data.\n\n2). The success response will be a 202 HTTP code, with information regarding the generated taskId for this submitted request and the URL to poll the status of this task.\n\n\n Example: \"/dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191\"\n\n\n3). Once the task is completed, the response data will be retrievable using the GET API: `GET /dna/data/api/v1/siteKpiSummaries` by providing the `taskId` query parameter\n\n  Example:\n  GET /dna/data/api/v1/siteKpiSummaries?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191.  \n\nWhen a taskId is provided, it is the ONLY query parameter that should be provided.        "
+      operationId: readSiteKpiSummariesWithFilters
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload which contains start/end times and filters to retrive site analytics.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteAnalyticsQueryRequest'
+            examples:
+              Example1:
+                $ref: '#/components/examples/SiteAnalyticsQueryRequestExample1'
+        required: true
+      responses:
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/siteKpiSummaries/query/count:
+    post:
+      tags:
+      - siteAnalytics
+      summary: Get the total number of site analytics records available for for given set of filters.
+      description: |-
+        Returns the total number of site analytics records available for for given set of filters. If there is no start and/or end time, then end time will be defaulted to current time and start time will be defaulted to 24-hours ago from end time.
+
+         **The input payload contains the following fields**
+
+        |Field Name | Description |
+        | --- | --- |
+        | `startTime` | start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |
+        | `endTime` | end time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |
+        | `filters`| used to define one or more conditions. Only the data that satisfy these filter conditions will be taken into consideration during the site analytics calculation.|
+      operationId: readSiteKpiSummariesCountWithFilters
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload which contains start/end times and filters to retrive site analytics count.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteAnalyticsQueryCountRequest'
+            examples:
+              Example1:
+                $ref: '#/components/examples/SiteAnalyticsQueryCountRequestExample1'
+        required: true
+      responses:
+        "200":
+          description: Reponse object containing total count of the records after applying requested filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/siteKpiSummaries/{id}:
+    get:
+      tags:
+      - siteAnalytics
+      summary: Get site analytics for one site.
+      description: "Returns site analytics for the given site. If there is no start and/or end time, then end time will be defaulted to current time and start time will be defaulted to 24-hours ago from end time.\n\n**The process for using this API is as follows**:\n\n1). Make request to API to generate intended data.\n\n2). The success response will be a 202 HTTP code, with information regarding the generated taskId for this submitted request and the URL to poll the status of this task.\n\n\n Example: \"/dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191\"\n\n\n3). Once the task is completed, the response data will be retrievable using the same API, by providing the `taskId` query parameter:\n\nExample: GET /dna/data/api/v1/siteKpiSummaries/243faba9-7f9e-4f2d-9914-97c2756754cb?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191.  \n\nWhen a taskId is provided, it is the ONLY query parameter that should be provided."
+      operationId: readSiteKpiSummariesById
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: id
+        in: path
+        description: The Site UUID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: taskId
+        in: query
+        description: |
+          used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+        schema:
+          type: string
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: ssid
+        in: query
+        description: |
+          SSID is the name of wireless network to which client connects to. It is also referred to as WLAN ID - Wireless Local Area Network Identifier.
+          Examples:
+          `ssid=Alpha` (single ssid requested)
+          `ssid=Alpha&ssid=Guest` (multiple ssid requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: band
+        in: query
+        description: |
+          WiFi frequency band that client or Access Point operates. Band value is represented in Giga Hertz - GHz
+          Examples:
+          `band=5` (single band requested)
+          `band=2.4&band=6` (multiple band requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - "2.4"
+            - "5"
+            - "6"
+      - name: failureCategory
+        in: query
+        description: |
+          Category of failure when a client fails to meet the threshold.
+          Examples:
+          `failureCategory=AUTH` (single failure category requested)
+          `failureCategory=AUTH&failureCategory=DHCP` (multiple failure categories requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: failureReason
+        in: query
+        description: |
+          Reason for failure when a client fails to meet the threshold.
+          Examples:
+          `failureReason=MOBILITY_FAILURE` (single ssid requested)
+          `failureReason=REASON_IPLEARN_CONNECT_TIMEOUT&failureReason=ST_EAP_TIMEOUT`   (multiple ssid requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: view
+        in: query
+        description: "The name of the View. Each view represents a specific data set. Please refer to the `SiteAnalyticsView` Model for supported views. View is predefined set of attributes supported by the API. Only the attributes related to the given view will be part of the API response along with default attributes. If multiple views are provided, then response will contain attributes from all those views. If no views are specified, all attributes will be returned.\n\n| View Name | Included Attributes |\n| --- | --- |\n| `coverage` | coverageAverage, coverageSuccessPercentage, coverageSuccessCount, coverageTotalCount, coverageFailureCount, coverageClientCount, coverageImpactedEntities, coverageFailureImpactedEntities, coverageFailureMetrics |\n| `onboardingAttempts` | onboardingAttemptsSuccessPercentage, onboardingAttemptsSuccessCount, onboardingAttemptsTotalCount, onboardingAttemptsFailureCount, onboardingAttemptsClientCount, onboardingAttemptsImpactedEntities, onboardingAttemptsFailureImpactedEntities, onboardingAttemptsFailureMetrics |\n| `onboardingDuration` | onboardingDurationAverage, onboardingDurationSuccessPercentage, onboardingDurationSuccessCount, onboardingDurationTotalCount, onboardingDurationFailureCount, onboardingDurationClientCount, onboardingDurationImpactedEntities, onboardingDurationFailureImpactedEntities, onboardingDurationFailureMetrics |\n| `roamingAttempts` | roamingAttemptsSuccessPercentage, roamingAttemptsSuccessCount, roamingAttemptsTotalCount, roamingAttemptsFailureCount, roamingAttemptsClientCount, roamingAttemptsImpactedEntities, roamingAttemptsFailureImpactedEntities, roamingAttemptsFailureMetrics |        \n| `roamingDuration` | roamingDurationAverage, roamingDurationSuccessPercentage, roamingDurationSuccessCount, roamingDurationTotalCount, roamingDurationFailureCount, roamingDurationClientCount, roamingDurationImpactedEntities, roamingDurationFailureImpactedEntities, roamingDurationFailureMetrics |\n| `connectionSpeed` | connectionSpeedAverage, connectionSpeedSuccessPercentage, connectionSpeedSuccessCount, connectionSpeedTotalCount, connectionSpeedFailureCount, connectionSpeedClientCount, connectionSpeedImpactedEntities, connectionSpeedFailureImpactedEntities, connectionSpeedFailureMetrics |\nExamples: `view=connectionSpeed` (single view requested) `view=roamingDuration&view=roamingAttempts` (multiple views requested)       \n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          maxItems: 5
+          minItems: 1
+          type: array
+          items:
+            type: string
+            enum:
+            - coverage
+            - onboardingAttempts
+            - onboardingDuration
+            - roamingAttempts
+            - roamingDuration
+            - connectionSpeed
+      - name: attribute
+        in: query
+        description: |
+          List of attributes related to site analytics. If these are provided, then only those attributes will be part of response along with the default attributes.
+          Examples: `attribute=coverageAverage` (single attribute requested) `attribute=coverageFailureMetrics&attribute=coverageTotalCount` (multiple attributes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - coverageAverage
+            - coverageSuccessPercentage
+            - coverageSuccessCount
+            - coverageTotalCount
+            - coverageFailureCount
+            - coverageClientCount
+            - coverageImpactedEntities
+            - coverageFailureImpactedEntities
+            - coverageFailureMetrics
+            - onboardingAttemptsSuccessPercentage
+            - onboardingAttemptsSuccessCount
+            - onboardingAttemptsTotalCount
+            - onboardingAttemptsFailureCount
+            - onboardingAttemptsClientCount
+            - onboardingAttemptsImpactedEntities
+            - onboardingAttemptsFailureImpactedEntities
+            - onboardingAttemptsFailureMetrics
+            - onboardingDurationAverage
+            - onboardingDurationSuccessPercentage
+            - onboardingDurationSuccessCount
+            - onboardingDurationTotalCount
+            - onboardingDurationFailureCount
+            - onboardingDurationClientCount
+            - onboardingDurationImpactedEntities
+            - onboardingDurationFailureImpactedEntities
+            - onboardingDurationFailureMetrics
+            - roamingAttemptsSuccessPercentage
+            - roamingAttemptsSuccessCount
+            - roamingAttemptsTotalCount
+            - roamingAttemptsFailureCount
+            - roamingAttemptsClientCount
+            - roamingAttemptsImpactedEntities
+            - roamingAttemptsFailureImpactedEntities
+            - roamingAttemptsFailureMetrics
+            - roamingDurationAverage
+            - roamingDurationSuccessPercentage
+            - roamingDurationSuccessCount
+            - roamingDurationTotalCount
+            - roamingDurationFailureCount
+            - roamingDurationClientCount
+            - roamingDurationImpactedEntities
+            - roamingDurationFailureImpactedEntities
+            - roamingDurationFailureMetrics
+            - connectionSpeedAverage
+            - connectionSpeedSuccessPercentage
+            - connectionSpeedSuccessCount
+            - connectionSpeedTotalCount
+            - connectionSpeedFailureCount
+            - connectionSpeedClientCount
+            - connectionSpeedImpactedEntities
+            - connectionSpeedFailureImpactedEntities
+            - connectionSpeedFailureMetrics
+            - apCount
+            - wirelessClientCount
+      responses:
+        "200":
+          description: Response containing site anlytics details for one site
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/SiteAnalyticsResponseModel'
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/siteKpiSummaries/summaryAnalytics:
+    get:
+      tags:
+      - siteAnalytics
+      summary: Get site analytics summary data for a taskId
+      description: "Gets the summary analytics data for a given taskId. First use the POST API (POST /dna/data/api/v1/siteKpiSummaries/summaryAnalytics) to request summary analytics, which returns a task id. Then use this GET API and pass the taskId as query parameter to get the summary analytics data."
+      operationId: querySiteKpiSummariesSummaryAnalyticsTask
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: taskId
+        in: query
+        description: |
+          used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Response containing site analytics summary details for given filters
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/SiteAnalyticsSummaryResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+    post:
+      tags:
+      - siteAnalytics
+      summary: Get site analytics summary data
+      description: |-
+        Gets the summary analytics data for a given site. This data is calculated by aggregating anlytics of all child sites of the given site id. If site id is not provided, then data is aggregated from all child sites of Global site.
+        **The input payload contains the following fields**
+        |Field Name | Description |
+        | --- | --- |
+        | `startTime` | start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |
+        | `endTime` | end time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |
+        | `filters`| used to define one or more conditions. Only the data that satisfy these filter conditions will be taken into consideration during the site analytics calculation.|
+        | `attributes` | This is mandatory field. The specified attributes will be part of response. Please refer to the `SiteAnalyticsResponseAttribute` Model for supported attributes.|
+
+        **The process for using this API is as follows**:
+
+        1). Make request to API to generate intended summary analytics data.
+
+        2). The success response will be a 202 HTTP code, with information regarding the generated taskId for this submitted request and the URL to poll the status of this task.
+
+
+         Example: "/dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191"
+
+
+        3). Once the task is completed, the response data will be retrievable using GET API, by providing the `taskId` query parameter:
+
+        Example: GET /dna/data/api/v1/siteKpiSummaries/summaryAnalytics?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191.
+      operationId: querySiteKpiSummariesSummaryAnalytics
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload which contains start/end times and filters to retrive site analytics summary data.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteAnalyticsSummaryRequest'
+            examples:
+              Example1:
+                $ref: '#/components/examples/SiteAnalyticsSummaryRequestExample1'
+        required: true
+      responses:
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/siteKpiSummaries/trendAnalytics:
+    get:
+      tags:
+      - siteAnalytics
+      summary: Get site analytics trend data
+      description: "Gets the trend analytics data for a given taskId. First use the POST API (POST /dna/data/api/v1/siteKpiSummaries/trendAnalytics) to request trend analytics, which returns a task id. Then use this GET API and pass the taskId as query parameter to get the summary analytics data."
+      operationId: querySiteKpiSummariesTrendAnalyticsTask
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: taskId
+        in: query
+        description: |
+          used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Site Analytics Trend Analytics Response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/SiteAnalyticsTrendResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+    post:
+      tags:
+      - siteAnalytics
+      summary: Get site analytics trend data
+      description: |-
+        Gets the trend analytics data for a given site. This data is calculated by aggregating anlytics of all child sites of the given site id. If site id is not provided, then data is aggregated from all child sites of Global site. This data can be used to find site analytics in different intervals over a period of time.
+        **The input payload contains the following fields**
+        |Field Name | Description |
+        | --- | --- |
+        | `startTime` | start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |
+        | `endTime` | end time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |
+        | `trendInterval` | the trend time interval in minutues. This is a mantadory field. When the start and end Time range is less than 24 hours, the expected interval value is 30 minutes. If it is more than 24 hours, then interval should be 1 hour. |
+        | `filters`| used to define one or more conditions. Only the data that satisfy these filter conditions will be taken into consideration during the site analytics calculation.|
+        | `attributes` | This is mandatory field. The specified attributes will be part of response. Please refer to the `SiteAnalyticsTrendResponseAttribute` Model for supported attributes.|
+        | `page`| contains **limit, offset, timestampOrderr** fields. *limit* - Number of records to be returned in response, *offset* - starting offset of data and *timestampOrderr* - time stamp order
+
+
+
+        **The process for using this API is as follows**:
+
+        1). Make request to API to generate intended summary analytics data.
+
+        2). The success response will be a 202 HTTP code, with information regarding the generated taskId for this submitted request and the URL to poll the status of this task.
+
+
+         Example: "/dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191"
+
+
+        3). Once the task is completed, the response data will be retrievable using GET API, by providing the `taskId` query parameter:
+
+        Example: GET /dna/data/api/v1/siteKpiSummaries/trendAnalytics?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191.
+      operationId: querySiteKpiSummariesTrendAnalytics
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload which contains start/end times and filters to retrive site analytics trend data.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteAnalyticsTrendRequest'
+            examples:
+              Example1:
+                $ref: '#/components/examples/SiteAnalyticsTrendRequestExample1'
+        required: true
+      responses:
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/siteKpiSummaries/topNAnalytics:
+    get:
+      tags:
+      - siteAnalytics
+      summary: Get Top N entities related to site analytics
+      description: "Gets the topN analytics data for a given taskId. First use the POST API (POST /dna/data/api/v1/siteKpiSummaries/topNAnalytics) to request topN analytics, which returns a task id. Then use this GET API and pass the taskId as query parameter to get the topN analytics data."
+      operationId: querySiteKpiSummariesTopNAnalyticsTask
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: taskId
+        in: query
+        description: |
+          used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Site Analytics Top N Analytics Response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/SiteAnalyticsTopNResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+    post:
+      tags:
+      - siteAnalytics
+      summary: Get Top N entities related to site analytics
+      description: "Gets the Top N entites related based on site analytics for a given kpi type. The data is also filtered based on given filters. The entity type is determined by groupBy field.\n**The input payload contains the following fields**\n|Field Name | Description |\n| --- | --- |\n| `startTime` | start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |\n| `endTime` | end time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |\n| `topN` | the total number of records to retrive. This is a required input |\n| `groupBy` | specifies the attributes for grouping. This is mandatory field|\n| `filters`| used to define one or more conditions. Only the data that satisfy these filter conditions will be taken into consideration during the site analytics calculation. 'kpiType' filter is mandatory for this API|\n| `page`| contains **limit, offset** fields. *limit* - Number of records to be returned in response, *offset* - starting offset of data,         \n**The process for using this API is as follows**:\n\n1). Make request to API to generate intended summary analytics data.\n\n2). The success response will be a 202 HTTP code, with information regarding the generated taskId for this submitted request and the URL to poll the status of this task.\n\n\n Example: \"/dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191\"\n\n\n3). Once the task is completed, the response data will be retrievable using GET API, by providing the `taskId` query parameter:\n\nExample: GET /dna/data/api/v1/siteKpiSummaries/topNAnalytics?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191."
+      operationId: querySiteKpiSummariesTopNAnalytics
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload which contains start/end times and filters to retrive topN data for site analytics.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteAnalyticsTopNRequest'
+            examples:
+              Request without attributes and ONE groupBy field:
+                $ref: '#/components/examples/SiteAnalyticsTopNRequestExample1'
+        required: true
+      responses:
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+components:
+  schemas:
+    SiteAnalyticsListResponseModel:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsResponse'
+        page:
+          $ref: '#/components/schemas/SiteAnalyticsPaginationWithSortResponse'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Site analytics response
+    SiteAnalyticsResponseModel:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/SiteAnalyticsResponse'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Site analytics response
+    SiteAnalyticsSummaryResponseModel:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/SiteAnalyticsSummaryResponse'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Site analytics summary response
+    SiteAnalyticsSummaryResponse:
+      type: object
+      properties:
+        attributes:
+          type: array
+          description: List of attributes
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsAttributeResponse'
+      description: Site analytics summary response
+    SiteAnalyticsTopNResponseModel:
+      type: object
+      properties:
+        version:
+          type: string
+          example: "1.0"
+        response:
+          $ref: '#/components/schemas/SiteAnalyticsTopNResponse'
+        page:
+          $ref: '#/components/schemas/SiteAnalyticsPaginationWithTopNResponse'
+      description: Site Analytics Top N Analytics Response
+    SiteAnalyticsTrendResponseModel:
+      type: object
+      properties:
+        version:
+          type: string
+          example: "1.0"
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsTrendResponse'
+        page:
+          $ref: '#/components/schemas/SiteAnalyticsPaginationWithTrendResponse'
+      description: Site Analytics Trend Analytics Response
+    SiteAnalyticsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Site uuid
+          example: b654e071-f99d-48d4-957b-6638e9f3a2c9
+        siteId:
+          type: string
+          description: Site uuid
+          example: b654e071-f99d-48d4-957b-6638e9f3a2c9
+        siteHierarchyId:
+          type: string
+          description: Site uuid
+          example: f06976cc-8ae4-4ebd-8efe-11b14aa96b57/b654e071-f99d-48d4-957b-6638e9f3a2c9
+        siteHierarchy:
+          type: string
+          description: Site name.
+          example: Global/San Jose
+        siteType:
+          type: string
+          description: Site type.
+          example: building
+        apCount:
+          type: integer
+          description: Total number of Access Points
+          example: 16
+        coverageAverage:
+          type: integer
+          description: Average of coverage kpi values.
+          example: 16
+        coverageSuccessPercentage:
+          type: integer
+          description: Success percentage of coverage kpi.
+          example: 98
+        coverageSuccessCount:
+          type: integer
+          description: Total number of samples that met coverage threshold.
+          example: 397
+        coverageTotalCount:
+          type: integer
+          description: Total number of samples available for coverage kpi.
+          example: 533
+        coverageFailureCount:
+          type: integer
+          description: Total number of clients that did not meet coverage threshold.
+          example: 23
+        coverageClientCount:
+          type: integer
+          description: Total number of clients that has coverage kpi.
+          example: 402
+        coverageImpactedEntities:
+          $ref: '#/components/schemas/SiteAnalyticImpactedEntities'
+        coverageFailureImpactedEntities:
+          $ref: '#/components/schemas/SiteAnalyticImpactedEntities'
+        coverageFailureMetrics:
+          $ref: '#/components/schemas/SiteAnalyticFailureMetrics'
+        onboardingAttemptsSuccessPercentage:
+          type: integer
+          description: Success percentage of onboarding attempts.
+          example: 98
+        onboardingAttemptsSuccessCount:
+          type: integer
+          description: Total number of successful onboarding attempts.
+          example: 397
+        onboardingAttemptsTotalCount:
+          type: integer
+          description: Total number of onboarding attempts.
+          example: 533
+        onboardingAttemptsFailureCount:
+          type: integer
+          description: Total number of failed onboarding attempts.
+          example: 23
+        onboardingAttemptsClientCount:
+          type: integer
+          description: Total number of clients that attempted onboarding.
+          example: 402
+        onboardingAttemptsImpactedEntities:
+          $ref: '#/components/schemas/SiteAnalyticImpactedEntities'
+        onboardingAttemptsFailureImpactedEntities:
+          $ref: '#/components/schemas/SiteAnalyticImpactedEntities'
+        onboardingAttemptsFailureMetrics:
+          $ref: '#/components/schemas/SiteAnalyticFailureMetrics'
+        onboardingDurationAverage:
+          type: integer
+          description: Average value of onboarding duration.
+          example: 12
+        onboardingDurationSuccessPercentage:
+          type: integer
+          description: Percentage of onboardings that completed within the threshold.
+          example: 98
+        onboardingDurationSuccessCount:
+          type: integer
+          description: Total number of onboardings that completed within the threshold.
+          example: 397
+        onboardingDurationTotalCount:
+          type: integer
+          description: Total number of samples that have onboarding duration kpi.
+          example: 533
+        onboardingDurationFailureCount:
+          type: integer
+          description: Total number of onboardings that were not completed within the threshold.
+          example: 23
+        onboardingDurationClientCount:
+          type: integer
+          description: Total number of clients that have onboarding duration kpi.
+          example: 402
+        onboardingDurationImpactedEntities:
+          $ref: '#/components/schemas/SiteAnalyticImpactedEntities'
+        onboardingDurationFailureImpactedEntities:
+          $ref: '#/components/schemas/SiteAnalyticImpactedEntities'
+        onboardingDurationFailureMetrics:
+          $ref: '#/components/schemas/SiteAnalyticFailureMetrics'
+        roamingAttemptsSuccessPercentage:
+          type: integer
+          description: Success percentage of roaming attempts.
+          example: 98
+        roamingAttemptsSuccessCount:
+          type: integer
+          description: Total number of successful roaming attempts.
+          example: 397
+        roamingAttemptsTotalCount:
+          type: integer
+          description: Total number of roaming attempts.
+          example: 533
+        roamingAttemptsFailureCount:
+          type: integer
+          description: Total number of failed roaming attempts.
+          example: 23
+        roamingAttemptsClientCount:
+          type: integer
+          description: Total number of clients that attempted roaming.
+          example: 402
+        roamingAttemptsImpactedEntities:
+          $ref: '#/components/schemas/SiteAnalyticImpactedEntities'
+        roamingAttemptsFailureImpactedEntities:
+          $ref: '#/components/schemas/SiteAnalyticImpactedEntities'
+        roamingAttemptsFailureMetrics:
+          $ref: '#/components/schemas/SiteAnalyticFailureMetrics'
+        roamingDurationAverage:
+          type: integer
+          description: Average value of roaming duration.
+          example: 12
+        roamingDurationSuccessPercentage:
+          type: integer
+          description: Percentage of roamings that completed within the threshold
+          example: 98
+        roamingDurationSuccessCount:
+          type: integer
+          description: Total number of roamings that completed within the threshold.
+          example: 397
+        roamingDurationTotalCount:
+          type: integer
+          description: Total number of samples that have roaming duration kpi.
+          example: 533
+        roamingDurationFailureCount:
+          type: integer
+          description: Total number of roamings that were not completed within the threshold.
+          example: 23
+        roamingDurationClientCount:
+          type: integer
+          description: Total number of clients that have roaming dutation kpi.
+          example: 402
+        roamingDurationImpactedEntities:
+          $ref: '#/components/schemas/SiteAnalyticImpactedEntities'
+        roamingDurationFailureImpactedEntities:
+          $ref: '#/components/schemas/SiteAnalyticImpactedEntities'
+        roamingDurationFailureMetrics:
+          $ref: '#/components/schemas/SiteAnalyticFailureMetrics'
+        connectionSpeedAverage:
+          type: integer
+          description: Average of connection speed kpi values.
+          example: 16
+        connectionSpeedSuccessPercentage:
+          type: integer
+          description: Success percentage of connection speed kpi.
+          example: 98
+        connectionSpeedSuccessCount:
+          type: integer
+          description: Total number of samples that met connection speed threshold
+          example: 397
+        connectionSpeedTotalCount:
+          type: integer
+          description: Total number of samples available for connection speed kpi.
+          example: 533
+        connectionSpeedFailureCount:
+          type: integer
+          description: Total number of clients that did not meet connection speed threshold.
+          example: 23
+        connectionSpeedClientCount:
+          type: integer
+          description: Total number of clients that has connection speed kpi.
+          example: 402
+        connectionSpeedImpactedEntities:
+          $ref: '#/components/schemas/SiteAnalyticImpactedEntities'
+        connectionSpeedFailureImpactedEntities:
+          $ref: '#/components/schemas/SiteAnalyticImpactedEntities'
+        connectionSpeedFailureMetrics:
+          $ref: '#/components/schemas/SiteAnalyticFailureMetrics'
+      description: Contains site analytics data for a site.
+    SiteAnalyticImpactedEntities:
+      type: object
+      properties:
+        buildingCount:
+          type: integer
+          description: Total number of buildings
+          example: 8
+        floorCount:
+          type: integer
+          description: Total number of floors
+          example: 18
+        sitesCount:
+          type: integer
+          description: Total number of sites
+          example: 10
+        apCount:
+          type: integer
+          description: Total number of Access Points
+          example: 13
+      description: |
+        Site analytics impacted entites
+    SiteAnalyticFailureMetrics:
+      type: object
+      properties:
+        failureApCount:
+          type: integer
+          description: Total number of Access Points that have failures
+          example: 8
+        failureClientCount:
+          type: integer
+          description: Total number of clients that have failures
+          example: 189
+        failurePercentage:
+          type: integer
+          description: Percentage of failures
+          example: 28
+      description: |
+        Site analytics failure metrics
+    SiteAnalyticsTopNResponse:
+      type: array
+      description: Site Analytics TopN Analytics Response object
+      items:
+        $ref: '#/components/schemas/SiteAnalyticsGroup'
+    SiteAnalyticsGroup:
+      type: object
+      properties:
+        id:
+          type: string
+          description: This is the group key. Its the concatination of groupBy attributes
+          example: band=5_floorId=8a7df85f-c373-43b0-a798-34be90ef68d7
+        attributes:
+          type: array
+          description: List of attributes
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsAttributeResponse'
+      description: Site Analytics Analytics Group object
+    SiteAnalyticsTrendResponse:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          description: Timestamp of the data (epoch time)
+          format: int64
+          example: 1709706600000
+        attributes:
+          type: array
+          description: List of attributes
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsAttributeResponse'
+      description: Site Analytics Trend Analytics Response object
+    SiteAnalyticsQueryRequest:
+      type: object
+      properties:
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsFilter'
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsResponseAttribute'
+        views:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsView'
+        page:
+          $ref: '#/components/schemas/SiteAnalyticsPaginationWithSortRequest'
+      description: Site Analytics query requst payload
+      allOf:
+      - $ref: '#/components/schemas/startAndEndTime'
+    SiteAnalyticsQueryCountRequest:
+      type: object
+      properties:
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsCountFilter'
+      description: The input payload to get site analytics record count.
+      allOf:
+      - $ref: '#/components/schemas/startAndEndTime'
+    SiteAnalyticsTopNRequest:
+      required:
+      - filters
+      - groupBy
+      - topN
+      type: object
+      properties:
+        topN:
+          $ref: '#/components/schemas/topN'
+        groupBy:
+          maxItems: 1
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsGroupByKey'
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsTopNFilter'
+        page:
+          $ref: '#/components/schemas/SiteAnalyticsPaginationWithTopNRequest'
+      description: The input payload to query Top-N entities related to site analytics.
+      allOf:
+      - $ref: '#/components/schemas/startAndEndTime'
+    SiteAnalyticsTrendRequest:
+      required:
+      - attributes
+      - trendInterval
+      type: object
+      properties:
+        trendInterval:
+          $ref: '#/components/schemas/SiteAnalyticsTrendInterval'
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsSummaryFilter'
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsTrendResponseAttribute'
+        page:
+          $ref: '#/components/schemas/SiteAnalyticsPaginationWithTrendRequest'
+      description: The input payload to query Trend Analytics data.
+      allOf:
+      - $ref: '#/components/schemas/startAndEndTime'
+    SiteAnalyticsSummaryRequest:
+      required:
+      - attributes
+      type: object
+      properties:
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsSummaryFilter'
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteAnalyticsResponseAttribute'
+      description: The input payload to query Summary Analytics data.
+      allOf:
+      - $ref: '#/components/schemas/startAndEndTime'
+    SiteAnalyticsResponseAttribute:
+      type: string
+      description: Field names which are supported by this API as response attributes
+      example: coverageSuccessPercentage
+      enum:
+      - coverageAverage
+      - coverageSuccessPercentage
+      - coverageSuccessCount
+      - coverageTotalCount
+      - coverageFailureCount
+      - coverageClientCount
+      - coverageImpactedEntities
+      - coverageFailureImpactedEntities
+      - coverageFailureMetrics
+      - onboardingAttemptsSuccessPercentage
+      - onboardingAttemptsSuccessCount
+      - onboardingAttemptsTotalCount
+      - onboardingAttemptsFailureCount
+      - onboardingAttemptsClientCount
+      - onboardingAttemptsImpactedEntities
+      - onboardingAttemptsFailureImpactedEntities
+      - onboardingAttemptsFailureMetrics
+      - onboardingDurationAverage
+      - onboardingDurationSuccessPercentage
+      - onboardingDurationSuccessCount
+      - onboardingDurationTotalCount
+      - onboardingDurationFailureCount
+      - onboardingDurationClientCount
+      - onboardingDurationImpactedEntities
+      - onboardingDurationFailureImpactedEntities
+      - onboardingDurationFailureMetrics
+      - roamingAttemptsSuccessPercentage
+      - roamingAttemptsSuccessCount
+      - roamingAttemptsTotalCount
+      - roamingAttemptsFailureCount
+      - roamingAttemptsClientCount
+      - roamingAttemptsImpactedEntities
+      - roamingAttemptsFailureImpactedEntities
+      - roamingAttemptsFailureMetrics
+      - roamingDurationAverage
+      - roamingDurationSuccessPercentage
+      - roamingDurationSuccessCount
+      - roamingDurationTotalCount
+      - roamingDurationFailureCount
+      - roamingDurationClientCount
+      - roamingDurationImpactedEntities
+      - roamingDurationFailureImpactedEntities
+      - roamingDurationFailureMetrics
+      - connectionSpeedAverage
+      - connectionSpeedSuccessPercentage
+      - connectionSpeedSuccessCount
+      - connectionSpeedTotalCount
+      - connectionSpeedFailureCount
+      - connectionSpeedClientCount
+      - connectionSpeedImpactedEntities
+      - connectionSpeedFailureImpactedEntities
+      - connectionSpeedFailureMetrics
+      - apCount
+      - wirelessClientCount
+    SiteAnalyticsTrendResponseAttribute:
+      type: string
+      description: Field names which are supported by this trend API as response attributes
+      example: coverageSuccessPercentage
+      enum:
+      - coverageAverage
+      - coverageSuccessPercentage
+      - coverageFailurePercentage
+      - coverageSuccessCount
+      - coverageTotalCount
+      - coverageFailureCount
+      - coverageClientCount
+      - onboardingAttemptsSuccessPercentage
+      - onboardingAttemptsFailurePercentage
+      - onboardingAttemptsSuccessCount
+      - onboardingAttemptsTotalCount
+      - onboardingAttemptsFailureCount
+      - onboardingAttemptsClientCount
+      - onboardingDurationAverage
+      - onboardingDurationSuccessPercentage
+      - onboardingDurationFailurePercentage
+      - onboardingDurationSuccessCount
+      - onboardingDurationTotalCount
+      - onboardingDurationFailureCount
+      - onboardingDurationClientCount
+      - roamingAttemptsSuccessPercentage
+      - roamingAttemptsFailurePercentage
+      - roamingAttemptsSuccessCount
+      - roamingAttemptsTotalCount
+      - roamingAttemptsFailureCount
+      - roamingAttemptsClientCount
+      - roamingDurationAverage
+      - roamingDurationSuccessPercentage
+      - roamingDurationFailurePercentage
+      - roamingDurationSuccessCount
+      - roamingDurationTotalCount
+      - roamingDurationFailureCount
+      - roamingDurationClientCount
+      - connectionSpeedAverage
+      - connectionSpeedSuccessPercentage
+      - connectionSpeedFailurePercentage
+      - connectionSpeedSuccessCount
+      - connectionSpeedTotalCount
+      - connectionSpeedFailureCount
+      - connectionSpeedClientCount
+    SiteAnalyticsView:
+      type: string
+      description: "View is predefined set of attributes supported by the API. Only the attributes related to the given view will be part of the API response along with default attributes. If multiple views are provided, then response will contain attributes from all those views. If no views are specified, all attributes will be returned.\n\n| View Name | Included Attributes |\n| --- | --- |\n| View Name | Included Attributes |\n| --- | --- |\n| `coverage` | coverageAverage, coverageSuccessPercentage, coverageSuccessCount, coverageTotalCount, coverageFailureCount, coverageClientCount, coverageImpactedEntities, coverageFailureImpactedEntities, coverageFailureMetrics |\n| `onboardingAttempts` | onboardingAttemptsSuccessPercentage, onboardingAttemptsSuccessCount, onboardingAttemptsTotalCount, onboardingAttemptsFailureCount, onboardingAttemptsClientCount, onboardingAttemptsImpactedEntities, onboardingAttemptsFailureImpactedEntities, onboardingAttemptsFailureMetrics |\n| `onboardingDuration` | onboardingDurationAverage, onboardingDurationSuccessPercentage, onboardingDurationSuccessCount, onboardingDurationTotalCount, onboardingDurationFailureCount, onboardingDurationClientCount, onboardingDurationImpactedEntities, onboardingDurationFailureImpactedEntities, onboardingDurationFailureMetrics |\n| `roamingAttempts` | roamingAttemptsSuccessPercentage, roamingAttemptsSuccessCount, roamingAttemptsTotalCount, roamingAttemptsFailureCount, roamingAttemptsClientCount, roamingAttemptsImpactedEntities, roamingAttemptsFailureImpactedEntities, roamingAttemptsFailureMetrics |        \n| `roamingDuration` | roamingDurationAverage, roamingDurationSuccessPercentage, roamingDurationSuccessCount, roamingDurationTotalCount, roamingDurationFailureCount, roamingDurationClientCount, roamingDurationImpactedEntities, roamingDurationFailureImpactedEntities, roamingDurationFailureMetrics |\n| `connectionSpeed` | connectionSpeedAverage, connectionSpeedSuccessPercentage, connectionSpeedSuccessCount, connectionSpeedTotalCount, connectionSpeedFailureCount, connectionSpeedClientCount, connectionSpeedImpactedEntities, connectionSpeedFailureImpactedEntities, connectionSpeedFailureMetrics |\n"
+      enum:
+      - coverage
+      - onboardingAttempts
+      - onboardingDuration
+      - roamingAttempts
+      - roamingDuration
+      - connectionSpeed
+    SiteAnalyticsFilterAttribute:
+      type: string
+      description: Field names which are supported by this API as filter keys
+      enum:
+      - siteHierarchyId
+      - siteHierarchy
+      - siteId
+      - siteType
+      - ssid
+      - band
+      - failureCategory
+      - failureReason
+    SiteAnalyticsCountFilterAttribute:
+      type: string
+      description: Field names which are supported by this API as filter keys
+      enum:
+      - siteHierarchyId
+      - siteHierarchy
+      - siteId
+      - siteType
+    SiteAnalyticsSummaryFilterAttribute:
+      type: string
+      description: Field names which are supported by this API as filter keys
+      enum:
+      - siteHierarchyId
+      - siteId
+      - ssid
+      - band
+      - failureCategory
+      - failureReason
+    SiteAnalyticsTopNFilterAttribute:
+      type: string
+      description: Field names which are supported by this API as filter keys.
+      enum:
+      - kpiType
+      - siteHierarchyId
+      - siteId
+      - ssid
+      - band
+      - failureCategory
+      - failureReason
+    SiteAnalyticsGroupByKey:
+      type: string
+      description: Field names which are supported as groupBy
+      enum:
+      - floorId
+      - deviceType
+      - ssid
+      - band
+      - apName
+      - failureCategory
+      - failureReason
+      - result
+      - vlan
+      - serverIp
+      - childSiteId
+    SiteAnalyticsTrendInterval:
+      type: string
+      description: |
+        The time window to aggregate site analytics data.
+      example: 30MIN
+      enum:
+      - 30MIN
+      - 1HOUR
+    SiteAnalyticsAttributeResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the attribute
+          example: coverageAverage
+        value:
+          type: object
+          description: Value of the attribute
+          example: 23
+    SiteAnalyticsFilter:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/SiteAnalyticsFilterAttribute'
+        operator:
+          $ref: '#/components/schemas/SiteAnalyticsOperator'
+        value:
+          type: object
+          description: |
+            Field value(s) to filter the data set. Array of values is used for   "in" or "out" operator. Values will be of whatever type the   specific field being filtered is defined with.
+
+            For other operators, filter value is of whatever type the specific   field being filtered is defined with.
+      description: |
+        Filter object to pass in the request.
+    SiteAnalyticsCountFilter:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/SiteAnalyticsCountFilterAttribute'
+        operator:
+          $ref: '#/components/schemas/SiteAnalyticsOperator'
+        value:
+          type: object
+          description: "Field value(s) to filter the data set. Array of values is used for   \"in\" or \"out\" operator. Values will be of whatever type the   specific field being filtered is defined with.\n\nFor other operators, filter value is of whatever type the specific   field being filtered is defined with.            \n"
+      description: |
+        Filter object to pass in the request.
+    SiteAnalyticsOperator:
+      type: string
+      description: Type of filter operator to use for querying data | in and out operator takes multiple values and applies the filters
+      enum:
+      - in
+      - eq
+    SiteAnalyticsSummaryFilter:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/SiteAnalyticsSummaryFilterAttribute'
+        operator:
+          $ref: '#/components/schemas/SiteAnalyticsOperator'
+        value:
+          type: object
+          description: "Field value(s) to filter the data set. Array of values is used for   \"in\" or \"out\" operator. Values will be of whatever type the   specific field being filtered is defined with.\n\nFor other operators, filter value is of whatever type the specific   field being filtered is defined with. \n"
+      description: |
+        Filter objec to pass in summaryAnalytics request.
+    SiteAnalyticsTopNFilter:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/SiteAnalyticsTopNFilterAttribute'
+        operator:
+          $ref: '#/components/schemas/SiteAnalyticsOperator'
+        value:
+          type: object
+          description: "Field value(s) to filter the data set. Array of values is used for   \"in\" or \"out\" operator. Values will be of whatever type the   specific field being filtered is defined with.\n\nFor other operators, filter value is of whatever type the specific   field being filtered is defined with.               \n"
+      description: |
+        Filter object to pass in topNAnalytics request
+    SiteAnalyticsPaginationWithSortRequest:
+      type: object
+      properties:
+        limit:
+          maximum: 20
+          minimum: 1
+          type: integer
+          description: Number of records to be returned in response
+          example: 7
+          default: 10
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        sortBy:
+          $ref: '#/components/schemas/SiteAnalyticsPaginationSortBy'
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for descending
+          example: asc
+          enum:
+          - asc
+          - desc
+    SiteAnalyticsPaginationWithSortResponse:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to be returned in response
+          example: 25
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+        count:
+          type: integer
+          description: Total number of records that can be returned for this request
+          example: 5
+        sortBy:
+          $ref: '#/components/schemas/SiteAnalyticsPaginationSortBy'
+    SiteAnalyticsPaginationSortBy:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Records are sorted based on the field specified.
+          enum:
+          - siteHierarchy
+          - siteType
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for descending
+          example: asc
+          enum:
+          - asc
+          - desc
+      description: Records are sorted based on the field specified.
+    SiteAnalyticsPaginationWithTopNRequest:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to be returned in response
+          example: 10
+          default: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+    SiteAnalyticsPaginationWithTrendRequest:
+      type: object
+      properties:
+        limit:
+          maximum: 200
+          minimum: 1
+          type: integer
+          description: Number of records to be returned in response
+          example: 100
+          default: 200
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        timestampOrder:
+          type: string
+          description: The sort order of the timestamp can be either ascending or descending
+          example: asc
+          enum:
+          - asc
+          - desc
+    SiteAnalyticsPaginationWithTrendResponse:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to be returned in response
+          example: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+        count:
+          type: integer
+          description: Total number of records that can be returned for this request
+          example: 5
+        timestampOrder:
+          type: string
+          description: The sort order of the timestamp can be either ascending or descending
+          example: asc
+          enum:
+          - asc
+          - desc
+    SiteAnalyticsPaginationWithTopNResponse:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to be returned in response
+          example: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+        count:
+          type: integer
+          description: Total number of records that can be returned for this request
+          example: 5
+    asyncInfoContainer:
+      properties:
+        response:
+          $ref: '#/components/schemas/asyncInfo'
+        version:
+          type: string
+          example: "1.0"
+      description: |
+        Generic model that will contain the asynchronous task/process information
+    asyncInfo:
+      properties:
+        taskLocation:
+          type: string
+          description: url resource where the client can fetch their task's lifecycle updates
+          example: /dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191
+        taskId:
+          type: string
+          description: the specific task id associated with the specific request made
+          example: bcbb2a8c-deae-4a3e-9459-0eb1dc12c191
+      description: |
+        Generic model with information on the asynchronous task/process
+         that was created to handle an API request
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorObject'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured   processing this request.
+      example:
+        response:
+        - errorCode: 2600
+          message: Error message
+          detail: Error details
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    ErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: Application specific error code returned by the server
+        message:
+          type: string
+          description: Brief message about the error condition
+        detail:
+          type: string
+          description: "A more detailed explanation of the error condition the   parameter and its value, that caused the condition and why it caused it."
+    CountIntegerResponse:
+      title: Count Integer Response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/CountIntegerResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Reports
+    startAndEndTime:
+      type: object
+      properties:
+        startTime:
+          type: integer
+          description: |
+            Start time from which the API queries the dataset related to the resource. It must be specified in terms of milliseconds since UNIX epoch. Value is inclusive.
+
+            If `startTime` is not provided, API will default to current time.
+          format: int64
+          example: 1705348800000
+        endTime:
+          type: integer
+          description: |
+            End time to which the API queries the dataset related to the resource. It must be specified in terms of milliseconds since UNIX epoch. Value is inclusive.
+
+            If `endTime` is not provided, API will default to current time.
+          format: int64
+          example: 1705435200000
+      description: start and end time of data set to query. Data is aggregated   based on time window and timestamped with window start time. | For example - 1. When data events falls in a 5 minute window from 12-13-2023 11:25 PM to 12-13-2023 11:30 PM the timestamp of the aggregated data is 12-13-2023 11:25 PM - 1702509900000 (Unix epochtime). If user needs data from 12-13-2023 11:25 PM to 12-13-2023 11:30 PM user must use below timestamps | startTime = 1702509900000 (12-13-2023 11:25 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM) | 2. When data to be queried is for 3 hours period from 12-13-2023 08:30 PM to 12-13-2023 11:30 PM. User must use below timestamps | startTime = 1702528200000 (12-13-2023 08:30 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM) | 2. When data to be queried is for 24 hours period from 12-12-2023 11:30 PM to 12-13-2023 11:30 PM. User must use below timestamps | startTime = 1702423800000 (12-12-2023 11:30 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM) | 3. When data to be queried is for 7 days period from 12-06-2023 11:30 PM to 12-13-2023 11:30 PM. User must use below timestamps | startTime = 1701905400000 (12-06-2023 11:30 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM)
+    topN:
+      maximum: 100
+      minimum: 5
+      type: integer
+      description: Number of records to retrieve
+      default: 5
+      enum:
+      - 5
+      - 10
+      - 50
+      - 100
+    CountIntegerResponse_response:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The total number of records related to the resource
+          format: int64
+          example: 1000
+  responses:
+    SiteAnalyticsListResponseModel:
+      description: Response containing site anlytics details for given filters
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/SiteAnalyticsListResponseModel'
+    SiteAnalyticsResponseModel:
+      description: Response containing site anlytics details for one site
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/SiteAnalyticsResponseModel'
+    SiteAnalyticsSummaryResponseModel:
+      description: Response containing site analytics summary details for given filters
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/SiteAnalyticsSummaryResponseModel'
+    SiteAnalyticsTopNResponseModel:
+      description: Site Analytics Top N Analytics Response
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/SiteAnalyticsTopNResponseModel'
+    SiteAnalyticsTrendResponseModel:
+      description: Site Analytics Trend Analytics Response
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/SiteAnalyticsTrendResponseModel'
+    AsyncResponse:
+      description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/asyncInfoContainer'
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "500":
+      description: The server could not fulfill the request due to internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "1XX":
+      description: Informational Responses - The server received the request and sent an informational response.
+    "2XX":
+      description: "Successful Responses - The server received the client request, understood it, and accepted it."
+    "3XX":
+      description: Redirection Messages - The client must take additional action to complete the request.
+    "4XX":
+      description: Client Error Responses - The client request caused the error.
+    "5XX":
+      description: Server Error Responses - The server failed to fulfill the request.
+    defaultError:
+      description: Unexpected Error
+    CountIntegerResponse:
+      description: Reponse object containing total count of the records after applying requested filters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CountIntegerResponse'
+    "404":
+      description: The client made a request for a resource that does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  parameters:
+    slaView:
+      name: view
+      in: query
+      description: "The name of the View. Each view represents a specific data set. Please refer to the `SiteAnalyticsView` Model for supported views. View is predefined set of attributes supported by the API. Only the attributes related to the given view will be part of the API response along with default attributes. If multiple views are provided, then response will contain attributes from all those views. If no views are specified, all attributes will be returned.\n\n| View Name | Included Attributes |\n| --- | --- |\n| `coverage` | coverageAverage, coverageSuccessPercentage, coverageSuccessCount, coverageTotalCount, coverageFailureCount, coverageClientCount, coverageImpactedEntities, coverageFailureImpactedEntities, coverageFailureMetrics |\n| `onboardingAttempts` | onboardingAttemptsSuccessPercentage, onboardingAttemptsSuccessCount, onboardingAttemptsTotalCount, onboardingAttemptsFailureCount, onboardingAttemptsClientCount, onboardingAttemptsImpactedEntities, onboardingAttemptsFailureImpactedEntities, onboardingAttemptsFailureMetrics |\n| `onboardingDuration` | onboardingDurationAverage, onboardingDurationSuccessPercentage, onboardingDurationSuccessCount, onboardingDurationTotalCount, onboardingDurationFailureCount, onboardingDurationClientCount, onboardingDurationImpactedEntities, onboardingDurationFailureImpactedEntities, onboardingDurationFailureMetrics |\n| `roamingAttempts` | roamingAttemptsSuccessPercentage, roamingAttemptsSuccessCount, roamingAttemptsTotalCount, roamingAttemptsFailureCount, roamingAttemptsClientCount, roamingAttemptsImpactedEntities, roamingAttemptsFailureImpactedEntities, roamingAttemptsFailureMetrics |        \n| `roamingDuration` | roamingDurationAverage, roamingDurationSuccessPercentage, roamingDurationSuccessCount, roamingDurationTotalCount, roamingDurationFailureCount, roamingDurationClientCount, roamingDurationImpactedEntities, roamingDurationFailureImpactedEntities, roamingDurationFailureMetrics |\n| `connectionSpeed` | connectionSpeedAverage, connectionSpeedSuccessPercentage, connectionSpeedSuccessCount, connectionSpeedTotalCount, connectionSpeedFailureCount, connectionSpeedClientCount, connectionSpeedImpactedEntities, connectionSpeedFailureImpactedEntities, connectionSpeedFailureMetrics |\nExamples: `view=connectionSpeed` (single view requested) `view=roamingDuration&view=roamingAttempts` (multiple views requested)       \n"
+      required: false
+      style: form
+      explode: true
+      schema:
+        maxItems: 5
+        minItems: 1
+        type: array
+        items:
+          type: string
+          enum:
+          - coverage
+          - onboardingAttempts
+          - onboardingDuration
+          - roamingAttempts
+          - roamingDuration
+          - connectionSpeed
+    slaAttribute:
+      name: attribute
+      in: query
+      description: |
+        List of attributes related to site analytics. If these are provided, then only those attributes will be part of response along with the default attributes.
+        Examples: `attribute=coverageAverage` (single attribute requested) `attribute=coverageFailureMetrics&attribute=coverageTotalCount` (multiple attributes requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - coverageAverage
+          - coverageSuccessPercentage
+          - coverageSuccessCount
+          - coverageTotalCount
+          - coverageFailureCount
+          - coverageClientCount
+          - coverageImpactedEntities
+          - coverageFailureImpactedEntities
+          - coverageFailureMetrics
+          - onboardingAttemptsSuccessPercentage
+          - onboardingAttemptsSuccessCount
+          - onboardingAttemptsTotalCount
+          - onboardingAttemptsFailureCount
+          - onboardingAttemptsClientCount
+          - onboardingAttemptsImpactedEntities
+          - onboardingAttemptsFailureImpactedEntities
+          - onboardingAttemptsFailureMetrics
+          - onboardingDurationAverage
+          - onboardingDurationSuccessPercentage
+          - onboardingDurationSuccessCount
+          - onboardingDurationTotalCount
+          - onboardingDurationFailureCount
+          - onboardingDurationClientCount
+          - onboardingDurationImpactedEntities
+          - onboardingDurationFailureImpactedEntities
+          - onboardingDurationFailureMetrics
+          - roamingAttemptsSuccessPercentage
+          - roamingAttemptsSuccessCount
+          - roamingAttemptsTotalCount
+          - roamingAttemptsFailureCount
+          - roamingAttemptsClientCount
+          - roamingAttemptsImpactedEntities
+          - roamingAttemptsFailureImpactedEntities
+          - roamingAttemptsFailureMetrics
+          - roamingDurationAverage
+          - roamingDurationSuccessPercentage
+          - roamingDurationSuccessCount
+          - roamingDurationTotalCount
+          - roamingDurationFailureCount
+          - roamingDurationClientCount
+          - roamingDurationImpactedEntities
+          - roamingDurationFailureImpactedEntities
+          - roamingDurationFailureMetrics
+          - connectionSpeedAverage
+          - connectionSpeedSuccessPercentage
+          - connectionSpeedSuccessCount
+          - connectionSpeedTotalCount
+          - connectionSpeedFailureCount
+          - connectionSpeedClientCount
+          - connectionSpeedImpactedEntities
+          - connectionSpeedFailureImpactedEntities
+          - connectionSpeedFailureMetrics
+          - apCount
+          - wirelessClientCount
+    slaBand:
+      name: band
+      in: query
+      description: |
+        WiFi frequency band that client or Access Point operates. Band value is represented in Giga Hertz - GHz
+        Examples:
+        `band=5` (single band requested)
+        `band=2.4&band=6` (multiple band requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - "2.4"
+          - "5"
+          - "6"
+    slaSsid:
+      name: ssid
+      in: query
+      description: |
+        SSID is the name of wireless network to which client connects to. It is also referred to as WLAN ID - Wireless Local Area Network Identifier.
+        Examples:
+        `ssid=Alpha` (single ssid requested)
+        `ssid=Alpha&ssid=Guest` (multiple ssid requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    slaFailureCategory:
+      name: failureCategory
+      in: query
+      description: |
+        Category of failure when a client fails to meet the threshold.
+        Examples:
+        `failureCategory=AUTH` (single failure category requested)
+        `failureCategory=AUTH&failureCategory=DHCP` (multiple failure categories requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    slaFailureReason:
+      name: failureReason
+      in: query
+      description: |
+        Reason for failure when a client fails to meet the threshold.
+        Examples:
+        `failureReason=MOBILITY_FAILURE` (single ssid requested)
+        `failureReason=REASON_IPLEARN_CONNECT_TIMEOUT&failureReason=ST_EAP_TIMEOUT`   (multiple ssid requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    callerId:
+      name: X-CALLER-ID
+      in: header
+      description: |
+        Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+      required: false
+      schema:
+        type: string
+        default: unknown
+      example: ui:client360
+    taskId:
+      name: taskId
+      in: query
+      description: |
+        used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+      schema:
+        type: string
+    startTime:
+      name: startTime
+      in: query
+      description: |
+        Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      schema:
+        type: integer
+        format: int64
+      example: 1705348800000
+    endTime:
+      name: endTime
+      in: query
+      description: |
+        End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      required: false
+      schema:
+        type: integer
+        format: int64
+      example: 1705435200000
+    siteHierarchies:
+      name: siteHierarchy
+      in: query
+      description: |
+        The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+        Examples:
+
+        `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+        `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteHierarchyIds:
+      name: siteHierarchyId
+      in: query
+      description: |
+        The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+        Examples:
+
+        `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+        `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteIds:
+      name: siteId
+      in: query
+      description: |
+        The UUID of the site. (Ex. `flooruuid`)
+
+        Examples:
+
+        `?siteId=id1` (single id requested)
+
+        `?siteId=id1&siteId=id2&siteId=id3` (multiple ids requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteTypes:
+      name: siteType
+      in: query
+      description: |
+        The type of the site. A site can be an area, building, or floor.
+
+        Default when not provided will be `[floor,building,area]`
+
+        Examples:
+
+        `?siteType=area` (single siteType requested)
+
+        `?siteType=area&siteType=building&siteType=floor` (multiple siteTypes requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        default: "floor,building,area"
+    limit_20:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        maximum: 20
+        minimum: 1
+        type: integer
+        default: 10
+    offset:
+      name: offset
+      in: query
+      description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+      schema:
+        minimum: 1
+        type: integer
+        default: 1
+    order:
+      name: order
+      in: query
+      description: The sort order of the field ascending or descending.
+      schema:
+        type: string
+        default: asc
+        enum:
+        - asc
+        - desc
+  examples:
+    SiteAnalyticsQueryRequestExample1:
+      description: This request has parent site filter.
+      value:
+        startTime: 1705348800000
+        endTime: 1705435200000
+        filters:
+        - key: siteHierarchyId
+          operator: eq
+          value: f06976cc-8ae4-4ebd-8efe-11b14aa96b57/1a2d9728-a60d-4d0b-8306-e35834c2d0b7
+        attributes:
+        - coverageAverage
+        - coverageSuccessPercentage
+        views:
+        - roamingDuration
+        page:
+          limit: 10
+          offset: 1
+          sortBy:
+          - name: coverageAverage
+            order: asc
+          order: asc
+    SiteAnalyticsQueryCountRequestExample1:
+      description: This request has parent site filter.
+      value:
+        startTime: 1705348800000
+        endTime: 1705435200000
+        filters:
+        - key: siteHierarchyId
+          operator: eq
+          value: f06976cc-8ae4-4ebd-8efe-11b14aa96b57/1a2d9728-a60d-4d0b-8306-e35834c2d0b7
+    SiteAnalyticsSummaryRequestExample1:
+      description: This request has parent site filter.
+      value:
+        startTime: 1705348800000
+        endTime: 1705435200000
+        filters:
+        - key: siteId
+          operator: eq
+          value: 1a2d9728-a60d-4d0b-8306-e35834c2d0b7
+        attributes:
+        - coverageAverage
+        - coverageSuccessPercentage
+    SiteAnalyticsTrendRequestExample1:
+      description: This request has parent site filter.
+      value:
+        startTime: 1705348800000
+        endTime: 1705435200000
+        trendInterval: 30MIN
+        filters:
+        - key: siteId
+          operator: eq
+          value: 1a2d9728-a60d-4d0b-8306-e35834c2d0b7
+        attributes:
+        - coverageAverage
+        - coverageSuccessPercentage
+        page:
+          limit: 10
+          offset: 1
+          timestampOrder: asc
+    SiteAnalyticsTopNRequestExample1:
+      description: TopN request.
+      value:
+        startTime: 1705348800000
+        endTime: 1705435200000
+        topN: 5
+        groupBy:
+        - ssid
+        filters:
+        - key: kpiType
+          operator: eq
+          value: roamingDuration
+        - key: siteId
+          operator: eq
+          value: 1a2d9728-a60d-4d0b-8306-e35834c2d0b7

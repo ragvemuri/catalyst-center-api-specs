@@ -1,0 +1,2003 @@
+---
+openapi: 3.0.0
+info:
+  title: OpenAPI Spec for AAA Services
+  description: |
+    This collection of APIs provides data related to AAA Services
+    offered in Catalyst Center. The data is calculated for the given time range. Transaction fields are summed up and latncy fields are averaged. Transaction and latency data is returned for the two phases of the authentication process -
+          1) EAP - Extensible Authentication Protocol
+          2) MAB - MAC Authentication Bypass
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Cisco Catalyst Center License
+    url: https://www.cisco.com/c/en/us/products/collateral/software/dna-software-ebook-cte.html
+  version: 1.0.0
+externalDocs:
+  description: Catalyst Center Developer API resources
+  url: https://developer.cisco.com/dnacenter/
+servers:
+- url: https://developer.cisco.com
+tags:
+- name: AAA Services
+  description: Operations related to Catalyst Center - Assurance Network Services
+  externalDocs:
+    description: Catalyst Center Assurance user guide
+    url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
+paths:
+  /dna/data/api/v1/aaaServices:
+    get:
+      tags:
+      - AAA Services
+      summary: Retrieves the list of AAA Services for given parameters.
+      description: "Retrieves the list of AAA Services and offers basic filtering and sorting capabilities. If startTime and endTime are not provided, the API defaults to the last 24 hours. The data in the response is calculated for the given time range. Transaction fields are summed up and latncy fields are averaged. It returns transaction and latency data for the two phases of the authentication process - 1) EAP - Extensible Authentication Protocol 2) MAB - MAC Authentication Bypass"
+      operationId: readAAAServices
+      parameters:
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: sortBy
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - serverIp
+          - deviceName
+          - deviceSiteHierarchy
+          - transactions
+          - failedTransactions
+          - successfulTransactions
+          - eapTransactions
+          - eapFailedTransactions
+          - eapSuccessfulTransactions
+          - mabTransactions
+          - mabFailedTransactions
+          - mabSuccessfulTransactions
+          - latency
+          - mabLatency
+          - eapLatency
+      - name: order
+        in: query
+        description: The sort order of the field ascending or descending.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: serverIp
+        in: query
+        description: |
+          IP Address of the AAA Server. This parameter supports wildcard (`*`) character -based search. Example: `10.76.81.*` or `*56.78*` or `*50.28`
+          Examples: serverIp=10.42.3.31 (single IP Address is requested) serverIp=10.42.3.31&serverIp=name2&fabricVnName=name3 (multiple IP Addresses are requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: deviceId
+        in: query
+        description: |
+          The device UUID.
+
+           Examples:
+           `deviceId=6bef213c-19ca-4170-8375-b694e251101c` (single deviceId is requested)
+           `deviceId=6bef213c-19ca-4170-8375-b694e251101c&deviceId=32219612-819e-4b5e-a96b-cf22aca13dd9 (multiple networkDeviceIds with & separator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: deviceName
+        in: query
+        description: "Name of the device. This parameter supports wildcard (`*`) character -based search. Example: `wnbu-sjc*` or `*wnbu-sjc*` or `*wnbu-sjc`\nExamples: deviceName=wnbu-sjc24.cisco.com (single device name is requested) deviceName=wnbu-sjc24.cisco.com&deviceName=wnbu-sjc22.cisco.com (multiple device names are requested)        \n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: deviceSiteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?deviceSiteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?deviceSiteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&deviceSiteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteId
+        in: query
+        description: |
+          The UUID of the site. (Ex. `flooruuid`)
+
+          Examples:
+
+          `?siteId=id1` (single id requested)
+
+          `?siteId=id1&siteId=id2&siteId=id3` (multiple ids requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      responses:
+        "200":
+          description: Response containing list of AAA Services for given filters
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/AAAServiceListResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/aaaServices/count:
+    get:
+      tags:
+      - AAA Services
+      summary: Retrieves the total number of AAA Services for given parameters.
+      description: "Retrieves the total number of AAA Services for given parameters. If startTime and endTime are not provided, the API defaults to the last 24 hours."
+      operationId: readAAAServicesCount
+      parameters:
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: serverIp
+        in: query
+        description: |
+          IP Address of the AAA Server. This parameter supports wildcard (`*`) character -based search. Example: `10.76.81.*` or `*56.78*` or `*50.28`
+          Examples: serverIp=10.42.3.31 (single IP Address is requested) serverIp=10.42.3.31&serverIp=name2&fabricVnName=name3 (multiple IP Addresses are requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: deviceId
+        in: query
+        description: |
+          The device UUID.
+
+           Examples:
+           `deviceId=6bef213c-19ca-4170-8375-b694e251101c` (single deviceId is requested)
+           `deviceId=6bef213c-19ca-4170-8375-b694e251101c&deviceId=32219612-819e-4b5e-a96b-cf22aca13dd9 (multiple networkDeviceIds with & separator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: deviceName
+        in: query
+        description: "Name of the device. This parameter supports wildcard (`*`) character -based search. Example: `wnbu-sjc*` or `*wnbu-sjc*` or `*wnbu-sjc`\nExamples: deviceName=wnbu-sjc24.cisco.com (single device name is requested) deviceName=wnbu-sjc24.cisco.com&deviceName=wnbu-sjc22.cisco.com (multiple device names are requested)        \n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: deviceSiteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?deviceSiteHierarchy=Global/AreaName/BuildingName/FloorName&deviceSiteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: deviceSiteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?deviceSiteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?deviceSiteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&deviceSiteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: deviceSiteId
+        in: query
+        description: |
+          The UUID of the site. (Ex. `flooruuid`)
+
+          Examples:
+
+          `?deviceSiteIds=id1` (single id requested)
+
+          `?deviceSiteIds=id1&deviceSiteIds=id2&siteId=id3` (multiple ids requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      responses:
+        "200":
+          description: Reponse object containing total count of the records after applying requested filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/aaaServices/{id}:
+    get:
+      tags:
+      - AAA Services
+      summary: Retrieves the details of a specific AAA Service matching the id of the Service.
+      description: "Retrieves the details of the AAA Service matching the given id. If startTime and endTime are not provided, the API defaults to the last 24 hours. The data in the response is from the given time range. Transaction fields are summed up and latncy fields are averaged. It returns transaction and latency data for the two phases of the authentication process - 1) EAP - Extensible Authentication Protocol 2) MAB - MAC Authentication Bypass"
+      operationId: readAAAServiceById
+      parameters:
+      - name: id
+        in: path
+        description: |
+          Unique id of the AAA Service. It is the combination of AAA Server IP (`serverIp`) and Device UUID (`deviceId`) separated by underscore (`_`).
+          Example: If `serverIp` is `10.76.81.33` and `deviceId` is `6bef213c-19ca-4170-8375-b694e251101c`, then the `id` would be `10.76.81.33_6bef213c-19ca-4170-8375-b694e251101c`
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      responses:
+        "200":
+          description: Response containing one AAA Service mathching the given id
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/AAAServiceResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/aaaServices/query:
+    post:
+      tags:
+      - AAA Services
+      summary: Retrieves the list of AAA Services for given set of complex filters.
+      description: |-
+        Retrieves the list of AAA Services and offers complex filtering and sorting capabilities. If startTime and endTime are not provided, the API defaults to the last 24 hours. The data in the response is calculated for the given time range. Transaction fields are summed up and latncy fields are averaged. It returns transaction and latency data for the two phases of the authentication process - 1) EAP - Extensible Authentication Protocol 2) MAB - MAC Authentication Bypass
+        |Field Name | Description |
+        | --- | --- |
+        | `startTime` | start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is 24 hours ago from end time |
+        | `endTime` | end time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is current time |
+        | `filters`| used to define one or more conditions. Only the data that satisfy these conditions will be taken into consideration during the calculation.|
+        | `page` | contains **limit, offset and sortBy** fields. *limit* - Number of records to be returned in response, *offset* - starting offset of data and *sortBy* - attribute name, order to sort|
+      operationId: readAAAServicesWithFilters
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload which contains start/end times and filters to retrive the issues.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AAAServicesQueryRequest'
+            examples:
+              Request with simple filters:
+                $ref: '#/components/examples/AAAServicesQueryRequestExample1'
+              Request with complex filters:
+                $ref: '#/components/examples/AAAServicesQueryRequestExample2'
+        required: true
+      responses:
+        "200":
+          description: Response containing list of AAA Services for given filters
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/AAAServiceListResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/aaaServices/query/count:
+    post:
+      tags:
+      - AAA Services
+      summary: Retrieves the total number of AAA Services for given set of complex filters.
+      description: |-
+        Retrieves the total number of AAA Services and offers complex filtering and sorting capabilities. If startTime and endTime are not provided, the API defaults to the last 24 hours.
+        |Field Name | Description |
+        | --- | --- |
+        | `startTime` | start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is 24 hours ago from end time |
+        | `endTime` | end time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is current time |
+        | `filters`| used to define one or more conditions. Only the data that satisfy these conditions will be taken into consideration during the aggregation calculation.|
+      operationId: readAAAServicesCountWithFilters
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload which contains start/end times and filters to retrive the issues.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AAAServicesQueryCountRequest'
+            examples:
+              Request with simple filters:
+                $ref: '#/components/examples/AAAServicesQueryCountRequestExample1'
+              Request with complex filters:
+                $ref: '#/components/examples/AAAServicesQueryCountRequestExample2'
+        required: true
+      responses:
+        "200":
+          description: Reponse object containing total count of the records after applying requested filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/aaaServices/summaryAnalytics:
+    post:
+      tags:
+      - AAA Services
+      summary: Get summary analytics data of AAA Services for given set of complex filters.
+      description: |-
+        Gets the summary analytics data related to AAA Services based on given filters and group by field. If startTime and endTime are not provided, the API defaults to the last 24 hours.
+        |Field Name | Description |
+        | --- | --- |
+        | `startTime` | start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is 24 hours ago from end time |
+        | `endTime` | end time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is current time |
+        | `groupBy` | specifies the attributes for grouping the data.|
+        | `filters`| used to define one or more conditions. Only the data that satisfy these conditions will be taken into consideration during the aggregation calculation.|
+        | `attributes` | attributes are used for obtaining one or more field's data in addition to the aggregated data. The supported attributes are listed in `AAAServicesAnalyticsAttributeKey` model|
+        | `aggregateAttributes` | specifies the names of the attributes on which the aggregate function should be applied when querying the data. The supported attribute names are listed in `AAAServicesAggregateAttributeKey` model  |
+        | `page` | contains **limit, offset and sortBy** fields. *limit* - Number of records to be returned in response, *offset* - starting offset of data and *sortBy* - attribute name, order to sort|
+      operationId: queryAAAServicesSummaryAnalytics
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload which contains start/end times and filters to retrive the issues.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AAAServicesSummaryAnalyticsRequest'
+        required: true
+      responses:
+        "200":
+          description: AAA Services Summary Analytics Response Model
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/AAAServicesSummaryAnalyticsResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/aaaServices/topNAnalytics:
+    post:
+      tags:
+      - AAA Services
+      summary: Get Top N analytics data of AAA Services for given set of complex filters.
+      description: |-
+        Gets the Top N analytics data related to AAA Services based on given filters and group by field. If startTime and endTime are not provided, the API defaults to the last 24 hours.
+        |Field Name | Description |
+        | --- | --- |
+        | `startTime` | start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is 24 hours ago from end time |
+        | `endTime` | end time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is current time |
+        | `topN` | the total number of records to retrive. This is a mandatory field |
+        | `groupBy` | specifies the attributes for grouping the data.|
+        | `filters`| used to define one or more conditions. Only the data that satisfy these conditions will be taken into consideration during the aggregation calculation.|
+        | `attributes` | attributes are used for obtaining one or more field's data in addition to the aggregated data. The supported attributes are listed in `AAAServicesAnalyticsAttributeKey` model|
+        | `aggregateAttributes` | specifies the names of the attributes on which the aggregate function should be applied when querying the data. The supported attribute names are listed in `AAAServicesAggregateAttributeKey` model  |
+        | `page` | contains **limit, offset and sortBy** fields. *limit* - Number of records to be returned in response, *offset* - starting offset of data and *sortBy* - attribute name, order to sort|
+      operationId: queryAAAServicesTopNAnalytics
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload which contains start/end times and filters to retrive the issues.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AAAServicesTopNAnalyticsRequest'
+        required: true
+      responses:
+        "200":
+          description: AAA Services Top N Analytics Response Model
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/AAAServicesTopNAnalyticsResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/aaaServices/trendAnalytics:
+    post:
+      tags:
+      - AAA Services
+      summary: Get trend analytics data of AAA Services for given set of complex filters.
+      description: |-
+        Gets the trend analytics data related to AAA Services based on given filters and group by field. If startTime and endTime are not provided, the API defaults to the last 24 hours.
+        |Field Name | Description |
+        | --- | --- |
+        | `startTime` | start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is 24 hours ago from end time |
+        | `endTime` | end time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is current time |
+        | `trendInterval` | the trend time interval in minutues. This is a mantadory field. The possible values in minutes are **5 minutes, 15 minutes, 1 hour, 1 day**.|
+        | `groupBy` | specifies the attributes for grouping the data.|
+        | `filters`| used to define one or more conditions. Only the data that satisfy these conditions will be taken into consideration during the aggregation calculation.|
+        | `attributes` | attributes are used for obtaining one or more field's data in addition to the aggregated data. The supported attributes are listed in `AAAServicesAnalyticsAttributeKey` model|
+        | `aggregateAttributes` | specifies the names of the attributes on which the aggregate function should be applied when querying the data. The supported attribute names are listed in `AAAServicesAggregateAttributeKey` model  |
+        | `page` | contains **limit, offset, and timestampOrder** fields. *limit* - number of records to be returned in response. *offset* - starting offset of data. *timestampOrder* - to sort the response based on the timestamp either in ascending or descending order. |
+      operationId: queryAAAServicesTrendAnalytics
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload which contains start/end times and filters to retrive the issues.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AAAServicesTrendAnalyticsRequest'
+        required: true
+      responses:
+        "200":
+          description: AAA Services Trend Analytics Response Model
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/AAAServicesTrendAnalyticsResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/aaaServices/{id}/trendAnalytics:
+    post:
+      tags:
+      - AAA Services
+      summary: Get trend analytics data for a given AAA Service matching the id of the Service.
+      description: |-
+        Gets the trend analytics data related to a particular AAA Service matching the id. If startTime and endTime are not provided, the API defaults to the last 24 hours.
+        |Field Name | Description |
+        | --- | --- |
+        | `startTime` | start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is 24 hours ago from end time |
+        | `endTime` | end time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is current |
+        | `trendInterval` | the trend time interval in minutues. This is a mantadory field. The possible values in minutes are **5, 15, 60**. When the start and end Time range is greater than 1 day, the allowed interval value is 60 minutes.|
+        | `groupBy` | specifies the attributes for grouping the data.|
+        | `filters`| used to define one or more conditions. Only the data that satisfy these conditions will be taken into consideration during the aggregation calculation.|
+        | `attributes` | attributes are used for obtaining one or more field's data in addition to the aggregated data. The supported attributes are listed in `AAAServicesAnalyticsAttributeKey` model|
+        | `aggregateAttributes` | specifies the names of the attributes on which the aggregate function should be applied when querying the data. The supported attribute names are listed in `AAAServicesAggregateAttributeKey` model  |
+        | `page` | contains **limit, offset, and timestampOrder** fields. *limit* - number of records to be returned in response. *offset* - starting offset of data. *timestampOrder* - to sort the response based on the timestamp either in ascending or descending order. |
+      operationId: queryAAAServicesTrendAnalyticsById
+      parameters:
+      - name: id
+        in: path
+        description: |
+          Unique id of the AAA Service. It is the combination of AAA Server IP (`serverIp`) and Device UUID (`deviceId`) separated by underscore (`_`).
+          Example: If `serverIp` is `10.76.81.33` and `deviceId` is `6bef213c-19ca-4170-8375-b694e251101c`, then the `id` would be `10.76.81.33_6bef213c-19ca-4170-8375-b694e251101c`
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload which contains start/end times and filters to retrive the issues.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AAAServicesTrendAnalyticsRequest'
+        required: true
+      responses:
+        "200":
+          description: AAA Services Trend Analytics Response Model
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/AAAServicesTrendAnalyticsResponseModel'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+components:
+  schemas:
+    AAAServiceResponseModel:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/AAAServiceResponse'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: AAA Service response
+    AAAServiceListResponseModel:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServiceResponse'
+        page:
+          $ref: '#/components/schemas/AAAServicePaginationResponse'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: AAA Service list response
+    AAAServicesSummaryAnalyticsResponseModel:
+      type: object
+      properties:
+        version:
+          type: string
+          example: "1.0"
+        response:
+          $ref: '#/components/schemas/AAAServicesSummaryAnalyticsResponse'
+        page:
+          $ref: '#/components/schemas/AAAServicesAnalyticsSortResponse'
+      description: AAA Services Summary Analytics Response Model
+    AAAServicesTopNAnalyticsResponseModel:
+      type: object
+      properties:
+        version:
+          type: string
+          example: "1.0"
+        response:
+          $ref: '#/components/schemas/AAAServicesTopNAnalyticsResponse'
+        page:
+          $ref: '#/components/schemas/AAAServicesAnalyticsSortResponse'
+      description: AAA Services Top N Analytics Response Model
+    AAAServicesTrendAnalyticsResponseModel:
+      type: object
+      properties:
+        version:
+          type: string
+          example: "1.0"
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesTrendAnalyticsResponse'
+        page:
+          $ref: '#/components/schemas/NetworkServicesPaginationWithTrendResponse'
+      description: AAA Services Trend Analytics Response Model
+    AAAServiceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "Unique id of the AAA Service, which is the combination of Servicer IP and Device UUID."
+          example: 10.42.3.31_6bef213c-19ca-4170-8375-b694e251101c
+        serverIp:
+          type: string
+          description: IP Address of the AAA Server
+          example: 10.42.3.31
+        deviceId:
+          type: string
+          description: The device UUID.
+          example: 6bef213c-19ca-4170-8375-b694e251101c
+        deviceName:
+          type: string
+          description: Name of the device.
+          example: wnbu-sjc24-00a-ewlc1-oeap.cisco.com
+        deviceFamily:
+          type: string
+          description: Device Family.
+          example: wireless controller
+        deviceSiteHierarchy:
+          type: string
+          description: Site hierarchy of the device.
+          example: Global/San Jose/OEAP
+        deviceSiteId:
+          type: string
+          description: Site id of the device.
+          example: 6e798f0d-9d88-44e8-8885-622c9962a3a6
+        deviceSiteHierarchyId:
+          type: string
+          description: Site hierarchy id of the device.
+          example: /1a2d9728-a60d-4d0b-8306-e35834c2d0b7/6e798f0d-9d88-44e8-8885-622c9962a3a6/
+        transactions:
+          type: integer
+          description: Number of transactions the given time range.
+          format: int64
+          example: 7294
+        failedTransactions:
+          type: integer
+          description: Total number of failed transactions in the given time range.
+          format: int64
+          example: 482
+        successfulTransactions:
+          type: integer
+          description: Total number of successful transactions in the given time range.
+          format: int64
+          example: 650
+        eapTransactions:
+          type: integer
+          description: Total number of EAP transactions in the given time range.
+          format: int64
+          example: 504
+        eapFailedTransactions:
+          type: integer
+          description: Total number of failed EAP transactions in the given time range.
+          format: int64
+          example: 67
+        eapSuccessfulTransactions:
+          type: integer
+          description: Total number of successful EAP transactions in the given time range.
+          format: int64
+          example: 67
+        mabTransactions:
+          type: integer
+          description: Total number of MAB transactions in the given time range.
+          format: int64
+          example: 61210
+        mabFailedTransactions:
+          type: integer
+          description: Total number of failed MAB transactions in the given time range.
+          format: int64
+          example: 543
+        mabSuccessfulTransactions:
+          type: integer
+          description: Total number of successful MAB transactions in the given time range.
+          format: int64
+          example: 543
+        latency:
+          type: integer
+          description: Average latency (milliseconds) in the given time range.
+          example: 24
+        eapLatency:
+          type: integer
+          description: Average EAP latency (milliseconds) in the given time range.
+          example: 41
+        mabLatency:
+          type: integer
+          description: Average MAB latency (milliseconds) in the given time range.
+          example: 8
+      description: Contains details of AAA service.
+    AAAServicesSummaryAnalyticsResponse:
+      type: object
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/NetworkServicesAnalyticsGroup'
+        attributes:
+          type: array
+          description: List of attributes
+          items:
+            $ref: '#/components/schemas/NetworkServicesAttributeResponse'
+        aggregateAttributes:
+          type: array
+          description: List of aggregate attributes
+          items:
+            $ref: '#/components/schemas/NetworkServicesAggregateAttributeResponse'
+      description: AAA Services Summary Analytics Response object
+    AAAServicesTopNAnalyticsResponse:
+      type: array
+      description: Issues TopN Analytics Response object
+      items:
+        $ref: '#/components/schemas/NetworkServicesAnalyticsGroup'
+    AAAServicesTrendAnalyticsResponse:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          description: Timestamp of the data (epoch time)
+          format: int64
+          example: 1709706600000
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/NetworkServicesAnalyticsGroup'
+        attributes:
+          type: array
+          description: List of attributes
+          items:
+            $ref: '#/components/schemas/NetworkServicesAttributeResponse'
+        aggregateAttributes:
+          type: array
+          description: List of aggregate attributes
+          items:
+            $ref: '#/components/schemas/NetworkServicesAggregateAttributeResponse'
+      description: AAA Services Trend Analytics Response object
+    NetworkServicesPaginationWithTrendRequest:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to be returned in response
+          example: 100
+          default: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        timestampOrder:
+          type: string
+          description: The sort order of the timestamp can be either ascending or descending
+          example: asc
+          enum:
+          - asc
+          - desc
+    NetworkServicesPaginationWithTrendResponse:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to be returned in response
+          example: 100
+          default: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        count:
+          minimum: 1
+          type: integer
+          description: Total number of records that can be returned for this request
+          example: 5
+          default: 1
+        timestampOrder:
+          type: string
+          description: The sort order of the timestamp can be either ascending or descending
+          example: asc
+          enum:
+          - asc
+          - desc
+    NetworkServicesAnalyticsGroup:
+      type: object
+      properties:
+        id:
+          type: string
+          description: This is the group key. Its the concatination of groupBy attributes
+          example: servicerIp=10.45.32.43_deviceId=868d39df-0b96-4fdb-83cc-ae3130e4e824
+        attributes:
+          type: array
+          description: List of attributes
+          items:
+            $ref: '#/components/schemas/NetworkServicesAttributeResponse'
+        aggregateAttributes:
+          type: array
+          description: List of aggregate attributes
+          items:
+            $ref: '#/components/schemas/NetworkServicesAggregateAttributeResponse'
+      description: Network Services Analytics Group object
+    NetworkServicesAttributeResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the attribute
+          example: deviceName
+        value:
+          type: object
+          description: Value of the attribute
+          example: wnbu.sjc12.cisco.com
+    NetworkServicesAggregateAttributeResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Aggregate attribute name
+        function:
+          type: string
+          description: Aggregate function
+        value:
+          type: object
+          description: This is the aggregate value of the attribute after applying the function on the dataset
+          example: 14
+    AAAServicesQueryRequest:
+      type: object
+      properties:
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesFilter'
+        page:
+          $ref: '#/components/schemas/AAAServicesPaginationRequest'
+      description: AAA Services query requst payload
+      allOf:
+      - $ref: '#/components/schemas/startAndEndTime'
+    AAAServicesQueryCountRequest:
+      type: object
+      properties:
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesFilter'
+      description: AAA Services query count requst payload
+      allOf:
+      - $ref: '#/components/schemas/startAndEndTime'
+    AAAServicesPaginationRequest:
+      type: object
+      properties:
+        limit:
+          maximum: 100
+          minimum: 1
+          type: integer
+          description: Number of records to be returned in response
+          example: 7
+          default: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        sortBy:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesPaginationSortBy'
+    AAAServicePaginationResponse:
+      type: object
+      properties:
+        limit:
+          maximum: 100
+          minimum: 1
+          type: integer
+          description: Number of records to be returned in response
+          example: 7
+          default: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        count:
+          type: integer
+          description: Total number of records that can be returned for this request
+          example: 5
+        sortBy:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesPaginationSortBy'
+    AAAServicesPaginationSortBy:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Records are sorted based on the field specified.
+          enum:
+          - serverIp
+          - deviceName
+          - deviceSiteHierarchy
+          - transactions
+          - failedTransactions
+          - successfulTransactions
+          - eapTransactions
+          - eapFailedTransactions
+          - eapSuccessfulTransactions
+          - mabTransactions
+          - mabFailedTransactions
+          - mabSuccessfulTransactions
+          - latency
+          - mabLatency
+          - eapLatency
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for descending
+          example: asc
+          enum:
+          - asc
+          - desc
+      description: Records are sorted based on the field specified.
+    AAAServicesFilter:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/AAAServicesFilterAttribute'
+        operator:
+          $ref: '#/components/schemas/NetworkServicesOperator'
+        logicalOperator:
+          $ref: '#/components/schemas/LogicalOperator'
+        value:
+          type: object
+          description: |
+            Field value(s) to filter the data set.
+        filters:
+          type: array
+          description: |
+            This nested array of filters can be used when `logicalOperator` is used.
+          items:
+            $ref: '#/components/schemas/AAAServicesFilter'
+      description: |
+        In case of single filter, please use `key`, `operator` and `value` combination. If multiple filters need to be applied using a logical   operation, please use `logicalOperator` and populate the list of `filters`. Filters can be nested to build complex queries.
+    AAAServicesFilterAttribute:
+      type: string
+      description: Field names which are supported by this API as filter keys
+      enum:
+      - serverIp
+      - deviceId
+      - deviceName
+      - deviceSiteHierarchy
+      - deviceSiteHierarchyId
+      - deviceSiteId
+      - transactions
+      - failedTransactions
+      - successfulTransactions
+      - eapTransactions
+      - eapFailedTransactions
+      - eapSuccessfulTransactions
+      - mabTransactions
+      - mabFailedTransactions
+      - mabSuccessfulTransactions
+      - latency
+      - mabLatency
+      - eapLatency
+    AAAServicesAnalyticsFilter:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/AAAServicesAnalyticsFilterAttribute'
+        operator:
+          $ref: '#/components/schemas/NetworkServicesOperator'
+        logicalOperator:
+          $ref: '#/components/schemas/LogicalOperator'
+        value:
+          type: object
+          description: |
+            Field value(s) to filter the data set.
+        filters:
+          type: array
+          description: |
+            This nested array of filters can be used when `logicalOperator` is used.
+          items:
+            $ref: '#/components/schemas/AAAServicesAnalyticsFilter'
+      description: |
+        In case of single filter, please use `key`, `operator` and `value` combination. If multiple filters need to be applied using a logical   operation, please use `logicalOperator` and populate the list of `filters`. Filters can be nested to build complex queries.
+    AAAServicesAnalyticsFilterAttribute:
+      type: string
+      description: Field names which are supported by this API as filter keys
+      enum:
+      - serverIp
+      - deviceId
+      - deviceName
+      - deviceSiteHierarchy
+      - deviceSiteHierarchyId
+      - deviceSiteId
+    NetworkServicesOperator:
+      type: string
+      description: "Type of filter operator to use for querying data. When `in` and `notIn` operators are used, the `value` should be array. For all other operators, the `value` should be a single value."
+      enum:
+      - in
+      - eq
+      - like
+      - lt
+      - lte
+      - gt
+      - gte
+    AAAServicesSummaryAnalyticsRequest:
+      type: object
+      properties:
+        groupBy:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAnalyticsGroupByKey'
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAnalyticsFilter'
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAnalyticsAttributeKey'
+        aggregateAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAggregateAttribute'
+        page:
+          $ref: '#/components/schemas/AAAServicesAnalyticsPaginationRequest'
+      description: AAA Services Summary Analytics requst payload
+      allOf:
+      - $ref: '#/components/schemas/startAndEndTime'
+    AAAServicesTopNAnalyticsRequest:
+      required:
+      - groupBy
+      - topN
+      type: object
+      properties:
+        topN:
+          $ref: '#/components/schemas/topN'
+        groupBy:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAnalyticsGroupByKey'
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAnalyticsFilter'
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAnalyticsAttributeKey'
+        aggregateAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAggregateAttribute'
+        page:
+          $ref: '#/components/schemas/AAAServicesAnalyticsPaginationRequest'
+      description: AAA Services Top N Analytics requst payload
+      allOf:
+      - $ref: '#/components/schemas/startAndEndTime'
+    AAAServicesTrendAnalyticsRequest:
+      required:
+      - groupBy
+      - trendInterval
+      type: object
+      properties:
+        trendInterval:
+          $ref: '#/components/schemas/NetworkServicesTrendInterval'
+        groupBy:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAnalyticsGroupByKey'
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAnalyticsFilter'
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAnalyticsAttributeKey'
+        aggregateAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAggregateAttribute'
+        page:
+          $ref: '#/components/schemas/NetworkServicesPaginationWithTrendRequest'
+      description: AAA Services Trend Analytics requst payload
+      allOf:
+      - $ref: '#/components/schemas/startAndEndTime'
+    AAAServicesAnalyticsGroupByKey:
+      type: string
+      enum:
+      - serverIp
+      - deviceId
+      - deviceSiteId
+    AAAServicesAnalyticsAttributeKey:
+      type: string
+      enum:
+      - deviceSiteHierarchy
+      - deviceName
+      - deviceFamily
+      - successRate
+      - failureRate
+      - eapSuccessRate
+      - eapFailureRate
+      - mabSuccessRate
+      - mabFailureRate
+    AAAServicesAggregateAttribute:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/AAAServicesAggregateAttributeKey'
+        function:
+          $ref: '#/components/schemas/NetworkServicesFunction'
+    AAAServicesAggregateAttributeKey:
+      type: string
+      enum:
+      - transactions
+      - failedTransactions
+      - successfulTransactions
+      - eapTransactions
+      - eapFailedTransactions
+      - eapSuccessfulTransactions
+      - mabTransactions
+      - mabFailedTransactions
+      - mabSuccessfulTransactions
+      - latency
+      - eapLatency
+      - mabLatency
+    NetworkServicesFunction:
+      type: string
+      description: Name of the aggregate function that should be applied when querying the data.
+      enum:
+      - sum
+      - min
+      - max
+      - avg
+      - latest
+    AAAServicesAnalyticsPaginationRequest:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to be returned in response
+          example: 25
+          default: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        sortBy:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAnalyticsSortBy'
+    AAAServicesAnalyticsSortBy:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Field name on which the data should be sorted
+          enum:
+          - serverIp
+          - deviceName
+          - deviceSiteHierarchy
+          - successRate
+          - failureRate
+          - eapSuccessRate
+          - eapFailureRate
+          - mabSuccessRate
+          - mabFailureRate
+          - transactions
+          - failedTransactions
+          - successfulTransactions
+          - eapTransactions
+          - eapFailedTransactions
+          - eapSuccessfulTransactions
+          - mabTransactions
+          - mabFailedTransactions
+          - mabSuccessfulTransactions
+          - latency
+          - eapLatency
+          - mabLatency
+        function:
+          $ref: '#/components/schemas/NetworkServicesFunction'
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for descending
+          example: asc
+          enum:
+          - asc
+          - desc
+      description: Records are sorted based on the field specified.
+    AAAServicesAnalyticsSortResponse:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to be returned in response
+          example: 25
+          default: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        count:
+          type: integer
+          description: Total number of records that can be returned for this request
+        sortBy:
+          type: array
+          items:
+            $ref: '#/components/schemas/AAAServicesAnalyticsSortBy'
+    NetworkServicesTrendInterval:
+      type: string
+      description: |
+        The time window to aggregate the Network Services data.
+      enum:
+      - 5MIN
+      - 15MIN
+      - 1HOUR
+      - 1DAY
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorObject'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured   processing this request.
+      example:
+        response:
+        - errorCode: 2600
+          message: Error message
+          detail: Error details
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    ErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: Application specific error code returned by the server
+        message:
+          type: string
+          description: Brief message about the error condition
+        detail:
+          type: string
+          description: "A more detailed explanation of the error condition the   parameter and its value, that caused the condition and why it caused it."
+    CountIntegerResponse:
+      title: Count Integer Response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/CountIntegerResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Reports
+    startAndEndTime:
+      type: object
+      properties:
+        startTime:
+          type: integer
+          description: |
+            Start time from which the API queries the dataset related to the resource. It must be specified in terms of milliseconds since UNIX epoch. Value is inclusive.
+
+            If `startTime` is not provided, API will default to current time.
+          format: int64
+          example: 1705348800000
+        endTime:
+          type: integer
+          description: |
+            End time to which the API queries the dataset related to the resource. It must be specified in terms of milliseconds since UNIX epoch. Value is inclusive.
+
+            If `endTime` is not provided, API will default to current time.
+          format: int64
+          example: 1705435200000
+      description: start and end time of data set to query. Data is aggregated   based on time window and timestamped with window start time. | For example - 1. When data events falls in a 5 minute window from 12-13-2023 11:25 PM to 12-13-2023 11:30 PM the timestamp of the aggregated data is 12-13-2023 11:25 PM - 1702509900000 (Unix epochtime). If user needs data from 12-13-2023 11:25 PM to 12-13-2023 11:30 PM user must use below timestamps | startTime = 1702509900000 (12-13-2023 11:25 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM) | 2. When data to be queried is for 3 hours period from 12-13-2023 08:30 PM to 12-13-2023 11:30 PM. User must use below timestamps | startTime = 1702528200000 (12-13-2023 08:30 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM) | 2. When data to be queried is for 24 hours period from 12-12-2023 11:30 PM to 12-13-2023 11:30 PM. User must use below timestamps | startTime = 1702423800000 (12-12-2023 11:30 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM) | 3. When data to be queried is for 7 days period from 12-06-2023 11:30 PM to 12-13-2023 11:30 PM. User must use below timestamps | startTime = 1701905400000 (12-06-2023 11:30 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM)
+    LogicalOperator:
+      type: string
+      description: |
+        Operator to use when attempting to apply a logical conjunction of more   than 1 filter
+
+        Logical operations include: 'and', 'or'.
+      enum:
+      - and
+      - or
+    topN:
+      maximum: 100
+      minimum: 5
+      type: integer
+      description: Number of records to retrieve
+      default: 5
+      enum:
+      - 5
+      - 10
+      - 50
+      - 100
+    CountIntegerResponse_response:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The total number of records related to the resource
+          format: int64
+          example: 1000
+  responses:
+    AAAServiceResponseModel:
+      description: Response containing one AAA Service mathching the given id
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/AAAServiceResponseModel'
+    AAAServiceListResponseModel:
+      description: Response containing list of AAA Services for given filters
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/AAAServiceListResponseModel'
+    AAAServicesSummaryAnalyticsResponseModel:
+      description: AAA Services Summary Analytics Response Model
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/AAAServicesSummaryAnalyticsResponseModel'
+    AAAServicesTopNAnalyticsResponseModel:
+      description: AAA Services Top N Analytics Response Model
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/AAAServicesTopNAnalyticsResponseModel'
+    AAAServicesTrendAnalyticsResponseModel:
+      description: AAA Services Trend Analytics Response Model
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/AAAServicesTrendAnalyticsResponseModel'
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "500":
+      description: The server could not fulfill the request due to internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "1XX":
+      description: Informational Responses - The server received the request and sent an informational response.
+    "2XX":
+      description: "Successful Responses - The server received the client request, understood it, and accepted it."
+    "3XX":
+      description: Redirection Messages - The client must take additional action to complete the request.
+    "4XX":
+      description: Client Error Responses - The client request caused the error.
+    "5XX":
+      description: Server Error Responses - The server failed to fulfill the request.
+    defaultError:
+      description: Unexpected Error
+    CountIntegerResponse:
+      description: Reponse object containing total count of the records after applying requested filters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CountIntegerResponse'
+    "404":
+      description: The client made a request for a resource that does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  parameters:
+    deviceSiteHierarchies:
+      name: deviceSiteHierarchy
+      in: query
+      description: |
+        The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+        Examples:
+
+        `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+        `?deviceSiteHierarchy=Global/AreaName/BuildingName/FloorName&deviceSiteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    deviceSiteHierarchyIds:
+      name: deviceSiteHierarchyId
+      in: query
+      description: |
+        The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+        Examples:
+
+        `?deviceSiteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+        `?deviceSiteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&deviceSiteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    deviceSiteIds:
+      name: deviceSiteId
+      in: query
+      description: |
+        The UUID of the site. (Ex. `flooruuid`)
+
+        Examples:
+
+        `?deviceSiteIds=id1` (single id requested)
+
+        `?deviceSiteIds=id1&deviceSiteIds=id2&siteId=id3` (multiple ids requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    serverIp:
+      name: serverIp
+      in: query
+      description: |
+        IP Address of the AAA Server. This parameter supports wildcard (`*`) character -based search. Example: `10.76.81.*` or `*56.78*` or `*50.28`
+        Examples: serverIp=10.42.3.31 (single IP Address is requested) serverIp=10.42.3.31&serverIp=name2&fabricVnName=name3 (multiple IP Addresses are requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    deviceId:
+      name: deviceId
+      in: query
+      description: |
+        The device UUID.
+
+         Examples:
+         `deviceId=6bef213c-19ca-4170-8375-b694e251101c` (single deviceId is requested)
+         `deviceId=6bef213c-19ca-4170-8375-b694e251101c&deviceId=32219612-819e-4b5e-a96b-cf22aca13dd9 (multiple networkDeviceIds with & separator)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    deviceName:
+      name: deviceName
+      in: query
+      description: "Name of the device. This parameter supports wildcard (`*`) character -based search. Example: `wnbu-sjc*` or `*wnbu-sjc*` or `*wnbu-sjc`\nExamples: deviceName=wnbu-sjc24.cisco.com (single device name is requested) deviceName=wnbu-sjc24.cisco.com&deviceName=wnbu-sjc22.cisco.com (multiple device names are requested)        \n"
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    startTime:
+      name: startTime
+      in: query
+      description: |
+        Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      schema:
+        type: integer
+        format: int64
+      example: 1705348800000
+    endTime:
+      name: endTime
+      in: query
+      description: |
+        End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      required: false
+      schema:
+        type: integer
+        format: int64
+      example: 1705435200000
+    limit_100:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        maximum: 100
+        minimum: 1
+        type: integer
+        default: 100
+    offset:
+      name: offset
+      in: query
+      description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+      schema:
+        minimum: 1
+        type: integer
+        default: 1
+    order:
+      name: order
+      in: query
+      description: The sort order of the field ascending or descending.
+      schema:
+        type: string
+        default: asc
+        enum:
+        - asc
+        - desc
+    siteHierarchies:
+      name: siteHierarchy
+      in: query
+      description: |
+        The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+        Examples:
+
+        `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+        `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteIds:
+      name: siteId
+      in: query
+      description: |
+        The UUID of the site. (Ex. `flooruuid`)
+
+        Examples:
+
+        `?siteId=id1` (single id requested)
+
+        `?siteId=id1&siteId=id2&siteId=id3` (multiple ids requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    callerId:
+      name: X-CALLER-ID
+      in: header
+      description: |
+        Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+      required: false
+      schema:
+        type: string
+        default: unknown
+      example: ui:client360
+  examples:
+    AAAServicesQueryRequestExample1:
+      description: This request has simple filters. The resulting query from this request is - get all AAA Services whose `deviceId` is *"243faba9-7f9e-4f2d-9914-97c2756754cb"* OR *"681d442b-6df7-4583-990f-c6862d040f89"* AND have `serverIp` as *"10.55.32.109"*
+      value:
+        startTime: 1705348800000
+        endTime: 1705435200000
+        filters:
+        - key: deviceId
+          operator: in
+          value:
+          - 243faba9-7f9e-4f2d-9914-97c2756754cb
+          - 681d442b-6df7-4583-990f-c6862d040f89
+        - key: serverIp
+          operator: eq
+          value: 10.55.32.109
+        page:
+          limit: 25
+          offset: 1
+          sortBy:
+          - name: mostRecentOccurredTime
+            order: desc
+    AAAServicesQueryRequestExample2:
+      description: This request has simple filters. The resulting query from this request is - get all AAA Services whose `serverIp` is *"10.55.32.109"* AND either eapTransactions > 5000 OR mabTransactions > 5000
+      value:
+        startTime: 1705348800000
+        endTime: 1705435200000
+        filters:
+        - key: serverIp
+          operator: eq
+          value: 10.55.32.109
+        - logicalOperator: or
+          filters:
+          - key: eapTransactions
+            operator: gt
+            value: 5000
+          - key: mabTransactions
+            operator: gt
+            value: 5000
+        page:
+          limit: 25
+          offset: 1
+          sortBy:
+          - name: mostRecentOccurredTime
+            order: desc
+    AAAServicesQueryCountRequestExample1:
+      description: This request has simple filters. The resulting query from this request is - get all AAA Services whose `deviceId` is *"243faba9-7f9e-4f2d-9914-97c2756754cb"* OR *"681d442b-6df7-4583-990f-c6862d040f89"* AND have `serverIp` as *"10.55.32.109"*
+      value:
+        startTime: 1705348800000
+        endTime: 1705435200000
+        filters:
+        - key: deviceId
+          operator: in
+          value:
+          - 243faba9-7f9e-4f2d-9914-97c2756754cb
+          - 681d442b-6df7-4583-990f-c6862d040f89
+        - key: serverIp
+          operator: eq
+          value: 10.55.32.109
+    AAAServicesQueryCountRequestExample2:
+      description: This request has simple filters. The resulting query from this request is - get all AAA Services whose `serverIp` is *"10.55.32.109"* AND either eapTransactions > 5000 OR mabTransactions > 5000
+      value:
+        startTime: 1705348800000
+        endTime: 1705435200000
+        filters:
+        - key: serverIp
+          operator: eq
+          value: 10.55.32.109
+        - logicalOperator: or
+          filters:
+          - key: eapTransactions
+            operator: gt
+            value: 5000
+          - key: mabTransactions
+            operator: gt
+            value: 5000
