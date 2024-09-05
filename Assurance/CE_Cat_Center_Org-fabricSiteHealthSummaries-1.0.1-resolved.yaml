@@ -1,0 +1,1702 @@
+---
+openapi: 3.0.0
+info:
+  title: Open API Spec for Assurance Fabric Sites documentation
+  description: "### OpenAPI specification defined for the purpose of providing visibility into the fabric sites and their health in Catalyst Center\n\n**Relevant Concepts**\n\n| Term | Description |\n| -- | -- |\n| `Fabric Site` | A fabric site is a logical subdivision of a larger network fabric, containing its own control plane nodes for management, border nodes for routing traffic between sites, and edge nodes that connect devices to the fabric. |\n| `Virtual Network` | A fabric virtual network is a logical network overlay created on top of a physical network fabric. This overlay network allows you to segment your network into isolated, secure, and policy-driven environments for different departments, applications, or security zones. |\n| `Transit Network` | A fabric transit site is a special type of fabric site that connects multiple other fabric sites within a single fabric domain.  This applies only to SD-Access transit networks because health status is only  monitored for these sites, not for IP transit sites|\n| `Fabric deployments` | There are 2 types of Fabric deployments, namely 'LISP' and 'EVPN'.| \n| `LISP-based deployments` | LISP based deployments accommodate the following fabric entities: 'Fabric sites', 'Virtual networks (L2/L3)', and 'Transit Networks'. L2 VN health is not applicable for LISP based deployments.|\n| `EVPN-based deployments` | EVPN based deployments support 'Fabric sites' and 'Virtual networks (L2/L3)' currently. Transit networks is not applicable for EVPN based deployments.|              \n| `Overall Fabric Site Health` | The health status of the fabric is determined by examining the session status among the  fabric sites. A valid Health score for Fabric entity ranges from 0-100 and is categorized as follows: Good (80-100), Fair (40-80), Poor (0-40), and No Health (--).|\n| `FabricSiteConnectivity Health` | Health of the connectivity with the fabric site.  Health score ranges from 0 to 100.|\n| `Fabric Infrastructure Health` | Health of the devices that make up the fabric sitee.  Health score ranges from 0 to 100.|\n| `FabricControlPlane Health` | Health of the control plane in the fabric site.  Health score ranges from 0 to 100.|\n**API Support Documentation**\n\n**Views**\n\nSpecified 'views' can be requested for non-count APIs. Each view corresponds to different sets of data. \n\n'views' an optional parameter which can be passed to get one or more of the specific health data summaries associated with fabric sites.\n\n'views' is also an optional field in the post request bodies.\n\n| View | Response Data |\n| --- | --- |\n| `fabricSiteInfo` | id, siteHierarchy, siteHierarchyId, name, totalDeviceCount, associatedL2VnCount, associatedL3VnCount, networkProtocol | \n| `overallHealth` | id, name, goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount, poorHealthDeviceCount, fairHealthDeviceCount, connectivityGoodHealthPercentage, connectivityTotalHealthDeviceCount, connectivityGoodHealthDeviceCount, connectivityPoorHealthDeviceCount, connectivityFairHealthDeviceCount, infraHealthyPercentage, infraTotalHealthDeviceCount, infraGoodHealthDeviceCount, infraPoorHealthDeviceCount, infraFairHealthDeviceCount, controlPlaneGoodHealthPercentage, controlPlaneTotalHealthDeviceCount, controlPlaneGoodHealthDeviceCount, controlPlanePoorHealthDeviceCount, controlPlaneFairHealthDeviceCount |  \n| `connectivityHealth` | id, name, connectivityGoodHealthPercentage, connectivityTotalHealthDeviceCount, connectivityGoodHealthDeviceCount, connectivityPoorHealthDeviceCount, connectivityFairHealthDeviceCount,  bgpEvpnGoodHealthPercentage, bgpEvpnTotalHealthDeviceCount, bgpEvpnGoodHealthDeviceCount, bgpEvpnPoorHealthDeviceCount, bgpEvpnFairHealthDeviceCount, portChannelGoodHealthPercentage, portChannelTotalHealthDeviceCount, portChannelGoodHealthDeviceCount,portChannelPoorHealthDeviceCount, portChannelFairHealthDeviceCount, borderToControlPlaneGoodHealthPercentage, borderToControlPlaneTotalHealthDeviceCount, borderToControlPlaneGoodHealthDeviceCount,borderToControlPlanePoorHealthDeviceCount, borderToControlPlaneFairHealthDeviceCount, bgpPubsubSiteGoodHealthPercentage, bgpPubsubSiteTotalHealthDeviceCount, bgpPubsubSiteGoodHealthDeviceCount,bgpPubsubSitePoorHealthDeviceCount, bgpPubsubSiteFairHealthDeviceCount |  \n| `infraHealth` | id, name,infraHealthyPercentage, infraTotalHealthDeviceCount, infraGoodHealthDeviceCount, infraPoorHealthDeviceCount, infraFairHealthDeviceCount, pubsubInfraVnGoodHealthPercentage,  pubsubInfraVnTotalHealthDeviceCount, pubsubInfraVnGoodHealthDeviceCount,  pubsubInfraVnPoorHealthDeviceCount, pubsubInfraVnFairHealthDeviceCount, ctsEnvDataDownloadGoodHealthPercentage, ctsEnvDataDownloadTotalHealthDeviceCount, ctsEnvDataDownloadGoodHealthDeviceCount, ctsEnvDataDownloadPoorHealthDeviceCount, ctsEnvDataDownloadFairHealthDeviceCount,  aaaStatusGoodHealthPercentage, aaaStatusTotalHealthDeviceCount, aaaStatusGoodHealthDeviceCount,aaaStatusPoorHealthDeviceCount, aaaStatusFairHealthDeviceCount, bgpPeerInfraVnScoreGoodHealthPercentage, bgpPeerInfraVnTotalHealthDeviceCount, bgpPeerInfraVnGoodHealthDeviceCount, bgpPeerInfraVnPoorHealthDeviceCount, bgpPeerInfraVnFairHealthDeviceCount,  peerScoreGoodHealthPercentage, peerScoreTotalHealthDeviceCount, peerScoreGoodHealthDeviceCount,peerScorePoorHealthDeviceCount, peerScoreFairHealthDeviceCount |\n| `controlPlaneHealth` | id, name, controlPlaneGoodHealthPercentage, controlPlaneTotalHealthDeviceCount, controlPlaneGoodHealthDeviceCount, controlPlanePoorHealthDeviceCount, controlPlaneFairHealthDeviceCount,  lispSessionGoodHealthPercentage, lispSessionTotalHealthDeviceCount, lispSessionGoodHealthDeviceCount,lispSessionPoorHealthDeviceCount, lispSessionFairHealthDeviceCount, bgpBgpSiteGoodHealthPercentage, bgpBgpSiteTotalHealthDeviceCount, bgpBgpSiteGoodHealthDeviceCount,bgpBgpSitePoorHealthDeviceCount, bgpBgpSiteFairHealthDeviceCount|\n\n\n  When this query parameter is not added the default summaries are:  \n\n    [`fabricSiteInfo`, `overallHealth`]\n    \n    **Examples**:\n\n    1. Query Param:\n      view=health (single view requested)\n\n      view=fabricSiteInfo&view=overallHealth (multiple views requested)\n    \n### **Attributes** ###\n\nSpecified 'attributes' can be requested for non-count APIs. Each attribute requested will be part of the API response.\n\n**Supported Attributes:**\n\n1.`id`, `siteHierarchy`, `siteHierarchyId`, `name`, `totalDeviceCount`, `associatedL2VnCount`, `associatedL3VnCount`, `networkProtocol`,  `goodHealthPercentage`, `goodHealthDeviceCount`, `totalDeviceCount`,`poorHealthDeviceCount`,`fairHealthDeviceCount`, `connectivityGoodHealthPercentage`, `connectivityTotalHealthDeviceCount`, `connectivityGoodHealthDeviceCount`, `connectivityPoorHealthDeviceCount`, `connectivityFairHealthDeviceCount`, `infraHealthyPercentage`, `infraTotalHealthDeviceCount`, `infraGoodHealthDeviceCount`, `infraPoorHealthDeviceCount`, `infraFairHealthDeviceCount`, `controlPlaneGoodHealthPercentage`, `controlPlaneTotalHealthDeviceCount`, `controlPlaneGoodHealthDeviceCount`,`controlPlanePoorHealthDeviceCount`, `controlPlaneFairHealthDeviceCount`, `pubsubInfraVnGoodHealthPercentage`, `pubsubInfraVnTotalHealthDeviceCount`, `pubsubInfraVnGoodHealthDeviceCount`, `pubsubInfraVnPoorHealthDeviceCount`, `pubsubInfraVnFairHealthDeviceCount`, `bgpEvpnGoodHealthPercentage`, `bgpEvpnTotalHealthDeviceCount`, `bgpEvpnGoodHealthDeviceCount`,`bgpEvpnPoorHealthDeviceCount`, `bgpEvpnFairHealthDeviceCount`, `ctsEnvDataDownloadGoodHealthPercentage`, `ctsEnvDataDownloadTotalHealthDeviceCount`, `ctsEnvDataDownloadGoodHealthDeviceCount`, `ctsEnvDataDownloadPoorHealthDeviceCount`, `ctsEnvDataDownloadFairHealthDeviceCount`, `aaaStatusGoodHealthPercentage`, `aaaStatusTotalHealthDeviceCount`, `aaaStatusGoodHealthDeviceCount`, `aaaStatusPoorHealthDeviceCount`, `aaaStatusFairHealthDeviceCount`, `portChannelGoodHealthPercentage`, `portChannelTotalHealthDeviceCount`, `portChannelGoodHealthDeviceCount`, `portChannelPoorHealthDeviceCount`, `portChannelFairHealthDeviceCount`, `peerScoreGoodHealthPercentage`, `peerScoreTotalHealthDeviceCount`, `peerScoreGoodHealthDeviceCount`, `peerScorePoorHealthDeviceCount`, `peerScoreFairHealthDeviceCount`, `lispSessionGoodHealthPercentage`, `lispSessionTotalHealthDeviceCount`, `lispSessionGoodHealthDeviceCount`, `lispSessionPoorHealthDeviceCount`, `lispSessionFairHealthDeviceCount`, `borderToControlPlaneGoodHealthPercentage`, `borderToControlPlaneTotalHealthDeviceCount`, `borderToControlPlaneGoodHealthDeviceCount`, `borderToControlPlanePoorHealthDeviceCount`, `borderToControlPlaneFairHealthDeviceCount`, `bgpBgpSiteGoodHealthPercentage`, `bgpBgpSiteTotalHealthDeviceCount`, `bgpBgpSiteGoodHealthDeviceCount`, `bgpBgpSitePoorHealthDeviceCount`, `bgpBgpSiteFairHealthDeviceCount`, `bgpPubsubSiteGoodHealthPercentage`, `bgpPubsubSiteTotalHealthDeviceCount`, `bgpPubsubSiteGoodHealthDeviceCount`, `bgpPubsubSitePoorHealthDeviceCount`, `bgpPubsubSiteFairHealthDeviceCount`, `bgpPeerInfraVnScoreGoodHealthPercentage`, `bgpPeerInfraVnTotalHealthDeviceCount`, `bgpPeerInfraVnGoodHealthDeviceCount`, `bgpPeerInfraVnPoorHealthDeviceCount`, `bgpPeerInfraVnFairHealthDeviceCount`\nIf length of attribute list is too long, when using the query parameter for GET requests, please use `view` param instead.\n\n  Examples:\n  \n  1. query param:\n  \n    ?attribute=siteHierarchy (single attribute requested)\n  \n    ?attribute=siteHierarchy&attribute=goodHealthPercentage (multiple attributes requested)\n"
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.1
+externalDocs:
+  description: Catalyst Center Developer API resources
+  url: https://developer.cisco.com/dnacenter/
+servers:
+- url: https://developer.cisco.com/data/api/v1
+tags:
+- name: fabricSites
+  description: Operations related to retrieving fabric site information for Catalyst Center
+  externalDocs:
+    description: Catalyst Center Assurance user guide
+    url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
+paths:
+  /fabricSiteHealthSummaries:
+    get:
+      tags:
+      - fabricSiteHealthSummaries
+      summary: Read list of Fabric Sites with their health summary
+      description: "Get a paginated list of Fabric site health summary.\nThis API provides the latest health data from a given `endTime`\nIf data is not ready for the provided endTime, the request will fail, and the error message will indicate the recommended endTime to use to retrieve a complete data set.\nThis behavior may occur if the provided endTime=currentTime, since we are not a real time system.                          \nWhen `endTime` is not provided, the API returns the latest data.\n\n This API is asynchronous due to the large amounts of data being processed and inherent latency associated with that.\n\n**The process for using this API is as follows**:\n\n1). Make request to API to generate intended trend data. This request can include any of the following query parameters:\n[startTime, endTime, limit, offset, and order]\nThe request MUST include the following query parameters:\n[attribute]\nFor a list of supported trend analytics attributes, see main description.\n\n2). The response will be a 202 HTTP code, with information regarding the generated taskId for this submitted request and the URL to poll the status of this task.\nex. \"/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191\".  \n\n3). Once the status is completed, the response data will be retrievable using the /data/api/v1/fabricSites API with a taskId query param.\nex. /data/api/v1/fabricSites?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191.\nWhen a taskId is provided, it is the ONLY query parameter that should be provided to this API.            "
+      operationId: readFabricSitesSummary
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: sortBy
+        in: query
+        description: A field within the response to sort by.
+        schema:
+          type: string
+      - name: order
+        in: query
+        description: The sort order of the field ascending or descending.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: id
+        in: query
+        description: |
+          The list of entity Uuids. (Ex."6bef213c-19ca-4170-8375-b694e251101c")
+          Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested)
+          id=6bef213c-19ca-4170-8375-b694e251101c&id=32219612-819e-4b5e-a96b-cf22aca13dd9&id=2541e9a7-b80d-4955-8aa2-79b233318ba0 (multiple entity uuid with '&' separator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: attribute
+        in: query
+        description: "Supported Attributes:\n\n[id, siteHierarchy, siteHierarchyId, name, totalDeviceCount, associatedL2VnCount, associatedL3VnCount, networkProtocol,  goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount,poorHealthDeviceCount,fairHealthDeviceCount, connectivityGoodHealthPercentage, connectivityTotalHealthDeviceCount, connectivityGoodHealthDeviceCount, connectivityPoorHealthDeviceCount, connectivityFairHealthDeviceCount, infraHealthyPercentage, infraTotalHealthDeviceCount, infraGoodHealthDeviceCount, infraPoorHealthDeviceCount, infraFairHealthDeviceCount, controlPlaneGoodHealthPercentage, controlPlaneTotalHealthDeviceCount, controlPlaneGoodHealthDeviceCount,controlPlanePoorHealthDeviceCount, controlPlaneFairHealthDeviceCount, pubsubInfraVnGoodHealthPercentage, pubsubInfraVnTotalHealthDeviceCount, pubsubInfraVnGoodHealthDeviceCount, pubsubInfraVnPoorHealthDeviceCount, pubsubInfraVnFairHealthDeviceCount, bgpEvpnGoodHealthPercentage, bgpEvpnTotalHealthDeviceCount, bgpEvpnGoodHealthDeviceCount,bgpEvpnPoorHealthDeviceCount, bgpEvpnFairHealthDeviceCount, ctsEnvDataDownloadGoodHealthPercentage, ctsEnvDataDownloadTotalHealthDeviceCount, ctsEnvDataDownloadGoodHealthDeviceCount, ctsEnvDataDownloadPoorHealthDeviceCount, ctsEnvDataDownloadFairHealthDeviceCount, aaaStatusGoodHealthPercentage, aaaStatusTotalHealthDeviceCount, aaaStatusGoodHealthDeviceCount, aaaStatusPoorHealthDeviceCount, aaaStatusFairHealthDeviceCount, portChannelGoodHealthPercentage, portChannelTotalHealthDeviceCount, portChannelGoodHealthDeviceCount, portChannelPoorHealthDeviceCount, portChannelFairHealthDeviceCount, peerScoreGoodHealthPercentage, peerScoreTotalHealthDeviceCount, peerScoreGoodHealthDeviceCount, peerScorePoorHealthDeviceCount, peerScoreFairHealthDeviceCount, lispSessionGoodHealthPercentage, lispSessionTotalHealthDeviceCount, lispSessionGoodHealthDeviceCount, lispSessionPoorHealthDeviceCount, lispSessionFairHealthDeviceCount, borderToControlPlaneGoodHealthPercentage, borderToControlPlaneTotalHealthDeviceCount, borderToControlPlaneGoodHealthDeviceCount, borderToControlPlanePoorHealthDeviceCount, borderToControlPlaneFairHealthDeviceCount, bgpBgpSiteGoodHealthPercentage, bgpBgpSiteTotalHealthDeviceCount, bgpBgpSiteGoodHealthDeviceCount, bgpBgpSitePoorHealthDeviceCount, bgpBgpSiteFairHealthDeviceCount, bgpPubsubSiteGoodHealthPercentage, bgpPubsubSiteTotalHealthDeviceCount, bgpPubsubSiteGoodHealthDeviceCount, bgpPubsubSitePoorHealthDeviceCount, bgpPubsubSiteFairHealthDeviceCount, bgpPeerInfraVnScoreGoodHealthPercentage, bgpPeerInfraVnTotalHealthDeviceCount, bgpPeerInfraVnGoodHealthDeviceCount, bgpPeerInfraVnPoorHealthDeviceCount, bgpPeerInfraVnFairHealthDeviceCount]\n\nIf length of attribute list is too long, please use 'view' param instead.\n\nExamples:\n\nattribute=GoodHealthPercentage (single attribute requested)\n\nattribute=GoodHealthPercentage&attribute=connectivityGoodHealthPercentage (multiple attributes requested) \n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: view
+        in: query
+        description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n### Response data proviced by each view:  \n\n1. **siteInfo**\n[id, siteHierarchy, siteHierarchyId, name, totalDeviceCount, associatedL2VnCount, associatedL3VnCount, networkProtocol]  \n\n2. **overallHealth**      \n[id, name, goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount, poorHealthDeviceCount, fairHealthDeviceCount, connectivityGoodHealthPercentage, connectivityTotalHealthDeviceCount, connectivityGoodHealthDeviceCount, connectivityPoorHealthDeviceCount, connectivityFairHealthDeviceCount, infraHealthyPercentage, infraTotalHealthDeviceCount, infraGoodHealthDeviceCount, infraPoorHealthDeviceCount, infraFairHealthDeviceCount, controlPlaneGoodHealthPercentage, controlPlaneTotalHealthDeviceCount, controlPlaneGoodHealthDeviceCount, controlPlanePoorHealthDeviceCount, controlPlaneFairHealthDeviceCount] \n\n3. **connectivityHealth**\n[id, name, connectivityGoodHealthPercentage, connectivityTotalHealthDeviceCount, connectivityGoodHealthDeviceCount, connectivityPoorHealthDeviceCount, connectivityFairHealthDeviceCount,  bgpEvpnGoodHealthPercentage, bgpEvpnTotalHealthDeviceCount, bgpEvpnGoodHealthDeviceCount, bgpEvpnPoorHealthDeviceCount, bgpEvpnFairHealthDeviceCount, portChannelGoodHealthPercentage, portChannelTotalHealthDeviceCount, portChannelGoodHealthDeviceCount,portChannelPoorHealthDeviceCount, portChannelFairHealthDeviceCount, borderToControlPlaneGoodHealthPercentage, borderToControlPlaneTotalHealthDeviceCount, borderToControlPlaneGoodHealthDeviceCount,borderToControlPlanePoorHealthDeviceCount, borderToControlPlaneFairHealthDeviceCount, bgpPubsubSiteGoodHealthPercentage, bgpPubsubSiteTotalHealthDeviceCount, bgpPubsubSiteGoodHealthDeviceCount,bgpPubsubSitePoorHealthDeviceCount, bgpPubsubSiteFairHealthDeviceCount] \n\n4. **infraHealth** \n[id, name,infraHealthyPercentage, infraTotalHealthDeviceCount, infraGoodHealthDeviceCount, infraPoorHealthDeviceCount, infraFairHealthDeviceCount, pubsubInfraVnGoodHealthPercentage,  pubsubInfraVnTotalHealthDeviceCount, pubsubInfraVnGoodHealthDeviceCount, pubsubInfraVnPoorHealthDeviceCount, pubsubInfraVnFairHealthDeviceCount, ctsEnvDataDownloadGoodHealthPercentage, ctsEnvDataDownloadTotalHealthDeviceCount, ctsEnvDataDownloadGoodHealthDeviceCount, ctsEnvDataDownloadPoorHealthDeviceCount, ctsEnvDataDownloadFairHealthDeviceCount,  aaaStatusGoodHealthPercentage, aaaStatusTotalHealthDeviceCount, aaaStatusGoodHealthDeviceCount,aaaStatusPoorHealthDeviceCount, aaaStatusFairHealthDeviceCount, bgpPeerInfraVnScoreGoodHealthPercentage, bgpPeerInfraVnTotalHealthDeviceCount, bgpPeerInfraVnGoodHealthDeviceCount, bgpPeerInfraVnPoorHealthDeviceCount, bgpPeerInfraVnFairHealthDeviceCount,  peerScoreGoodHealthPercentage, peerScoreTotalHealthDeviceCount, peerScoreGoodHealthDeviceCount,peerScorePoorHealthDeviceCount, peerScoreFairHealthDeviceCount]\n\n5. **controlPlaneHealth** \n  [id, name, controlPlaneGoodHealthPercentage, controlPlaneTotalHealthDeviceCount, controlPlaneGoodHealthDeviceCount, controlPlanePoorHealthDeviceCount, controlPlaneFairHealthDeviceCount,  lispSessionGoodHealthPercentage, lispSessionTotalHealthDeviceCount, lispSessionGoodHealthDeviceCount,lispSessionPoorHealthDeviceCount, lispSessionFairHealthDeviceCount, bgpBgpSiteGoodHealthPercentage, bgpBgpSiteTotalHealthDeviceCount, bgpBgpSiteGoodHealthDeviceCount,bgpBgpSitePoorHealthDeviceCount, bgpBgpSiteFairHealthDeviceCount]       \n\nWhen this query parameter is not added the default summaries are:  \n\n[siteInfo, overallHealth]\n\n**Examples**:\n1. Query Param:\n  view=health (single view requested)\n\n  view=siteInfo&view=overallHealth (multiple views requested)\n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: taskId
+        in: query
+        description: |
+          used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Fabric site summmary response covering all fabric sites and their health.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/fabricSitesSummaries'
+              examples:
+                Response1:
+                  $ref: '#/components/examples/FabricSitesSummariesResponseExample1'
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /fabricSiteHealthSummaries/{id}:
+    get:
+      tags:
+      - fabricSiteHealthSummaries
+      summary: Read list of Fabric Sites with their health summary
+      description: "Get Fabric site health summary for a specific fabric site by providing the unique fabric site id in the url path.\nThis API provides the latest health data from a given `endTime`\nIf data is not ready for the provided endTime, the request will fail, and the error message will indicate the recommended endTime to use to retrieve a complete data set.\nThis behavior may occur if the provided endTime=currentTime, since we are not a real time system.\nWhen `endTime` is not provided, the API returns the latest data.\n  "
+      operationId: readFabricSitesSummaryById
+      parameters:
+      - name: id
+        in: path
+        description: unique fabric site id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: attribute
+        in: query
+        description: "Supported Attributes:\n\n[id, siteHierarchy, siteHierarchyId, name, totalDeviceCount, associatedL2VnCount, associatedL3VnCount, networkProtocol,  goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount,poorHealthDeviceCount,fairHealthDeviceCount, connectivityGoodHealthPercentage, connectivityTotalHealthDeviceCount, connectivityGoodHealthDeviceCount, connectivityPoorHealthDeviceCount, connectivityFairHealthDeviceCount, infraHealthyPercentage, infraTotalHealthDeviceCount, infraGoodHealthDeviceCount, infraPoorHealthDeviceCount, infraFairHealthDeviceCount, controlPlaneGoodHealthPercentage, controlPlaneTotalHealthDeviceCount, controlPlaneGoodHealthDeviceCount,controlPlanePoorHealthDeviceCount, controlPlaneFairHealthDeviceCount, pubsubInfraVnGoodHealthPercentage, pubsubInfraVnTotalHealthDeviceCount, pubsubInfraVnGoodHealthDeviceCount, pubsubInfraVnPoorHealthDeviceCount, pubsubInfraVnFairHealthDeviceCount, bgpEvpnGoodHealthPercentage, bgpEvpnTotalHealthDeviceCount, bgpEvpnGoodHealthDeviceCount,bgpEvpnPoorHealthDeviceCount, bgpEvpnFairHealthDeviceCount, ctsEnvDataDownloadGoodHealthPercentage, ctsEnvDataDownloadTotalHealthDeviceCount, ctsEnvDataDownloadGoodHealthDeviceCount, ctsEnvDataDownloadPoorHealthDeviceCount, ctsEnvDataDownloadFairHealthDeviceCount, aaaStatusGoodHealthPercentage, aaaStatusTotalHealthDeviceCount, aaaStatusGoodHealthDeviceCount, aaaStatusPoorHealthDeviceCount, aaaStatusFairHealthDeviceCount, portChannelGoodHealthPercentage, portChannelTotalHealthDeviceCount, portChannelGoodHealthDeviceCount, portChannelPoorHealthDeviceCount, portChannelFairHealthDeviceCount, peerScoreGoodHealthPercentage, peerScoreTotalHealthDeviceCount, peerScoreGoodHealthDeviceCount, peerScorePoorHealthDeviceCount, peerScoreFairHealthDeviceCount, lispSessionGoodHealthPercentage, lispSessionTotalHealthDeviceCount, lispSessionGoodHealthDeviceCount, lispSessionPoorHealthDeviceCount, lispSessionFairHealthDeviceCount, borderToControlPlaneGoodHealthPercentage, borderToControlPlaneTotalHealthDeviceCount, borderToControlPlaneGoodHealthDeviceCount, borderToControlPlanePoorHealthDeviceCount, borderToControlPlaneFairHealthDeviceCount, bgpBgpSiteGoodHealthPercentage, bgpBgpSiteTotalHealthDeviceCount, bgpBgpSiteGoodHealthDeviceCount, bgpBgpSitePoorHealthDeviceCount, bgpBgpSiteFairHealthDeviceCount, bgpPubsubSiteGoodHealthPercentage, bgpPubsubSiteTotalHealthDeviceCount, bgpPubsubSiteGoodHealthDeviceCount, bgpPubsubSitePoorHealthDeviceCount, bgpPubsubSiteFairHealthDeviceCount, bgpPeerInfraVnScoreGoodHealthPercentage, bgpPeerInfraVnTotalHealthDeviceCount, bgpPeerInfraVnGoodHealthDeviceCount, bgpPeerInfraVnPoorHealthDeviceCount, bgpPeerInfraVnFairHealthDeviceCount]\n\nIf length of attribute list is too long, please use 'view' param instead.\n\nExamples:\n\nattribute=GoodHealthPercentage (single attribute requested)\n\nattribute=GoodHealthPercentage&attribute=connectivityGoodHealthPercentage (multiple attributes requested) \n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: view
+        in: query
+        description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n### Response data proviced by each view:  \n\n1. **siteInfo**\n[id, siteHierarchy, siteHierarchyId, name, totalDeviceCount, associatedL2VnCount, associatedL3VnCount, networkProtocol]  \n\n2. **overallHealth**      \n[id, name, goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount, poorHealthDeviceCount, fairHealthDeviceCount, connectivityGoodHealthPercentage, connectivityTotalHealthDeviceCount, connectivityGoodHealthDeviceCount, connectivityPoorHealthDeviceCount, connectivityFairHealthDeviceCount, infraHealthyPercentage, infraTotalHealthDeviceCount, infraGoodHealthDeviceCount, infraPoorHealthDeviceCount, infraFairHealthDeviceCount, controlPlaneGoodHealthPercentage, controlPlaneTotalHealthDeviceCount, controlPlaneGoodHealthDeviceCount, controlPlanePoorHealthDeviceCount, controlPlaneFairHealthDeviceCount] \n\n3. **connectivityHealth**\n[id, name, connectivityGoodHealthPercentage, connectivityTotalHealthDeviceCount, connectivityGoodHealthDeviceCount, connectivityPoorHealthDeviceCount, connectivityFairHealthDeviceCount,  bgpEvpnGoodHealthPercentage, bgpEvpnTotalHealthDeviceCount, bgpEvpnGoodHealthDeviceCount, bgpEvpnPoorHealthDeviceCount, bgpEvpnFairHealthDeviceCount, portChannelGoodHealthPercentage, portChannelTotalHealthDeviceCount, portChannelGoodHealthDeviceCount,portChannelPoorHealthDeviceCount, portChannelFairHealthDeviceCount, borderToControlPlaneGoodHealthPercentage, borderToControlPlaneTotalHealthDeviceCount, borderToControlPlaneGoodHealthDeviceCount,borderToControlPlanePoorHealthDeviceCount, borderToControlPlaneFairHealthDeviceCount, bgpPubsubSiteGoodHealthPercentage, bgpPubsubSiteTotalHealthDeviceCount, bgpPubsubSiteGoodHealthDeviceCount,bgpPubsubSitePoorHealthDeviceCount, bgpPubsubSiteFairHealthDeviceCount] \n\n4. **infraHealth** \n[id, name,infraHealthyPercentage, infraTotalHealthDeviceCount, infraGoodHealthDeviceCount, infraPoorHealthDeviceCount, infraFairHealthDeviceCount, pubsubInfraVnGoodHealthPercentage,  pubsubInfraVnTotalHealthDeviceCount, pubsubInfraVnGoodHealthDeviceCount, pubsubInfraVnPoorHealthDeviceCount, pubsubInfraVnFairHealthDeviceCount, ctsEnvDataDownloadGoodHealthPercentage, ctsEnvDataDownloadTotalHealthDeviceCount, ctsEnvDataDownloadGoodHealthDeviceCount, ctsEnvDataDownloadPoorHealthDeviceCount, ctsEnvDataDownloadFairHealthDeviceCount,  aaaStatusGoodHealthPercentage, aaaStatusTotalHealthDeviceCount, aaaStatusGoodHealthDeviceCount,aaaStatusPoorHealthDeviceCount, aaaStatusFairHealthDeviceCount, bgpPeerInfraVnScoreGoodHealthPercentage, bgpPeerInfraVnTotalHealthDeviceCount, bgpPeerInfraVnGoodHealthDeviceCount, bgpPeerInfraVnPoorHealthDeviceCount, bgpPeerInfraVnFairHealthDeviceCount,  peerScoreGoodHealthPercentage, peerScoreTotalHealthDeviceCount, peerScoreGoodHealthDeviceCount,peerScorePoorHealthDeviceCount, peerScoreFairHealthDeviceCount]\n\n5. **controlPlaneHealth** \n  [id, name, controlPlaneGoodHealthPercentage, controlPlaneTotalHealthDeviceCount, controlPlaneGoodHealthDeviceCount, controlPlanePoorHealthDeviceCount, controlPlaneFairHealthDeviceCount,  lispSessionGoodHealthPercentage, lispSessionTotalHealthDeviceCount, lispSessionGoodHealthDeviceCount,lispSessionPoorHealthDeviceCount, lispSessionFairHealthDeviceCount, bgpBgpSiteGoodHealthPercentage, bgpBgpSiteTotalHealthDeviceCount, bgpBgpSiteGoodHealthDeviceCount,bgpBgpSitePoorHealthDeviceCount, bgpBgpSiteFairHealthDeviceCount]       \n\nWhen this query parameter is not added the default summaries are:  \n\n[siteInfo, overallHealth]\n\n**Examples**:\n1. Query Param:\n  view=health (single view requested)\n\n  view=siteInfo&view=overallHealth (multiple views requested)\n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Fabric site summmary response covering specific fabric sites and it's health.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/fabricSiteSummary'
+              examples:
+                Response1:
+                  $ref: '#/components/examples/FabricSiteSummaryResponse1'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /fabricSiteHealthSummaries/{id}/trendAnalytics:
+    get:
+      tags:
+      - fabricSiteHealthSummaries
+      summary: The Trend analytics data for a fabric site in the specified time range
+      description: "Get health time series data for a specific fabric site by providing the unique fabric site id in the url path. The data will be grouped based on the specified trend time interval. If startTime and endTime are not provided, the API defaults to the last 24 hours.\nBy default: - the number of records returned will be 500. - the records will be sorted in time ascending (`asc`) order.\n\nThis API is asynchronous due to the large amounts of data being processed and inherent latency associated with that.\n\n**The process for using this API is as follows**:.\n\n1). Make request to API to generate intended trend data. This request can include any of the following query parameters:\n[startTime, endTime, trendInterval, limit, offset, and order]\nThe request MUST include the following query parameters:\n[attribute]\nFor a list of supported trend analytics attributes, see main description.\n\n2). The response will be a 202 HTTP code, with information regarding the generated taskId for this submitted request and the URL to poll the status of this task.\nex. \"/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191\"\n\n3). Once the status is completed, the response data will be retrievable using this same API, by providing the query parameter:\n[taskId].\nex. ?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191.\nWhen a taskId is provided, it is the ONLY query parameter that should be provided.                           "
+      operationId: readFabricSitesTrendById
+      parameters:
+      - name: id
+        in: path
+        description: unique fabric site id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: trendInterval
+        in: query
+        description: "The time window to aggregate the metrics. \nInterval can be 5 minutes or 10 minutes or 1 hour or 1 day or 7 days\n"
+        schema:
+          type: string
+          enum:
+          - 5MIN
+          - 10MIN
+          - 1HR
+          - 1DAY
+          - 7DAY
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 500
+          minimum: 1
+          type: integer
+          default: 500
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: order
+        in: query
+        description: The sort order of the field ascending or descending.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: attribute
+        in: query
+        description: "Supported Attributes:\n\n[totalDeviceCount,  goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount,poorHealthDeviceCount,fairHealthDeviceCount, connectivityGoodHealthPercentage, connectivityTotalHealthDeviceCount, connectivityGoodHealthDeviceCount, connectivityPoorHealthDeviceCount, connectivityFairHealthDeviceCount, infraHealthyPercentage, infraTotalHealthDeviceCount, infraGoodHealthDeviceCount, infraPoorHealthDeviceCount, infraFairHealthDeviceCount, controlPlaneGoodHealthPercentage, controlPlaneTotalHealthDeviceCount, controlPlaneGoodHealthDeviceCount,controlPlanePoorHealthDeviceCount, controlPlaneFairHealthDeviceCount, pubsubInfraVnGoodHealthPercentage, pubsubInfraVnTotalHealthDeviceCount, pubsubInfraVnGoodHealthDeviceCount, pubsubInfraVnPoorHealthDeviceCount, pubsubInfraVnFairHealthDeviceCount, bgpEvpnGoodHealthPercentage, bgpEvpnTotalHealthDeviceCount, bgpEvpnGoodHealthDeviceCount,bgpEvpnPoorHealthDeviceCount, bgpEvpnFairHealthDeviceCount, ctsEnvDataDownloadGoodHealthPercentage, ctsEnvDataDownloadTotalHealthDeviceCount, ctsEnvDataDownloadGoodHealthDeviceCount, ctsEnvDataDownloadPoorHealthDeviceCount, ctsEnvDataDownloadFairHealthDeviceCount, aaaStatusGoodHealthPercentage, aaaStatusTotalHealthDeviceCount, aaaStatusGoodHealthDeviceCount, aaaStatusPoorHealthDeviceCount, aaaStatusFairHealthDeviceCount, portChannelGoodHealthPercentage, portChannelTotalHealthDeviceCount, portChannelGoodHealthDeviceCount, portChannelPoorHealthDeviceCount, portChannelFairHealthDeviceCount, peerScoreGoodHealthPercentage, peerScoreTotalHealthDeviceCount, peerScoreGoodHealthDeviceCount, peerScorePoorHealthDeviceCount, peerScoreFairHealthDeviceCount, lispSessionGoodHealthPercentage, lispSessionTotalHealthDeviceCount, lispSessionGoodHealthDeviceCount, lispSessionPoorHealthDeviceCount, lispSessionFairHealthDeviceCount, borderToControlPlaneGoodHealthPercentage, borderToControlPlaneTotalHealthDeviceCount, borderToControlPlaneGoodHealthDeviceCount, borderToControlPlanePoorHealthDeviceCount, borderToControlPlaneFairHealthDeviceCount, bgpBgpSiteGoodHealthPercentage, bgpBgpSiteTotalHealthDeviceCount, bgpBgpSiteGoodHealthDeviceCount, bgpBgpSitePoorHealthDeviceCount, bgpBgpSiteFairHealthDeviceCount, bgpPubsubSiteGoodHealthPercentage, bgpPubsubSiteTotalHealthDeviceCount, bgpPubsubSiteGoodHealthDeviceCount, bgpPubsubSitePoorHealthDeviceCount, bgpPubsubSiteFairHealthDeviceCount, bgpPeerInfraVnScoreGoodHealthPercentage, bgpPeerInfraVnTotalHealthDeviceCount, bgpPeerInfraVnGoodHealthDeviceCount, bgpPeerInfraVnPoorHealthDeviceCount, bgpPeerInfraVnFairHealthDeviceCount]\n\nIf length of attribute list is too long, please use 'view' param instead.\n\nExamples:\n\nattribute=GoodHealthPercentage (single attribute requested)\n\nattribute=GoodHealthPercentage&attribute=connectivityGoodHealthPercentage (multiple attributes requested) \n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Fabric site summmary response covering trend data for a given fabric site id.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/fabricSiteSummaryTrend'
+              examples:
+                fabricSiteTrend:
+                  $ref: '#/components/examples/fabricSiteTrend'
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /fabricSiteHealthSummaries/count:
+    get:
+      tags:
+      - fabricSiteHealthSummaries
+      summary: Read fabric site count
+      description: |-
+        Get a count of Fabric sites. Use available query parameters to get the count of a subset of fabric site
+        This API provides the latest health data from a given `endTime`
+        If data is not ready for the provided endTime, the request will fail, and the error message will indicate the recommended endTime to use to retrieve a complete data set.
+        This behavior may occur if the provided endTime=currentTime, since we are not a real time system.
+        When `endTime` is not provided, the API returns the latest data.
+      operationId: readFabricSiteCount
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: id
+        in: query
+        description: |
+          The list of entity Uuids. (Ex."6bef213c-19ca-4170-8375-b694e251101c")
+          Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested)
+          id=6bef213c-19ca-4170-8375-b694e251101c&id=32219612-819e-4b5e-a96b-cf22aca13dd9&id=2541e9a7-b80d-4955-8aa2-79b233318ba0 (multiple entity uuid with '&' separator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Successfully returned the requested Fabric site count
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+components:
+  schemas:
+    fabricSitesSummaries:
+      type: object
+      properties:
+        response:
+          type: array
+          description: |
+            Successfully returned list of Fabric sites
+          items:
+            $ref: '#/components/schemas/FabricSiteSummary'
+        page:
+          $ref: '#/components/schemas/PaginationResponse'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Fabric site summmary response schema
+    fabricSiteSummary:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/FabricSiteSummary'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Fabric summmary response schema
+    fabricSiteSummaryTrend:
+      type: object
+      properties:
+        response:
+          type: array
+          description: Successfully return list of Fabric site health trend data
+          items:
+            $ref: '#/components/schemas/FabricSiteTrend'
+        page:
+          $ref: '#/components/schemas/TimeBasedPagination'
+        version:
+          type: string
+          example: "1.0"
+      description: Fabric Site score Response
+    FabricSiteSummary:
+      required:
+      - fabricSiteId
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique uuid of the fabric site.
+          example: 89c11fd0-4928-4e25-b7ba-ad92875944bb
+        name:
+          type: string
+          description: Full name of fabric site id.
+          example: Global/California/B23
+        goodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for this fabric site
+          format: double
+          example: 80
+        totalDeviceCount:
+          type: integer
+          description: Total number of fabric devices in this fabric site
+          format: int64
+          example: 15
+        goodHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this fabric site
+          format: int64
+          example: 15
+        poorHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this fabric site
+          format: int64
+          example: 15
+        fairHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this fabric site
+          format: int64
+          example: 15
+        connectivityGoodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for the sub category fabric site connectivity
+          format: double
+          example: 50
+        connectivityTotalHealthDeviceCount:
+          type: integer
+          description: Total number of fabric devices with roles applicable to the sub category fabric site connectivity
+          format: int64
+          example: 15
+        connectivityGoodHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices with roles applicable to the sub category fabric site connectivity
+          format: int64
+          example: 15
+        connectivityPoorHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices with roles applicable to the sub category fabric site connectivity
+          format: int64
+          example: 15
+        connectivityFairHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices with roles applicable to the sub category fabric site connectivity
+          format: int64
+          example: 15
+        infraHealthyPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for the sub category fabric infrastructure
+          format: double
+          example: 50
+        infraTotalHealthDeviceCount:
+          type: integer
+          description: Total number of fabric devices with roles applicable to the sub category fabric infrastructure
+          format: int64
+          example: 15
+        infraGoodHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices with roles applicable to the sub category fabric infrastructure
+          format: int64
+          example: 15
+        infraPoorHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices with roles applicable to the sub category fabric infrastructure
+          format: int64
+          example: 15
+        infraFairHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices with roles applicable to the sub category fabric infrastructure
+          format: int64
+          example: 15
+        controlPlaneGoodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for the sub category fabric control plane
+          format: double
+          example: 50
+        controlPlaneTotalHealthDeviceCount:
+          type: integer
+          description: Total number of fabric devices with roles applicable to the sub category fabric control plane
+          format: int64
+          example: 15
+        controlPlaneGoodHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices with roles applicable to the sub category fabric control plane
+          format: int64
+          example: 15
+        controlPlanePoorHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices with roles applicable to the sub category fabric control plane
+          format: int64
+          example: 15
+        controlPlaneFairHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices with roles applicable to the sub category fabric control plane
+          format: int64
+          example: 15
+        pubsubInfraVnGoodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for fabric pubsub infraVn kpi
+          format: double
+          example: 50
+        pubsubInfraVnTotalHealthDeviceCount:
+          type: integer
+          description: Total number of fabric devices with pubsub infra vn sessions
+          format: int64
+          example: 15
+        pubsubInfraVnGoodHealthDeviceCount:
+          type: integer
+          description: Number of fabric devices with healthy pubsub infra vn sessions
+          format: int64
+          example: 15
+        pubsubInfraVnPoorHealthDeviceCount:
+          type: integer
+          description: Number of fabric devices with healthy pubsub infra vn sessions
+          format: int64
+          example: 15
+        pubsubInfraVnFairHealthDeviceCount:
+          type: integer
+          description: Number of fabric devices with healthy pubsub infra vn sessions
+          format: int64
+          example: 15
+        bgpEvpnGoodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for EVPN BGP session kpi
+          format: double
+          example: 50
+        bgpEvpnTotalHealthDeviceCount:
+          type: integer
+          description: Total number of Fabric devices with EVPN BGP sessions
+          format: int64
+          example: 15
+        bgpEvpnGoodHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy EVPN BGP sessions
+          format: int64
+          example: 15
+        bgpEvpnPoorHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy EVPN BGP sessions
+          format: int64
+          example: 15
+        bgpEvpnFairHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy EVPN BGP sessions
+          format: int64
+          example: 15
+        ctsEnvDataDownloadGoodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for CTS envdata download session kpi
+          format: double
+          example: 50
+        ctsEnvDataDownloadTotalHealthDeviceCount:
+          type: integer
+          description: Total number of fabric devices with CTS envdata download sessions
+          format: int64
+          example: 15
+        ctsEnvDataDownloadGoodHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy CTS envdata download sessions
+          format: int64
+          example: 15
+        ctsEnvDataDownloadPoorHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy CTS envdata download sessions
+          format: int64
+          example: 15
+        ctsEnvDataDownloadFairHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy CTS envdata download sessions
+          format: int64
+          example: 15
+        aaaStatusGoodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for AAA session kpi
+          format: double
+          example: 50
+        aaaStatusTotalHealthDeviceCount:
+          type: integer
+          description: Total number of Fabric devices with AAA sessions
+          format: int64
+          example: 15
+        aaaStatusGoodHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy AAA sessions
+          format: int64
+          example: 15
+        aaaStatusPoorHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy AAA sessions
+          format: int64
+          example: 15
+        aaaStatusFairHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy AAA sessions
+          format: int64
+          example: 15
+        portChannelGoodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for Port Channel session kpi
+          format: double
+          example: 50
+        portChannelTotalHealthDeviceCount:
+          type: integer
+          description: Total number of Fabric devices with port channel sessions
+          format: int64
+          example: 15
+        portChannelGoodHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy Port Channel sessions
+          format: int64
+          example: 15
+        portChannelPoorHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy Port Channel sessions
+          format: int64
+          example: 15
+        portChannelFairHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy Port Channel sessions
+          format: int64
+          example: 15
+        peerScoreGoodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for Peer session kpi
+          format: double
+          example: 50
+        peerScoreTotalHealthDeviceCount:
+          type: integer
+          description: Total number of Fabric devices with Peer sessions
+          format: int64
+          example: 15
+        peerScoreGoodHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy Peer sessions
+          format: int64
+          example: 15
+        peerScorePoorHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy Peer sessions
+          format: int64
+          example: 15
+        peerScoreFairHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy Peer sessions
+          format: int64
+          example: 15
+        lispSessionGoodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for LISP session kpi
+          format: double
+          example: 50
+        lispSessionTotalHealthDeviceCount:
+          type: integer
+          description: Total number of Fabric devices with LISP session
+          format: int64
+          example: 15
+        lispSessionGoodHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy LISP session
+          format: int64
+          example: 15
+        lispSessionPoorHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy LISP session
+          format: int64
+          example: 15
+        lispSessionFairHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy LISP session
+          format: int64
+          example: 15
+        borderToControlPlaneGoodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for Border to Control Plane session kpi
+          format: double
+          example: 50
+        borderToControlPlaneTotalHealthDeviceCount:
+          type: integer
+          description: Total number of Fabric devices with Border to Control Plane sessions
+          format: int64
+          example: 15
+        borderToControlPlaneGoodHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy Border to Control Plane sessions
+          format: int64
+          example: 15
+        borderToControlPlanePoorHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy Border to Control Plane sessions
+          format: int64
+          example: 15
+        borderToControlPlaneFairHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy Border to Control Plane sessions
+          format: int64
+          example: 15
+        bgpBgpSiteGoodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices in BGP site that are considered healthy for BGP session kpi
+          format: double
+          example: 50
+        bgpBgpSiteTotalHealthDeviceCount:
+          type: integer
+          description: Total number of Fabric devices in BGP site with Border to BGP sessions
+          format: int64
+          example: 15
+        bgpBgpSiteGoodHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices in BGP site with healthy Border to BGP sessions
+          format: int64
+          example: 15
+        bgpBgpSitePoorHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices in BGP site with healthy Border to BGP sessions
+          format: int64
+          example: 15
+        bgpBgpSiteFairHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices in BGP site with healthy Border to BGP sessions
+          format: int64
+          example: 15
+        bgpPubsubSiteGoodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices in Pubsub site that are considered healthy for BGP session kpi
+          format: double
+          example: 50
+        bgpPubsubSiteTotalHealthDeviceCount:
+          type: integer
+          description: Total number of Fabric devices in Pubsub site with Border to BGP session
+          format: int64
+          example: 15
+        bgpPubsubSiteGoodHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices in BGP Pubsub site with healthy Border to BGP sessions
+          format: int64
+          example: 15
+        bgpPubsubSitePoorHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices in Pubsub site with healthy Border to BGP sessions
+          format: int64
+          example: 15
+        bgpPubsubSiteFairHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices in Pubsub site with healthy Border to BGP sessions
+          format: int64
+          example: 15
+        bgpPeerInfraVnScoreGoodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for BGP Peer session on infra vn kpi
+          format: double
+          example: 50
+        bgpPeerInfraVnTotalHealthDeviceCount:
+          type: integer
+          description: Total number of Fabric devices with BGP Peer session on infra vn sessions
+          format: int64
+          example: 15
+        bgpPeerInfraVnGoodHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy BGP Peer session on infra vn sessions
+          format: int64
+          example: 15
+        bgpPeerInfraVnPoorHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy BGP Peer session on infra vn sessions
+          format: int64
+          example: 15
+        bgpPeerInfraVnFairHealthDeviceCount:
+          type: integer
+          description: Number of Fabric devices with healthy BGP Peer session on infra vn sessions
+          format: int64
+          example: 15
+        siteHierarchyId:
+          type: string
+          description: The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID.
+          example: 31e57cb2-06af-4c5c-87d1-16af536095d2/54d3f243-509e-436d-98-ebe01daf80db/f52fbe48-fcc9-4551-947b-e144e20c0311/50c01c29-b09e-49-b6ce-2e7d3395f3a3
+        siteHierarchy:
+          type: string
+          description: The full hierarchy breakdown of the site tree in name form starting from Global site name and ending with the specific site site. 'Global' is the Root name of the site hierarchy tree. Site name including the hierarchy where the network device or client is located. For clients site is derived based on site assigned to network device where the client is connected to. For Wireless client its the connected Access Point site and for Wired client its the connected switch site. For network device its the site assigned to it.
+          example: Global/AreaName/BuildingName/FloorName
+        associatedL2VnCount:
+          type: integer
+          description: total number of l2 virtual networks
+          format: int64
+          example: 4
+        associatedL3VnCount:
+          type: integer
+          description: total number of l3 virtual networks
+          format: int64
+          example: 4
+        networkProtocol:
+          type: string
+          description: type of fabric deployment
+          example: LISP
+          enum:
+          - LISP
+          - EVPN
+          - UNKNOWN
+          - HYBRID
+      description: Summary of fabric sites with health info.
+    FabricSiteTrend:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          description: For trend API timestamp is the default groupBy attribute.
+          format: int64
+          example: 1718218219000
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricSiteAttributeValuePair'
+      description: |
+        The aggregate trend response includes timestamp, attributes, aggregateAttributes, and group attributes. The attributes aggregateAttributes and groups are mutually exclusive. If a user requests trends without groupBy attributes, the response includes timestamp, attributes, and aggregateAttributes. However, if a user requests trends with groupBy attributes, the response includes timestamp, and the groups array contains attributes and aggregatedAttributes for each array element.
+    FabricSiteAttributeValuePair:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/FabricSiteAnalyticsAttribute'
+        value:
+          type: object
+          description: This is the value of the attribute requested for analytics API.
+    FabricSiteAnalyticsAttribute:
+      type: string
+      description: Supported filter attributes related to clients
+      enum:
+      - goodHealthPercentage
+      - goodHealthDeviceCount
+      - totalDeviceCount
+      - poorHealthDeviceCount
+      - fairHealthDeviceCount
+      - connectivityGoodHealthPercentage
+      - connectivityTotalHealthDeviceCount
+      - connectivityGoodHealthDeviceCount
+      - connectivityPoorHealthDeviceCount
+      - connectivityFairHealthDeviceCount
+      - infraHealthyPercentage
+      - infraTotalHealthDeviceCount
+      - infraPoorHealthDeviceCount
+      - infraFairHealthDeviceCount
+      - infraGoodHealthDeviceCount
+      - controlPlaneGoodHealthPercentage
+      - controlPlaneTotalHealthDeviceCount
+      - controlPlaneGoodHealthDeviceCount
+      - controlPlanePoorHealthDeviceCount
+      - controlPlaneFairHealthDeviceCount
+      - pubsubInfraVnGoodHealthPercentage
+      - pubsubInfraVnTotalHealthDeviceCount
+      - pubsubInfraVnGoodHealthDeviceCount
+      - pubsubInfraVnPoorHealthDeviceCount
+      - pubsubInfraVnFairHealthDeviceCount
+      - bgpEvpnGoodHealthPercentage
+      - bgpEvpnTotalHealthDeviceCount
+      - bgpEvpnGoodHealthDeviceCount
+      - bgpEvpnPoorHealthDeviceCount
+      - bgpEvpnFairHealthDeviceCount
+      - ctsEnvDataDownloadGoodHealthPercentage
+      - ctsEnvDataDownloadTotalHealthDeviceCount
+      - ctsEnvDataDownloadGoodHealthDeviceCount
+      - ctsEnvDataDownloadPoorHealthDeviceCount
+      - ctsEnvDataDownloadFairHealthDeviceCount
+      - aaaStatusGoodHealthPercentage
+      - aaaStatusTotalHealthDeviceCount
+      - aaaStatusGoodHealthDeviceCount
+      - aaaStatusPoorHealthDeviceCount
+      - aaaStatusFairHealthDeviceCount
+      - portChannelGoodHealthPercentage
+      - portChannelTotalHealthDeviceCount
+      - portChannelGoodHealthDeviceCount
+      - portChannelPoorHealthDeviceCount
+      - portChannelFairHealthDeviceCount
+      - peerScoreGoodHealthPercentage
+      - peerScoreTotalHealthDeviceCount
+      - peerScoreGoodHealthDeviceCount
+      - peerScorePoorHealthDeviceCount
+      - peerScoreFairHealthDeviceCount
+      - lispSessionGoodHealthPercentage
+      - lispSessionTotalHealthDeviceCount
+      - lispSessionGoodHealthDeviceCount
+      - lispSessionPoorHealthDeviceCount
+      - lispSessionFairHealthDeviceCount
+      - borderToControlPlaneGoodHealthPercentage
+      - borderToControlPlaneTotalHealthDeviceCount
+      - borderToControlPlaneGoodHealthDeviceCount
+      - borderToControlPlanePoorHealthDeviceCount
+      - borderToControlPlaneFairHealthDeviceCount
+      - bgpBgpSiteGoodHealthPercentage
+      - bgpBgpSiteTotalHealthDeviceCount
+      - bgpBgpSiteGoodHealthDeviceCount
+      - bgpBgpSitePoorHealthDeviceCount
+      - bgpBgpSiteFairHealthDeviceCount
+      - bgpPubsubSiteGoodHealthPercentage
+      - bgpPubsubSiteTotalHealthDeviceCount
+      - bgpPubsubSiteGoodHealthDeviceCount
+      - bgpPubsubSitePoorHealthDeviceCount
+      - bgpPubsubSiteFairHealthDeviceCount
+      - bgpPeerInfraVnScoreGoodHealthPercentage
+      - bgpPeerInfraVnTotalHealthDeviceCount
+      - bgpPeerInfraVnGoodHealthDeviceCount
+      - bgpPeerInfraVnPoorHealthDeviceCount
+      - bgpPeerInfraVnFairHealthDeviceCount
+    asyncInfoContainer:
+      properties:
+        response:
+          $ref: '#/components/schemas/asyncInfo'
+        version:
+          type: string
+          example: "1.0"
+      description: |
+        Generic model that will contain the asynchronous task/process information
+    asyncInfo:
+      properties:
+        taskLocation:
+          type: string
+          description: url resource where the client can fetch their task's lifecycle updates
+          example: /dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191
+        taskId:
+          type: string
+          description: the specific task id associated with the specific request made
+          example: bcbb2a8c-deae-4a3e-9459-0eb1dc12c191
+      description: |
+        Generic model with information on the asynchronous task/process
+         that was created to handle an API request
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorObject'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured   processing this request.
+      example:
+        response:
+        - errorCode: 2600
+          message: Error message
+          detail: Error details
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    ErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: Application specific error code returned by the server
+        message:
+          type: string
+          description: Brief message about the error condition
+        detail:
+          type: string
+          description: "A more detailed explanation of the error condition the   parameter and its value, that caused the condition and why it caused it."
+    CountIntegerResponse:
+      title: Count Integer Response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/CountIntegerResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Reports
+    PaginationResponse:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: The reference to the limit applied in the Pagination   Request.
+          example: 10
+        offset:
+          type: integer
+          description: The reference to the record offset applied in the   Pagination Request.
+          example: 1
+        count:
+          type: integer
+          description: Total number of records related to the resource after   applying applicable filtering
+          example: 20
+        sortBy:
+          type: array
+          description: Reference to the sortBy that was applied in the Pagination   Request.
+          items:
+            $ref: '#/components/schemas/PaginationResponse_sortBy'
+    TimeBasedPagination:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to fetch in a page
+          example: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        timeSortOrder:
+          type: string
+          description: Sort order. `asc` for ascending and  `desc` for descending
+          example: asc
+          default: asc
+          enum:
+          - asc
+          - desc
+        count:
+          type: integer
+          description: Number of records returned after applying applicable filtering. Field is ignored for request and updated by API in the response
+          example: 100
+    CountIntegerResponse_response:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The total number of records related to the resource
+          format: int64
+          example: 1000
+    PaginationResponse_sortBy:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Field name by which sort is requested
+          example: siteHierarchy
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for   descending
+          example: asc
+          enum:
+          - asc
+          - desc
+      description: List of field names and corresponding order used to sort   the records.
+  responses:
+    FabricSitesSummariesResponse:
+      description: Fabric site summmary response covering all fabric sites and their health.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/fabricSitesSummaries'
+          examples:
+            Response1:
+              $ref: '#/components/examples/FabricSitesSummariesResponseExample1'
+    FabricSiteSummaryResponse:
+      description: Fabric site summmary response covering specific fabric sites and it's health.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/fabricSiteSummary'
+          examples:
+            Response1:
+              $ref: '#/components/examples/FabricSiteSummaryResponse1'
+    FabricSiteTrendResponse:
+      description: Fabric site summmary response covering trend data for a given fabric site id.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/fabricSiteSummaryTrend'
+          examples:
+            fabricSiteTrend:
+              $ref: '#/components/examples/fabricSiteTrend'
+    AsyncResponse:
+      description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/asyncInfoContainer'
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "500":
+      description: The server could not fulfill the request due to internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "1XX":
+      description: Informational Responses - The server received the request and sent an informational response.
+    "2XX":
+      description: "Successful Responses - The server received the client request, understood it, and accepted it."
+    "3XX":
+      description: Redirection Messages - The client must take additional action to complete the request.
+    "4XX":
+      description: Client Error Responses - The client request caused the error.
+    "5XX":
+      description: Server Error Responses - The server failed to fulfill the request.
+    defaultError:
+      description: Unexpected Error
+  parameters:
+    id:
+      name: id
+      in: query
+      description: |
+        The fabric site Id or list to fabric site Ids to filter the data
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+        Examples:
+
+        `?id=fabricSiteUuid)
+
+        `?id=fabricSiteUuid1&id=fabricSiteUuid2` (multiple fabricSiteIds requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    fabricSiteViews:
+      name: view
+      in: query
+      description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n### Response data proviced by each view:  \n\n1. **siteInfo**\n[id, siteHierarchy, siteHierarchyId, name, totalDeviceCount, associatedL2VnCount, associatedL3VnCount, networkProtocol]  \n\n2. **overallHealth**      \n[id, name, goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount, poorHealthDeviceCount, fairHealthDeviceCount, connectivityGoodHealthPercentage, connectivityTotalHealthDeviceCount, connectivityGoodHealthDeviceCount, connectivityPoorHealthDeviceCount, connectivityFairHealthDeviceCount, infraHealthyPercentage, infraTotalHealthDeviceCount, infraGoodHealthDeviceCount, infraPoorHealthDeviceCount, infraFairHealthDeviceCount, controlPlaneGoodHealthPercentage, controlPlaneTotalHealthDeviceCount, controlPlaneGoodHealthDeviceCount, controlPlanePoorHealthDeviceCount, controlPlaneFairHealthDeviceCount] \n\n3. **connectivityHealth**\n[id, name, connectivityGoodHealthPercentage, connectivityTotalHealthDeviceCount, connectivityGoodHealthDeviceCount, connectivityPoorHealthDeviceCount, connectivityFairHealthDeviceCount,  bgpEvpnGoodHealthPercentage, bgpEvpnTotalHealthDeviceCount, bgpEvpnGoodHealthDeviceCount, bgpEvpnPoorHealthDeviceCount, bgpEvpnFairHealthDeviceCount, portChannelGoodHealthPercentage, portChannelTotalHealthDeviceCount, portChannelGoodHealthDeviceCount,portChannelPoorHealthDeviceCount, portChannelFairHealthDeviceCount, borderToControlPlaneGoodHealthPercentage, borderToControlPlaneTotalHealthDeviceCount, borderToControlPlaneGoodHealthDeviceCount,borderToControlPlanePoorHealthDeviceCount, borderToControlPlaneFairHealthDeviceCount, bgpPubsubSiteGoodHealthPercentage, bgpPubsubSiteTotalHealthDeviceCount, bgpPubsubSiteGoodHealthDeviceCount,bgpPubsubSitePoorHealthDeviceCount, bgpPubsubSiteFairHealthDeviceCount] \n\n4. **infraHealth** \n[id, name,infraHealthyPercentage, infraTotalHealthDeviceCount, infraGoodHealthDeviceCount, infraPoorHealthDeviceCount, infraFairHealthDeviceCount, pubsubInfraVnGoodHealthPercentage,  pubsubInfraVnTotalHealthDeviceCount, pubsubInfraVnGoodHealthDeviceCount, pubsubInfraVnPoorHealthDeviceCount, pubsubInfraVnFairHealthDeviceCount, ctsEnvDataDownloadGoodHealthPercentage, ctsEnvDataDownloadTotalHealthDeviceCount, ctsEnvDataDownloadGoodHealthDeviceCount, ctsEnvDataDownloadPoorHealthDeviceCount, ctsEnvDataDownloadFairHealthDeviceCount,  aaaStatusGoodHealthPercentage, aaaStatusTotalHealthDeviceCount, aaaStatusGoodHealthDeviceCount,aaaStatusPoorHealthDeviceCount, aaaStatusFairHealthDeviceCount, bgpPeerInfraVnScoreGoodHealthPercentage, bgpPeerInfraVnTotalHealthDeviceCount, bgpPeerInfraVnGoodHealthDeviceCount, bgpPeerInfraVnPoorHealthDeviceCount, bgpPeerInfraVnFairHealthDeviceCount,  peerScoreGoodHealthPercentage, peerScoreTotalHealthDeviceCount, peerScoreGoodHealthDeviceCount,peerScorePoorHealthDeviceCount, peerScoreFairHealthDeviceCount]\n\n5. **controlPlaneHealth** \n  [id, name, controlPlaneGoodHealthPercentage, controlPlaneTotalHealthDeviceCount, controlPlaneGoodHealthDeviceCount, controlPlanePoorHealthDeviceCount, controlPlaneFairHealthDeviceCount,  lispSessionGoodHealthPercentage, lispSessionTotalHealthDeviceCount, lispSessionGoodHealthDeviceCount,lispSessionPoorHealthDeviceCount, lispSessionFairHealthDeviceCount, bgpBgpSiteGoodHealthPercentage, bgpBgpSiteTotalHealthDeviceCount, bgpBgpSiteGoodHealthDeviceCount,bgpBgpSitePoorHealthDeviceCount, bgpBgpSiteFairHealthDeviceCount]       \n\nWhen this query parameter is not added the default summaries are:  \n\n[siteInfo, overallHealth]\n\n**Examples**:\n1. Query Param:\n  view=health (single view requested)\n\n  view=siteInfo&view=overallHealth (multiple views requested)\n"
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    fabricSiteAttributes:
+      name: attribute
+      in: query
+      description: "Supported Attributes:\n\n[id, siteHierarchy, siteHierarchyId, name, totalDeviceCount, associatedL2VnCount, associatedL3VnCount, networkProtocol,  goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount,poorHealthDeviceCount,fairHealthDeviceCount, connectivityGoodHealthPercentage, connectivityTotalHealthDeviceCount, connectivityGoodHealthDeviceCount, connectivityPoorHealthDeviceCount, connectivityFairHealthDeviceCount, infraHealthyPercentage, infraTotalHealthDeviceCount, infraGoodHealthDeviceCount, infraPoorHealthDeviceCount, infraFairHealthDeviceCount, controlPlaneGoodHealthPercentage, controlPlaneTotalHealthDeviceCount, controlPlaneGoodHealthDeviceCount,controlPlanePoorHealthDeviceCount, controlPlaneFairHealthDeviceCount, pubsubInfraVnGoodHealthPercentage, pubsubInfraVnTotalHealthDeviceCount, pubsubInfraVnGoodHealthDeviceCount, pubsubInfraVnPoorHealthDeviceCount, pubsubInfraVnFairHealthDeviceCount, bgpEvpnGoodHealthPercentage, bgpEvpnTotalHealthDeviceCount, bgpEvpnGoodHealthDeviceCount,bgpEvpnPoorHealthDeviceCount, bgpEvpnFairHealthDeviceCount, ctsEnvDataDownloadGoodHealthPercentage, ctsEnvDataDownloadTotalHealthDeviceCount, ctsEnvDataDownloadGoodHealthDeviceCount, ctsEnvDataDownloadPoorHealthDeviceCount, ctsEnvDataDownloadFairHealthDeviceCount, aaaStatusGoodHealthPercentage, aaaStatusTotalHealthDeviceCount, aaaStatusGoodHealthDeviceCount, aaaStatusPoorHealthDeviceCount, aaaStatusFairHealthDeviceCount, portChannelGoodHealthPercentage, portChannelTotalHealthDeviceCount, portChannelGoodHealthDeviceCount, portChannelPoorHealthDeviceCount, portChannelFairHealthDeviceCount, peerScoreGoodHealthPercentage, peerScoreTotalHealthDeviceCount, peerScoreGoodHealthDeviceCount, peerScorePoorHealthDeviceCount, peerScoreFairHealthDeviceCount, lispSessionGoodHealthPercentage, lispSessionTotalHealthDeviceCount, lispSessionGoodHealthDeviceCount, lispSessionPoorHealthDeviceCount, lispSessionFairHealthDeviceCount, borderToControlPlaneGoodHealthPercentage, borderToControlPlaneTotalHealthDeviceCount, borderToControlPlaneGoodHealthDeviceCount, borderToControlPlanePoorHealthDeviceCount, borderToControlPlaneFairHealthDeviceCount, bgpBgpSiteGoodHealthPercentage, bgpBgpSiteTotalHealthDeviceCount, bgpBgpSiteGoodHealthDeviceCount, bgpBgpSitePoorHealthDeviceCount, bgpBgpSiteFairHealthDeviceCount, bgpPubsubSiteGoodHealthPercentage, bgpPubsubSiteTotalHealthDeviceCount, bgpPubsubSiteGoodHealthDeviceCount, bgpPubsubSitePoorHealthDeviceCount, bgpPubsubSiteFairHealthDeviceCount, bgpPeerInfraVnScoreGoodHealthPercentage, bgpPeerInfraVnTotalHealthDeviceCount, bgpPeerInfraVnGoodHealthDeviceCount, bgpPeerInfraVnPoorHealthDeviceCount, bgpPeerInfraVnFairHealthDeviceCount]\n\nIf length of attribute list is too long, please use 'view' param instead.\n\nExamples:\n\nattribute=GoodHealthPercentage (single attribute requested)\n\nattribute=GoodHealthPercentage&attribute=connectivityGoodHealthPercentage (multiple attributes requested) \n"
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    fabricSiteTrendAttributes:
+      name: attribute
+      in: query
+      description: "Supported Attributes:\n\n[totalDeviceCount,  goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount,poorHealthDeviceCount,fairHealthDeviceCount, connectivityGoodHealthPercentage, connectivityTotalHealthDeviceCount, connectivityGoodHealthDeviceCount, connectivityPoorHealthDeviceCount, connectivityFairHealthDeviceCount, infraHealthyPercentage, infraTotalHealthDeviceCount, infraGoodHealthDeviceCount, infraPoorHealthDeviceCount, infraFairHealthDeviceCount, controlPlaneGoodHealthPercentage, controlPlaneTotalHealthDeviceCount, controlPlaneGoodHealthDeviceCount,controlPlanePoorHealthDeviceCount, controlPlaneFairHealthDeviceCount, pubsubInfraVnGoodHealthPercentage, pubsubInfraVnTotalHealthDeviceCount, pubsubInfraVnGoodHealthDeviceCount, pubsubInfraVnPoorHealthDeviceCount, pubsubInfraVnFairHealthDeviceCount, bgpEvpnGoodHealthPercentage, bgpEvpnTotalHealthDeviceCount, bgpEvpnGoodHealthDeviceCount,bgpEvpnPoorHealthDeviceCount, bgpEvpnFairHealthDeviceCount, ctsEnvDataDownloadGoodHealthPercentage, ctsEnvDataDownloadTotalHealthDeviceCount, ctsEnvDataDownloadGoodHealthDeviceCount, ctsEnvDataDownloadPoorHealthDeviceCount, ctsEnvDataDownloadFairHealthDeviceCount, aaaStatusGoodHealthPercentage, aaaStatusTotalHealthDeviceCount, aaaStatusGoodHealthDeviceCount, aaaStatusPoorHealthDeviceCount, aaaStatusFairHealthDeviceCount, portChannelGoodHealthPercentage, portChannelTotalHealthDeviceCount, portChannelGoodHealthDeviceCount, portChannelPoorHealthDeviceCount, portChannelFairHealthDeviceCount, peerScoreGoodHealthPercentage, peerScoreTotalHealthDeviceCount, peerScoreGoodHealthDeviceCount, peerScorePoorHealthDeviceCount, peerScoreFairHealthDeviceCount, lispSessionGoodHealthPercentage, lispSessionTotalHealthDeviceCount, lispSessionGoodHealthDeviceCount, lispSessionPoorHealthDeviceCount, lispSessionFairHealthDeviceCount, borderToControlPlaneGoodHealthPercentage, borderToControlPlaneTotalHealthDeviceCount, borderToControlPlaneGoodHealthDeviceCount, borderToControlPlanePoorHealthDeviceCount, borderToControlPlaneFairHealthDeviceCount, bgpBgpSiteGoodHealthPercentage, bgpBgpSiteTotalHealthDeviceCount, bgpBgpSiteGoodHealthDeviceCount, bgpBgpSitePoorHealthDeviceCount, bgpBgpSiteFairHealthDeviceCount, bgpPubsubSiteGoodHealthPercentage, bgpPubsubSiteTotalHealthDeviceCount, bgpPubsubSiteGoodHealthDeviceCount, bgpPubsubSitePoorHealthDeviceCount, bgpPubsubSiteFairHealthDeviceCount, bgpPeerInfraVnScoreGoodHealthPercentage, bgpPeerInfraVnTotalHealthDeviceCount, bgpPeerInfraVnGoodHealthDeviceCount, bgpPeerInfraVnPoorHealthDeviceCount, bgpPeerInfraVnFairHealthDeviceCount]\n\nIf length of attribute list is too long, please use 'view' param instead.\n\nExamples:\n\nattribute=GoodHealthPercentage (single attribute requested)\n\nattribute=GoodHealthPercentage&attribute=connectivityGoodHealthPercentage (multiple attributes requested) \n"
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    callerId:
+      name: X-CALLER-ID
+      in: header
+      description: |
+        Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+      required: false
+      schema:
+        type: string
+        default: unknown
+      example: ui:client360
+    startTime:
+      name: startTime
+      in: query
+      description: |
+        Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      schema:
+        type: integer
+        format: int64
+      example: 1705348800000
+    endTime:
+      name: endTime
+      in: query
+      description: |
+        End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      required: false
+      schema:
+        type: integer
+        format: int64
+      example: 1705435200000
+    limit_100:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        maximum: 100
+        minimum: 1
+        type: integer
+        default: 100
+    offset:
+      name: offset
+      in: query
+      description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+      schema:
+        minimum: 1
+        type: integer
+        default: 1
+    sortBy:
+      name: sortBy
+      in: query
+      description: A field within the response to sort by.
+      schema:
+        type: string
+    order:
+      name: order
+      in: query
+      description: The sort order of the field ascending or descending.
+      schema:
+        type: string
+        default: asc
+        enum:
+        - asc
+        - desc
+    ids:
+      name: id
+      in: query
+      description: |
+        The list of entity Uuids. (Ex."6bef213c-19ca-4170-8375-b694e251101c")
+        Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested)
+        id=6bef213c-19ca-4170-8375-b694e251101c&id=32219612-819e-4b5e-a96b-cf22aca13dd9&id=2541e9a7-b80d-4955-8aa2-79b233318ba0 (multiple entity uuid with '&' separator)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteHierarchies:
+      name: siteHierarchy
+      in: query
+      description: |
+        The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+        Examples:
+
+        `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+        `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteHierarchyIds:
+      name: siteHierarchyId
+      in: query
+      description: |
+        The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+        Examples:
+
+        `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+        `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    taskId:
+      name: taskId
+      in: query
+      description: |
+        used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+      schema:
+        type: string
+    trendInterval:
+      name: trendInterval
+      in: query
+      description: "The time window to aggregate the metrics. \nInterval can be 5 minutes or 10 minutes or 1 hour or 1 day or 7 days\n"
+      schema:
+        type: string
+        enum:
+        - 5MIN
+        - 10MIN
+        - 1HR
+        - 1DAY
+        - 7DAY
+    limit_500:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        maximum: 500
+        minimum: 1
+        type: integer
+        default: 500
+  examples:
+    FabricSitesSummariesResponseExample1:
+      summary: Fabric Site Summary response example
+      value:
+        response:
+        - id: 43bda617-c55a-4154-8e0b-5da9e5ea75aa
+          name: Global/area0
+          siteHierarchy: Global/AreaName/BuildingName/FloorName
+          siteHierarchyId: 31e57cb2-06af-4c5c-87d1-16af536095d2/54d3f243-509e-436d-9821  -ebe01daf80db/f52fbe48-fcc9-4551-947b-e144e20c0311/50c01c29-b09e  -49bf-b6ce-2e7d3395f3a3
+          goodHealthPercentage: 50
+          goodHealthDeviceCount: 5
+          totalDeviceCount: 10
+          poorHealthDeviceCount: 2
+          fairHealthDeviceCount: 3
+          associatedL2VnCount: 5
+          associatedL3VnCount: 3
+          networkProtocol: LISP
+          connectivityGoodHealthPercentage: 60
+          connectivityTotalHealthDeviceCount: 5
+          connectivityGoodHealthDeviceCount: 3
+          connectivityPoorHealthDeviceCount: 1
+          connectivityFairHealthDeviceCount: 1
+          infraHealthyPercentage: 100
+          infraTotalHealthDeviceCount: 5
+          infraGoodHealthDeviceCount: 5
+          infraFairHealthDeviceCount: 0
+          infraPoorHealthDeviceCount: 0
+          controlPlaneGoodHealthPercentage: 80
+          controlPlaneTotalHealthDeviceCount: 5
+          controlPlaneGoodHealthDeviceCount: 4
+          controlPlanePoorHealthDeviceCount: 0
+          controlPlaneFairHealthDeviceCount: 1
+          pubsubInfraVnGoodHealthPercentage: 60
+          pubsubInfraVnTotalHealthDeviceCount: 5
+          pubsubInfraVnGoodHealthDeviceCount: 3
+          pubsubInfraVnPoorHealthDeviceCount: 1
+          pubsubInfraVnFairHealthDeviceCount: 1
+          bgpEvpnTotalHealthDeviceCount: 0
+          bgpEvpnGoodHealthDeviceCount: 0
+          bgpEvpnPoorHealthDeviceCount: 0
+          bgpEvpnFairHealthDeviceCount: 0
+          ctsEnvDataDownloadGoodHealthPercentage: 50
+          ctsEnvDataDownloadTotalHealthDeviceCount: 3
+          ctsEnvDataDownloadGoodHealthDeviceCount: 2
+          ctsEnvDataDownloadPoorHealthDeviceCount: 1
+          ctsEnvDataDownloadFairHealthDeviceCount: 0
+          aaaStatusGoodHealthPercentage: 50
+          aaaStatusTotalHealthDeviceCount: 6
+          aaaStatusGoodHealthDeviceCount: 3
+          aaaStatusPoorHealthDeviceCount: 2
+          aaaStatusFairHealthDeviceCount: 1
+          portChannelGoodHealthPercentage: 60
+          portChannelTotalHealthDeviceCount: 5
+          portChannelGoodHealthDeviceCount: 3
+          portChannelPoorHealthDeviceCount: 1
+          portChannelFairHealthDeviceCount: 1
+          peerScoreTotalHealthDeviceCount: 0
+          peerScoreGoodHealthDeviceCount: 0
+          peerScorePoorHealthDeviceCount: 0
+          peerScoreFairHealthDeviceCount: 0
+          lispSessionGoodHealthPercentage: 80
+          lispSessionTotalHealthDeviceCount: 5
+          lispSessionGoodHealthDeviceCount: 4
+          lispSessionPoorHealthDeviceCount: 1
+          lispSessionFairHealthDeviceCount: 0
+          borderToControlPlaneGoodHealthPercentage: 60
+          borderToControlPlaneTotalHealthDeviceCount: 5
+          borderToControlPlaneGoodHealthDeviceCount: 3
+          borderToControlPlanePoorHealthDeviceCount: 0
+          borderToControlPlaneFairHealthDeviceCount: 2
+          bgpBgpSiteGoodHealthPercentage: 80
+          bgpBgpSiteTotalHealthDeviceCount: 5
+          bgpBgpSiteGoodHealthDeviceCount: 4
+          bgpBgpSitePoorHealthDeviceCount: 0
+          bgpBgpSiteFairHealthDeviceCount: 1
+          bgpPubsubSiteGoodHealthPercentage: 60
+          bgpPubsubSiteTotalHealthDeviceCount: 5
+          bgpPubsubSiteGoodHealthDeviceCount: 3
+          bgpPubsubSitePoorHealthDeviceCount: 0
+          bgpPubsubSiteFairHealthDeviceCount: 2
+          bgpPeerInfraVnScoreGoodHealthPercentage: 80
+          bgpPeerInfraVnTotalHealthDeviceCount: 5
+          bgpPeerInfraVnGoodHealthDeviceCount: 4
+          bgpPeerInfraVnPoorHealthDeviceCount: 1
+          bgpPeerInfraVnFairHealthDeviceCount: 0
+    FabricSiteSummaryResponse1:
+      summary: Fabric Site Summary response example
+      value:
+        response:
+          id: 43bda617-c55a-4154-8e0b-5da9e5ea75aa
+          name: Global/area0
+          siteHierarchy: Global/AreaName/BuildingName/FloorName
+          siteHierarchyId: 31e57cb2-06af-4c5c-87d1-16af536095d2/54d3f243-509e-436d-9821  -ebe01daf80db/f52fbe48-fcc9-4551-947b-e144e20c0311/50c01c29-b09e  -49bf-b6ce-2e7d3395f3a3
+          goodHealthPercentage: 50
+          goodHealthDeviceCount: 5
+          totalDeviceCount: 10
+          poorHealthDeviceCount: 2
+          fairHealthDeviceCount: 3
+          associatedL2VnCount: 5
+          associatedL3VnCount: 3
+          networkProtocol: LISP
+          connectivityGoodHealthPercentage: 60
+          connectivityTotalHealthDeviceCount: 5
+          connectivityGoodHealthDeviceCount: 3
+          connectivityPoorHealthDeviceCount: 1
+          connectivityFairHealthDeviceCount: 1
+          infraHealthyPercentage: 100
+          infraTotalHealthDeviceCount: 5
+          infraGoodHealthDeviceCount: 5
+          infraFairHealthDeviceCount: 0
+          infraPoorHealthDeviceCount: 0
+          controlPlaneGoodHealthPercentage: 80
+          controlPlaneTotalHealthDeviceCount: 5
+          controlPlaneGoodHealthDeviceCount: 4
+          controlPlanePoorHealthDeviceCount: 0
+          controlPlaneFairHealthDeviceCount: 1
+          pubsubInfraVnGoodHealthPercentage: 60
+          pubsubInfraVnTotalHealthDeviceCount: 5
+          pubsubInfraVnGoodHealthDeviceCount: 3
+          pubsubInfraVnPoorHealthDeviceCount: 1
+          pubsubInfraVnFairHealthDeviceCount: 1
+          bgpEvpnTotalHealthDeviceCount: 0
+          bgpEvpnGoodHealthDeviceCount: 0
+          bgpEvpnPoorHealthDeviceCount: 0
+          bgpEvpnFairHealthDeviceCount: 0
+          ctsEnvDataDownloadGoodHealthPercentage: 50
+          ctsEnvDataDownloadTotalHealthDeviceCount: 3
+          ctsEnvDataDownloadGoodHealthDeviceCount: 2
+          ctsEnvDataDownloadPoorHealthDeviceCount: 1
+          ctsEnvDataDownloadFairHealthDeviceCount: 0
+          aaaStatusGoodHealthPercentage: 50
+          aaaStatusTotalHealthDeviceCount: 6
+          aaaStatusGoodHealthDeviceCount: 3
+          aaaStatusPoorHealthDeviceCount: 2
+          aaaStatusFairHealthDeviceCount: 1
+          portChannelGoodHealthPercentage: 60
+          portChannelTotalHealthDeviceCount: 5
+          portChannelGoodHealthDeviceCount: 3
+          portChannelPoorHealthDeviceCount: 1
+          portChannelFairHealthDeviceCount: 1
+          peerScoreTotalHealthDeviceCount: 0
+          peerScoreGoodHealthDeviceCount: 0
+          peerScorePoorHealthDeviceCount: 0
+          peerScoreFairHealthDeviceCount: 0
+          lispSessionGoodHealthPercentage: 80
+          lispSessionTotalHealthDeviceCount: 5
+          lispSessionGoodHealthDeviceCount: 4
+          lispSessionPoorHealthDeviceCount: 1
+          lispSessionFairHealthDeviceCount: 0
+          borderToControlPlaneGoodHealthPercentage: 60
+          borderToControlPlaneTotalHealthDeviceCount: 5
+          borderToControlPlaneGoodHealthDeviceCount: 3
+          borderToControlPlanePoorHealthDeviceCount: 0
+          borderToControlPlaneFairHealthDeviceCount: 2
+          bgpBgpSiteGoodHealthPercentage: 80
+          bgpBgpSiteTotalHealthDeviceCount: 5
+          bgpBgpSiteGoodHealthDeviceCount: 4
+          bgpBgpSitePoorHealthDeviceCount: 0
+          bgpBgpSiteFairHealthDeviceCount: 1
+          bgpPubsubSiteGoodHealthPercentage: 60
+          bgpPubsubSiteTotalHealthDeviceCount: 5
+          bgpPubsubSiteGoodHealthDeviceCount: 3
+          bgpPubsubSitePoorHealthDeviceCount: 0
+          bgpPubsubSiteFairHealthDeviceCount: 2
+          bgpPeerInfraVnScoreGoodHealthPercentage: 80
+          bgpPeerInfraVnTotalHealthDeviceCount: 5
+          bgpPeerInfraVnGoodHealthDeviceCount: 4
+          bgpPeerInfraVnPoorHealthDeviceCount: 1
+          bgpPeerInfraVnFairHealthDeviceCount: 0
+    fabricSiteTrend:
+      summary: Fabric Site health trend response example
+      value:
+        response:
+        - timestamp: 1718582400000
+          attributes:
+          - name: goodHealthPercentage
+            value: 70
+        - timestamp: 1718586000000
+          attributes:
+          - name: goodHealthPercentage
+            value: 50
+        - timestamp: 1718589600000
+          attributes:
+          - name: goodHealthPercentage
+            value: 80
+        - timestamp: 1718593200000
+          attributes:
+          - name: goodHealthPercentage
+            value: 60
+        - timestamp: 1718596800000
+          attributes:
+          - name: goodHealthPercentage
+            value: 30
+        - timestamp: 1718600400000
+          attributes:
+          - name: goodHealthPercentage
+            value: 50
+        page:
+          limit: 6
+          offset: 0
+          timeSortOrder: asc
+        version: 2.0

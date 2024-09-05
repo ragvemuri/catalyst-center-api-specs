@@ -1,0 +1,1246 @@
+---
+openapi: 3.0.0
+info:
+  title: Open API Spec for Assurance Transit Networks
+  description: "### OpenAPI specification defined for the purpose of providing visibility into the Transit Networks and their health in Catalyst Center\n**Relevant Concepts**\n| Term | Description |\n| -- | -- |\n| `Transit Network` | A fabric transit site is a special type of fabric site that connects multiple other fabric sites within a single fabric domain.  The health aspect of this category applies only to SD-Access transit networks because health status is only  monitored for these sites, not for IP transit sites|\n| `Fabric Site` | A fabric site is a logical subdivision of a larger network fabric, containing its own control plane nodes for management, border nodes for routing traffic between sites, and edge nodes that connect devices to the fabric. |\n| `Fabric deployments` | There are 2 types of Fabric deployments, namely 'LISP' and 'EVPN'.| \n| `LISP-based deployments` | LISP based deployments accommodate the following fabric entities: 'Fabric sites', 'Virtual networks (L2/L3)', and 'Transit Networks'. L2 VN health is not applicable for LISP based deployments.|\n| `EVPN-based deployments` | EVPN based deployments support 'Fabric sites' and 'Virtual networks (L2/L3)' currently. Transit networks is not applicable for EVPN based deployments.|              \n| `Overall Transit Network Health` | The health status of the fabric is determined by examining the session status of Transit Networks. A valid Health score for Transit Networks ranges from 0-100 and is categorized as follows: Good (80-100), Fair (40-80), Poor (0-40), and No Health (--).|\n| `Transit Control Plane Health` | Health of the Transit control plane status.  Health score ranges from 0 to 100.|\n| `Transit Services Health` | Health of the Transit services.  Health score ranges from 0 to 100.|\n**API Support Documentation**\n\n**Views**\n\nSpecified 'views' can be requested for non-count APIs. Each view corresponds to different sets of data. \n\n'views' an optional parameter which can be passed to get one or more of the specific health data summaries associated with transit networks.\n\n'views' is also an optional field in the post request bodies.\n\n| View | Response Data |\n| --- | --- |\n| `transitInfo` | id, name, siteHierarchy, siteHierarchyId, controlPlaneCount, transitType, fabricSitesCount | \n| `overallHealth` | id, name, goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount, poorHealthDeviceCount, fairHealthDeviceCount,transitControlPlaneHealthPercentage, transitControlPlaneTotalDeviceCount, transitControlPlaneGoodHealthDeviceCount,transitControlPlanePoorHealthDeviceCount, transitControlPlaneFairHealthDeviceCount, transitServicesHealthPercentage, transitServicesTotalDeviceCount, transitServicesGoodHealthDeviceCount,transitServicesPoorHealthDeviceCount, transitServicesFairHealthDeviceCount |  \n| `transitControlPlaneHealth` | id, name,transitControlPlaneHealthPercentage, transitControlPlaneTotalDeviceCount, transitControlPlaneGoodHealthDeviceCount,transitControlPlanePoorHealthDeviceCount, transitControlPlaneFairHealthDeviceCount, pubsubTransitHealthPercentage, pubsubTransitTotalDeviceCount, pubsubTransitGoodHealthDeviceCount, pubsubTransitPoorHealthDeviceCount, pubsubTransitFairHealthDeviceCount, lispTransitHealthPercentage, lispTransitTotalDeviceCount, lispTransitGoodHealthDeviceCount, lispTransitPoorHealthDeviceCount, lispTransitFairHealthDeviceCount, bgpTcpHealthPercentage, bgpTcpTotalDeviceCount, bgpTcpGoodHealthDeviceCount, bgpTcpPoorHealthDeviceCount, bgpTcpFairHealthDeviceCount |  \n \n| `transitServicesHealth` | id, name, transitServicesHealthPercentage, transitServicesTotalDeviceCount, transitServicesGoodHealthDeviceCount,transitServicesPoorHealthDeviceCount, transitServicesFairHealthDeviceCount, internetAvailTransitHealthPercentage, internetAvailTransitTotalDeviceCount, internetAvailTransitGoodHealthDeviceCount,internetAvailTransitPoorHealthDeviceCount, internetAvailTransitFairHealthDeviceCount | \n\n\n  When this query parameter is not added the default summaries are:  \n\n    [`transitInfo`, `health`]\n\n    **Examples**:\n\n    view=overallHealth (single view requested)\n\n    view=transitInfo&view=overallHealth (multiple views requested)\n    \n### **Attributes** ###\n\nSpecified 'attributes' can be requested for non-count APIs. Each attribute requested will be part of the API response.\n\n**Supported Attributes:**\n\n1.`id`,`name`,`siteHierarchy`,`siteHierarchyId`, `controlPlaneCount`, `transitType`, `fabricSitesCount`, `goodHealthPercentage`, `goodHealthDeviceCount`, `totalDeviceCount`,`poorHealthDeviceCount`, `fairHealthDeviceCount`,`transitControlPlaneHealthPercentage`, `transitControlPlaneTotalDeviceCount`, `transitControlPlaneGoodHealthDeviceCount`, `transitControlPlanePoorHealthDeviceCount`, `transitControlPlaneFairHealthDeviceCount`, `transitServicesHealthPercentage`, `transitServicesTotalDeviceCount`, `transitServicesGoodHealthDeviceCount`,`transitServicesPoorHealthDeviceCount`, `transitServicesFairHealthDeviceCount`, `pubsubTransitHealthPercentage`, `pubsubTransitTotalDeviceCount`, `pubsubTransitGoodHealthDeviceCount`, `pubsubTransitPoorHealthDeviceCount`, `pubsubTransitFairHealthDeviceCount`, `lispTransitHealthPercentage`, `lispTransitTotalDeviceCount`, `lispTransitGoodHealthDeviceCount`,`lispTransitPoorHealthDeviceCount`, `lispTransitFairHealthDeviceCount`, `internetAvailTransitHealthPercentage`, `internetAvailTransitTotalDeviceCount`,`internetAvailTransitGoodHealthDeviceCount`,`internetAvailTransitPoorHealthDeviceCount`,`internetAvailTransitFairHealthDeviceCount`, `bgpTcpHealthPercentage`,`bgpTcpTotalDeviceCount`, `bgpTcpGoodHealthDeviceCount`, `bgpTcpPoorHealthDeviceCount`, `bgpTcpFairHealthDeviceCount`\nIf length of attribute list is too long, when using the query parameter for GET requests, please use `view` param instead.\n\n  Examples:\n  \n  1. query param:\n  \n    ?attribute=totalDeviceCount (single attribute requested)\n  \n    ?attribute=totalDeviceCount&attribute=goodHealthPercentage (multiple attributes requested)\n  \n  2. post body:\n  \n    attributes=[\"totalDeviceCount\",\"goodHealthPercentage\"]     "
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.1
+externalDocs:
+  description: Catalyst Center Developer API resources
+  url: https://developer.cisco.com/dnacenter/
+servers:
+- url: https://developer.cisco.com/data/api/v1
+tags:
+- name: transitNetworks
+  description: Operations related to retrieving transit network information for Catalyst Center
+  externalDocs:
+    description: Catalyst Center Assurance user guide
+    url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
+paths:
+  /transitNetworkHealthSummaries:
+    get:
+      tags:
+      - transitNetworkHealthSummaries
+      summary: Read list of Transit Networks with their health summary
+      description: |-
+        Get a paginated list of Transit Networks with health summary.
+        This API provides the latest health data from a given `endTime`
+        If data is not ready for the provided endTime, the request will fail, and the error message will indicate the recommended endTime to use to retrieve a complete data set.
+        This behavior may occur if the provided endTime=currentTime, since we are not a real time system.
+        When `endTime` is not provided, the API returns the latest data.
+      operationId: readTransitNetworksSummary
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: sortBy
+        in: query
+        description: A field within the response to sort by.
+        schema:
+          type: string
+      - name: order
+        in: query
+        description: The sort order of the field ascending or descending.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: id
+        in: query
+        description: |
+          The list of entity Uuids. (Ex."6bef213c-19ca-4170-8375-b694e251101c")
+          Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested)
+          id=6bef213c-19ca-4170-8375-b694e251101c&id=32219612-819e-4b5e-a96b-cf22aca13dd9&id=2541e9a7-b80d-4955-8aa2-79b233318ba0 (multiple entity uuid with '&' separator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: attribute
+        in: query
+        description: |
+          Supported Attributes:
+
+          [id,name,siteHierarchy,siteHierarchyId, controlPlaneCount, transitType, fabricSitesCount, goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount,poorHealthDeviceCount, fairHealthDeviceCount,transitControlPlaneHealthPercentage, transitControlPlaneTotalDeviceCount, transitControlPlaneGoodHealthDeviceCount, transitControlPlanePoorHealthDeviceCount, transitControlPlaneFairHealthDeviceCount, transitServicesHealthPercentage, transitServicesTotalDeviceCount, transitServicesGoodHealthDeviceCount,transitServicesPoorHealthDeviceCount, transitServicesFairHealthDeviceCount, pubsubTransitHealthPercentage, pubsubTransitTotalDeviceCount, pubsubTransitGoodHealthDeviceCount, pubsubTransitPoorHealthDeviceCount, pubsubTransitFairHealthDeviceCount, lispTransitHealthPercentage, lispTransitTotalDeviceCount, lispTransitGoodHealthDeviceCount,lispTransitPoorHealthDeviceCount, lispTransitFairHealthDeviceCount, internetAvailTransitHealthPercentage, internetAvailTransitTotalDeviceCount,internetAvailTransitGoodHealthDeviceCount,internetAvailTransitPoorHealthDeviceCount,internetAvailTransitFairHealthDeviceCount, bgpTcpHealthPercentage,bgpTcpTotalDeviceCount, bgpTcpGoodHealthDeviceCount, bgpTcpPoorHealthDeviceCount, bgpTcpFairHealthDeviceCount]
+
+          Examples:
+
+          attribute=GoodHealthPercentage (single attribute requested)
+
+          attribute=GoodHealthPercentage&attribute=pubsubTransitFairHealthDeviceCount (multiple attributes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: view
+        in: query
+        description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n### Response data proviced by each view:  \n\n1. **transitInfo**\n[id, name, siteHierarchy, siteHierarchyId, controlPlaneCount, transitType, fabricSitesCount]  \n\n2. **overallHealth**\n[id, name, goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount, poorHealthDeviceCount, fairHealthDeviceCount,transitControlPlaneHealthPercentage, transitControlPlaneTotalDeviceCount, transitControlPlaneGoodHealthDeviceCount,transitControlPlanePoorHealthDeviceCount, transitControlPlaneFairHealthDeviceCount, transitServicesHealthPercentage, transitServicesTotalDeviceCount, transitServicesGoodHealthDeviceCount,transitServicesPoorHealthDeviceCount, transitServicesFairHealthDeviceCount ]  \n\n3. **transitControlPlaneHealth**\n[id, name,transitControlPlaneHealthPercentage, transitControlPlaneTotalDeviceCount, transitControlPlaneGoodHealthDeviceCount,transitControlPlanePoorHealthDeviceCount, transitControlPlaneFairHealthDeviceCount, pubsubTransitHealthPercentage, pubsubTransitTotalDeviceCount, pubsubTransitGoodHealthDeviceCount, pubsubTransitPoorHealthDeviceCount, pubsubTransitFairHealthDeviceCount, lispTransitHealthPercentage, lispTransitTotalDeviceCount, lispTransitGoodHealthDeviceCount, lispTransitPoorHealthDeviceCount, lispTransitFairHealthDeviceCount, bgpTcpHealthPercentage, bgpTcpTotalDeviceCount, bgpTcpGoodHealthDeviceCount, bgpTcpPoorHealthDeviceCount, bgpTcpFairHealthDeviceCount]  \n\n4. **transitServicesHealth**\n[id, name, transitServicesHealthPercentage, transitServicesTotalDeviceCount, transitServicesGoodHealthDeviceCount,transitServicesPoorHealthDeviceCount, transitServicesFairHealthDeviceCount, internetAvailTransitHealthPercentage, internetAvailTransitTotalDeviceCount, internetAvailTransitGoodHealthDeviceCount,internetAvailTransitPoorHealthDeviceCount, internetAvailTransitFairHealthDeviceCount]          \n\nWhen this query parameter is not added the default summaries are:  \n\n**[transitInfo, overallHealth]**\n\nExamples:\n\nview=overallHealth (single view requested)\n\nview=transitInfo&view=overallHealth (multiple views requested)\n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: transit networks summmary response covering all transit networks and their health.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/TransitNetworksSummaries'
+              examples:
+                Response1:
+                  $ref: '#/components/examples/TransitNetworksResponseExample1'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /transitNetworkHealthSummaries/{id}:
+    get:
+      tags:
+      - transitNetworkHealthSummaries
+      summary: Read list of transit networks with their health summary
+      description: |-
+        Get health summary for a specific transit Network by providing the unique transit networks id in the url path.
+        This API provides the latest health data from a given `endTime`
+        If data is not ready for the provided endTime, the request will fail, and the error message will indicate the recommended endTime to use to retrieve a complete data set.
+        This behavior may occur if the provided endTime=currentTime, since we are not a real time system.
+        When `endTime` is not provided, the API returns the latest data.
+      operationId: transitNetworkSummaryById
+      parameters:
+      - name: id
+        in: path
+        description: unique transit networks id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: attribute
+        in: query
+        description: |
+          Supported Attributes:
+
+          [id,name,siteHierarchy,siteHierarchyId, controlPlaneCount, transitType, fabricSitesCount, goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount,poorHealthDeviceCount, fairHealthDeviceCount,transitControlPlaneHealthPercentage, transitControlPlaneTotalDeviceCount, transitControlPlaneGoodHealthDeviceCount, transitControlPlanePoorHealthDeviceCount, transitControlPlaneFairHealthDeviceCount, transitServicesHealthPercentage, transitServicesTotalDeviceCount, transitServicesGoodHealthDeviceCount,transitServicesPoorHealthDeviceCount, transitServicesFairHealthDeviceCount, pubsubTransitHealthPercentage, pubsubTransitTotalDeviceCount, pubsubTransitGoodHealthDeviceCount, pubsubTransitPoorHealthDeviceCount, pubsubTransitFairHealthDeviceCount, lispTransitHealthPercentage, lispTransitTotalDeviceCount, lispTransitGoodHealthDeviceCount,lispTransitPoorHealthDeviceCount, lispTransitFairHealthDeviceCount, internetAvailTransitHealthPercentage, internetAvailTransitTotalDeviceCount,internetAvailTransitGoodHealthDeviceCount,internetAvailTransitPoorHealthDeviceCount,internetAvailTransitFairHealthDeviceCount, bgpTcpHealthPercentage,bgpTcpTotalDeviceCount, bgpTcpGoodHealthDeviceCount, bgpTcpPoorHealthDeviceCount, bgpTcpFairHealthDeviceCount]
+
+          Examples:
+
+          attribute=GoodHealthPercentage (single attribute requested)
+
+          attribute=GoodHealthPercentage&attribute=pubsubTransitFairHealthDeviceCount (multiple attributes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: view
+        in: query
+        description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n### Response data proviced by each view:  \n\n1. **transitInfo**\n[id, name, siteHierarchy, siteHierarchyId, controlPlaneCount, transitType, fabricSitesCount]  \n\n2. **overallHealth**\n[id, name, goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount, poorHealthDeviceCount, fairHealthDeviceCount,transitControlPlaneHealthPercentage, transitControlPlaneTotalDeviceCount, transitControlPlaneGoodHealthDeviceCount,transitControlPlanePoorHealthDeviceCount, transitControlPlaneFairHealthDeviceCount, transitServicesHealthPercentage, transitServicesTotalDeviceCount, transitServicesGoodHealthDeviceCount,transitServicesPoorHealthDeviceCount, transitServicesFairHealthDeviceCount ]  \n\n3. **transitControlPlaneHealth**\n[id, name,transitControlPlaneHealthPercentage, transitControlPlaneTotalDeviceCount, transitControlPlaneGoodHealthDeviceCount,transitControlPlanePoorHealthDeviceCount, transitControlPlaneFairHealthDeviceCount, pubsubTransitHealthPercentage, pubsubTransitTotalDeviceCount, pubsubTransitGoodHealthDeviceCount, pubsubTransitPoorHealthDeviceCount, pubsubTransitFairHealthDeviceCount, lispTransitHealthPercentage, lispTransitTotalDeviceCount, lispTransitGoodHealthDeviceCount, lispTransitPoorHealthDeviceCount, lispTransitFairHealthDeviceCount, bgpTcpHealthPercentage, bgpTcpTotalDeviceCount, bgpTcpGoodHealthDeviceCount, bgpTcpPoorHealthDeviceCount, bgpTcpFairHealthDeviceCount]  \n\n4. **transitServicesHealth**\n[id, name, transitServicesHealthPercentage, transitServicesTotalDeviceCount, transitServicesGoodHealthDeviceCount,transitServicesPoorHealthDeviceCount, transitServicesFairHealthDeviceCount, internetAvailTransitHealthPercentage, internetAvailTransitTotalDeviceCount, internetAvailTransitGoodHealthDeviceCount,internetAvailTransitPoorHealthDeviceCount, internetAvailTransitFairHealthDeviceCount]          \n\nWhen this query parameter is not added the default summaries are:  \n\n**[transitInfo, overallHealth]**\n\nExamples:\n\nview=overallHealth (single view requested)\n\nview=transitInfo&view=overallHealth (multiple views requested)\n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Health summmary response covering specific transit network and it's health.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/TransitNetworkSummary'
+              examples:
+                Response1:
+                  $ref: '#/components/examples/TransitNetworkResponseExample1'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /transitNetworkHealthSummaries/count:
+    get:
+      tags:
+      - transitNetworkHealthSummaries
+      summary: Read list of Transit Networks with their health summary
+      description: |-
+        Get a count of transit networks. Use available query parameters to get the count of a subset of transit networks.
+        This API provides the latest health data from a given `endTime`
+        If data is not ready for the provided endTime, the request will fail, and the error message will indicate the recommended endTime to use to retrieve a complete data set.
+        This behavior may occur if the provided endTime=currentTime, since we are not a real time system.
+        When `endTime` is not provided, the API returns the latest data.
+      operationId: readTransitNetworksCount
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: id
+        in: query
+        description: |
+          The list of entity Uuids. (Ex."6bef213c-19ca-4170-8375-b694e251101c")
+          Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested)
+          id=6bef213c-19ca-4170-8375-b694e251101c&id=32219612-819e-4b5e-a96b-cf22aca13dd9&id=2541e9a7-b80d-4955-8aa2-79b233318ba0 (multiple entity uuid with '&' separator)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Successfully returned the requested transit networks count
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /transitNetworkHealthSummaries/{id}/trendAnalytics:
+    get:
+      tags:
+      - transitNetworkHealthSummaries
+      summary: The Trend analytics data for a transit network in the specified time range
+      description: |
+        Get health time series for a specific Transit Network by providing the unique Transit Network id in the url path.
+        The data will be grouped based on the specified trend time interval. If startTime and endTime are not provided, the API defaults to the last 24 hours.
+
+        By default:
+        - the number of records returned will be 500.
+        - the records will be sorted in time ascending (`asc`) order
+      operationId: readTransitNetworkTrendById
+      parameters:
+      - name: id
+        in: path
+        description: unique transit network id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: trendInterval
+        in: query
+        description: "The time window to aggregate the metrics. \nInterval can be 5 minutes or 10 minutes or 1 hour or 1 day or 7 days\n"
+        schema:
+          type: string
+          enum:
+          - 5MIN
+          - 10MIN
+          - 1HR
+          - 1DAY
+          - 7DAY
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 500
+          minimum: 1
+          type: integer
+          default: 500
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: order
+        in: query
+        description: The sort order of the field ascending or descending.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: attribute
+        in: query
+        description: |
+          Supported Attributes:
+
+          [goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount,poorHealthDeviceCount, fairHealthDeviceCount,transitControlPlaneHealthPercentage, transitControlPlaneTotalDeviceCount, transitControlPlaneGoodHealthDeviceCount, transitControlPlanePoorHealthDeviceCount, transitControlPlaneFairHealthDeviceCount, transitServicesHealthPercentage, transitServicesTotalDeviceCount, transitServicesGoodHealthDeviceCount,transitServicesPoorHealthDeviceCount, transitServicesFairHealthDeviceCount, pubsubTransitHealthPercentage, pubsubTransitTotalDeviceCount, pubsubTransitGoodHealthDeviceCount, pubsubTransitPoorHealthDeviceCount, pubsubTransitFairHealthDeviceCount, lispTransitHealthPercentage, lispTransitTotalDeviceCount, lispTransitGoodHealthDeviceCount,lispTransitPoorHealthDeviceCount, lispTransitFairHealthDeviceCount, internetAvailTransitHealthPercentage, internetAvailTransitTotalDeviceCount,internetAvailTransitGoodHealthDeviceCount,internetAvailTransitPoorHealthDeviceCount,internetAvailTransitFairHealthDeviceCount, bgpTcpHealthPercentage,bgpTcpTotalDeviceCount, bgpTcpGoodHealthDeviceCount, bgpTcpPoorHealthDeviceCount, bgpTcpFairHealthDeviceCount]
+
+          Examples:
+
+          attribute=GoodHealthPercentage (single attribute requested)
+
+          attribute=GoodHealthPercentage&attribute=pubsubTransitFairHealthDeviceCount (multiple attributes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Transit networks summmary response covering trend data for a given Transit networks id.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/transitNetworkSummaryTrend'
+              examples:
+                Response1:
+                  $ref: '#/components/examples/TransitNetworkTrendExample1'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+components:
+  schemas:
+    TransitNetworksSummaries:
+      type: object
+      properties:
+        response:
+          type: array
+          description: |
+            Successfully returned list of Transit Networks
+          items:
+            $ref: '#/components/schemas/TransitNetworkSummary'
+        page:
+          $ref: '#/components/schemas/PaginationResponse'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Transit Networks summmary response schema
+    transitNetworkSummaryTrend:
+      type: object
+      properties:
+        response:
+          type: array
+          description: Successfully return list of Transit networks health trend data
+          items:
+            $ref: '#/components/schemas/TransitNetworkTrend'
+        page:
+          $ref: '#/components/schemas/TimeBasedPagination'
+        version:
+          type: string
+          example: "1.0"
+      description: Transit Networks score Response
+    TransitNetworkTrend:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          description: For trend API timestamp is the default groupBy attribute.
+          format: int64
+          example: 1718218219000
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransitNetworkAttributeValuePair'
+      description: |
+        The aggregate trend response includes timestamp, attributes, aggregateAttributes, and group attributes. The attributes aggregateAttributes and groups are mutually exclusive. If a user requests trends without groupBy attributes, the response includes timestamp, attributes, and aggregateAttributes. However, if a user requests trends with groupBy attributes, the response includes timestamp, and the groups array contains attributes and aggregatedAttributes for each array element.
+    TransitNetworkAttributeValuePair:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/TransitNetworkAnalyticsAttribute'
+        value:
+          type: object
+          description: This is the value of the attribute requested for analytics API.
+    TransitNetworkAnalyticsAttribute:
+      type: string
+      description: Supported filter attributes related to clients
+      enum:
+      - goodHealthPercentage
+      - goodHealthDeviceCount
+      - totalDeviceCount
+      - poorHealthDeviceCount
+      - fairHealthDeviceCount
+      - transitControlPlaneHealthPercentage
+      - transitControlPlaneTotalDeviceCount
+      - transitControlPlaneGoodHealthDeviceCount
+      - transitControlPlanePoorHealthDeviceCount
+      - transitControlPlaneFairHealthDeviceCount
+      - transitServicesHealthPercentage
+      - transitServicesTotalDeviceCount
+      - transitServicesGoodHealthDeviceCount
+      - transitServicesPoorHealthDeviceCount
+      - transitServicesFairHealthDeviceCount
+      - pubsubTransitHealthPercentage
+      - pubsubTransitTotalDeviceCount
+      - pubsubTransitGoodHealthDeviceCount
+      - pubsubTransitPoorHealthDeviceCount
+      - pubsubTransitFairHealthDeviceCount
+      - lispTransitHealthPercentage
+      - lispTransitTotalDeviceCount
+      - lispTransitGoodHealthDeviceCount
+      - lispTransitPoorHealthDeviceCount
+      - lispTransitFairHealthDeviceCount
+      - internetAvailTransitHealthPercentage
+      - internetAvailTransitTotalDeviceCount
+      - internetAvailTransitGoodHealthDeviceCount
+      - internetAvailTransitPoorHealthDeviceCount
+      - internetAvailTransitFairHealthDeviceCount
+      - bgpTcpHealthPercentage
+      - bgpTcpTotalDeviceCount
+      - bgpTcpGoodHealthDeviceCount
+      - bgpTcpPoorHealthDeviceCount
+      - bgpTcpFairHealthDeviceCount
+    TransitNetworkSummary:
+      required:
+      - transitNetworksId
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique uuid of the transit network.
+          example: PubSub-SDA-Transit
+        name:
+          type: string
+          description: Full name of transit network .
+          example: PubSub-SDA-Transit
+        goodHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for this transit network
+          format: double
+          example: 80
+        totalDeviceCount:
+          type: integer
+          description: Total number of fabric devices in this transit network
+          format: int64
+          example: 15
+        goodHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        poorHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        fairHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        transitControlPlaneHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for this transit network
+          format: double
+          example: 80
+        transitControlPlaneTotalDeviceCount:
+          type: integer
+          description: Total number of fabric devices in this transit network
+          format: int64
+          example: 15
+        transitControlPlaneGoodHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        transitControlPlanePoorHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        transitControlPlaneFairHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        transitServicesHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for this transit network
+          format: double
+          example: 80
+        transitServicesTotalDeviceCount:
+          type: integer
+          description: Total number of fabric devices in this transit network
+          format: int64
+          example: 15
+        transitServicesGoodHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        transitServicesPoorHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        transitServicesFairHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        pubsubTransitHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for this transit network
+          format: double
+          example: 80
+        pubsubTransitTotalDeviceCount:
+          type: integer
+          description: Total number of fabric devices in this transit network
+          format: int64
+          example: 15
+        pubsubTransitGoodHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        pubsubTransitPoorHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        pubsubTransitFairHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        lispTransitHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for this transit network
+          format: double
+          example: 80
+        lispTransitTotalDeviceCount:
+          type: integer
+          description: Total number of fabric devices in this transit network
+          format: int64
+          example: 15
+        lispTransitGoodHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        lispTransitPoorHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        lispTransitFairHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        internetAvailTransitHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for this transit network
+          format: double
+          example: 80
+        internetAvailTransitTotalDeviceCount:
+          type: integer
+          description: Total number of fabric devices in this transit network
+          format: int64
+          example: 15
+        internetAvailTransitGoodHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        internetAvailTransitPoorHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        internetAvailTransitFairHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        bgpTcpHealthPercentage:
+          type: number
+          description: Percentage of fabric devices that are considered healthy for this transit network
+          format: double
+          example: 80
+        bgpTcpTotalDeviceCount:
+          type: integer
+          description: Total number of fabric devices in this transit network
+          format: int64
+          example: 15
+        bgpTcpGoodHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        bgpTcpPoorHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        bgpTcpFairHealthDeviceCount:
+          type: integer
+          description: Number of healthy fabric devices in this transit network
+          format: int64
+          example: 15
+        siteHierarchyId:
+          type: string
+          description: The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID.
+          example: 31e57cb2-06af-4c5c-87d1-16af536095d2/54d3f243-509e-436d-98-ebe01daf80db/f52fbe48-fcc9-4551-947b-e144e20c0311/50c01c29-b09e-49-b6ce-2e7d3395f3a3
+        siteHierarchy:
+          type: string
+          description: The full hierarchy breakdown of the site tree in name form starting from Global site name and ending with the specific site site. 'Global' is the Root name of the site hierarchy tree. Site name including the hierarchy where the network device or client is located. For clients site is derived based on site assigned to network device where the client is connected to. For Wireless client its the connected Access Point site and for Wired client its the connected switch site. For network device its the site assigned to it.
+          example: Global/AreaName/BuildingName/FloorName
+      description: Summary of transit networks with health info.
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorObject'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured   processing this request.
+      example:
+        response:
+        - errorCode: 2600
+          message: Error message
+          detail: Error details
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    ErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: Application specific error code returned by the server
+        message:
+          type: string
+          description: Brief message about the error condition
+        detail:
+          type: string
+          description: "A more detailed explanation of the error condition the   parameter and its value, that caused the condition and why it caused it."
+    CountIntegerResponse:
+      title: Count Integer Response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/CountIntegerResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Reports
+    PaginationResponse:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: The reference to the limit applied in the Pagination   Request.
+          example: 10
+        offset:
+          type: integer
+          description: The reference to the record offset applied in the   Pagination Request.
+          example: 1
+        count:
+          type: integer
+          description: Total number of records related to the resource after   applying applicable filtering
+          example: 20
+        sortBy:
+          type: array
+          description: Reference to the sortBy that was applied in the Pagination   Request.
+          items:
+            $ref: '#/components/schemas/PaginationResponse_sortBy'
+    TimeBasedPagination:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to fetch in a page
+          example: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        timeSortOrder:
+          type: string
+          description: Sort order. `asc` for ascending and  `desc` for descending
+          example: asc
+          default: asc
+          enum:
+          - asc
+          - desc
+        count:
+          type: integer
+          description: Number of records returned after applying applicable filtering. Field is ignored for request and updated by API in the response
+          example: 100
+    CountIntegerResponse_response:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The total number of records related to the resource
+          format: int64
+          example: 1000
+    PaginationResponse_sortBy:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Field name by which sort is requested
+          example: siteHierarchy
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for   descending
+          example: asc
+          enum:
+          - asc
+          - desc
+      description: List of field names and corresponding order used to sort   the records.
+  responses:
+    TransitNetworksSummariesResponse:
+      description: transit networks summmary response covering all transit networks and their health.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/TransitNetworksSummaries'
+          examples:
+            Response1:
+              $ref: '#/components/examples/TransitNetworksResponseExample1'
+    TransitNetworkSummaryResponse:
+      description: Health summmary response covering specific transit network and it's health.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/TransitNetworkSummary'
+          examples:
+            Response1:
+              $ref: '#/components/examples/TransitNetworkResponseExample1'
+    TransitNetworkTrendResponse:
+      description: Transit networks summmary response covering trend data for a given Transit networks id.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/transitNetworkSummaryTrend'
+          examples:
+            Response1:
+              $ref: '#/components/examples/TransitNetworkTrendExample1'
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "500":
+      description: The server could not fulfill the request due to internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "1XX":
+      description: Informational Responses - The server received the request and sent an informational response.
+    "2XX":
+      description: "Successful Responses - The server received the client request, understood it, and accepted it."
+    "3XX":
+      description: Redirection Messages - The client must take additional action to complete the request.
+    "4XX":
+      description: Client Error Responses - The client request caused the error.
+    "5XX":
+      description: Server Error Responses - The server failed to fulfill the request.
+    defaultError:
+      description: Unexpected Error
+  parameters:
+    id:
+      name: id
+      in: query
+      description: |
+        The transit network or list of transit networks to filter the data
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+        Examples:
+
+        `?id=transitNetworkId)
+
+        `?id=transitNetworkId1&id=transitNetworkId2` (multiple transitNetworkId requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    transitNetworkViews:
+      name: view
+      in: query
+      description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n### Response data proviced by each view:  \n\n1. **transitInfo**\n[id, name, siteHierarchy, siteHierarchyId, controlPlaneCount, transitType, fabricSitesCount]  \n\n2. **overallHealth**\n[id, name, goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount, poorHealthDeviceCount, fairHealthDeviceCount,transitControlPlaneHealthPercentage, transitControlPlaneTotalDeviceCount, transitControlPlaneGoodHealthDeviceCount,transitControlPlanePoorHealthDeviceCount, transitControlPlaneFairHealthDeviceCount, transitServicesHealthPercentage, transitServicesTotalDeviceCount, transitServicesGoodHealthDeviceCount,transitServicesPoorHealthDeviceCount, transitServicesFairHealthDeviceCount ]  \n\n3. **transitControlPlaneHealth**\n[id, name,transitControlPlaneHealthPercentage, transitControlPlaneTotalDeviceCount, transitControlPlaneGoodHealthDeviceCount,transitControlPlanePoorHealthDeviceCount, transitControlPlaneFairHealthDeviceCount, pubsubTransitHealthPercentage, pubsubTransitTotalDeviceCount, pubsubTransitGoodHealthDeviceCount, pubsubTransitPoorHealthDeviceCount, pubsubTransitFairHealthDeviceCount, lispTransitHealthPercentage, lispTransitTotalDeviceCount, lispTransitGoodHealthDeviceCount, lispTransitPoorHealthDeviceCount, lispTransitFairHealthDeviceCount, bgpTcpHealthPercentage, bgpTcpTotalDeviceCount, bgpTcpGoodHealthDeviceCount, bgpTcpPoorHealthDeviceCount, bgpTcpFairHealthDeviceCount]  \n\n4. **transitServicesHealth**\n[id, name, transitServicesHealthPercentage, transitServicesTotalDeviceCount, transitServicesGoodHealthDeviceCount,transitServicesPoorHealthDeviceCount, transitServicesFairHealthDeviceCount, internetAvailTransitHealthPercentage, internetAvailTransitTotalDeviceCount, internetAvailTransitGoodHealthDeviceCount,internetAvailTransitPoorHealthDeviceCount, internetAvailTransitFairHealthDeviceCount]          \n\nWhen this query parameter is not added the default summaries are:  \n\n**[transitInfo, overallHealth]**\n\nExamples:\n\nview=overallHealth (single view requested)\n\nview=transitInfo&view=overallHealth (multiple views requested)\n"
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    transitNetworkAttributes:
+      name: attribute
+      in: query
+      description: |
+        Supported Attributes:
+
+        [id,name,siteHierarchy,siteHierarchyId, controlPlaneCount, transitType, fabricSitesCount, goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount,poorHealthDeviceCount, fairHealthDeviceCount,transitControlPlaneHealthPercentage, transitControlPlaneTotalDeviceCount, transitControlPlaneGoodHealthDeviceCount, transitControlPlanePoorHealthDeviceCount, transitControlPlaneFairHealthDeviceCount, transitServicesHealthPercentage, transitServicesTotalDeviceCount, transitServicesGoodHealthDeviceCount,transitServicesPoorHealthDeviceCount, transitServicesFairHealthDeviceCount, pubsubTransitHealthPercentage, pubsubTransitTotalDeviceCount, pubsubTransitGoodHealthDeviceCount, pubsubTransitPoorHealthDeviceCount, pubsubTransitFairHealthDeviceCount, lispTransitHealthPercentage, lispTransitTotalDeviceCount, lispTransitGoodHealthDeviceCount,lispTransitPoorHealthDeviceCount, lispTransitFairHealthDeviceCount, internetAvailTransitHealthPercentage, internetAvailTransitTotalDeviceCount,internetAvailTransitGoodHealthDeviceCount,internetAvailTransitPoorHealthDeviceCount,internetAvailTransitFairHealthDeviceCount, bgpTcpHealthPercentage,bgpTcpTotalDeviceCount, bgpTcpGoodHealthDeviceCount, bgpTcpPoorHealthDeviceCount, bgpTcpFairHealthDeviceCount]
+
+        Examples:
+
+        attribute=GoodHealthPercentage (single attribute requested)
+
+        attribute=GoodHealthPercentage&attribute=pubsubTransitFairHealthDeviceCount (multiple attributes requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    transitNetworkTrendAttributes:
+      name: attribute
+      in: query
+      description: |
+        Supported Attributes:
+
+        [goodHealthPercentage, goodHealthDeviceCount, totalDeviceCount,poorHealthDeviceCount, fairHealthDeviceCount,transitControlPlaneHealthPercentage, transitControlPlaneTotalDeviceCount, transitControlPlaneGoodHealthDeviceCount, transitControlPlanePoorHealthDeviceCount, transitControlPlaneFairHealthDeviceCount, transitServicesHealthPercentage, transitServicesTotalDeviceCount, transitServicesGoodHealthDeviceCount,transitServicesPoorHealthDeviceCount, transitServicesFairHealthDeviceCount, pubsubTransitHealthPercentage, pubsubTransitTotalDeviceCount, pubsubTransitGoodHealthDeviceCount, pubsubTransitPoorHealthDeviceCount, pubsubTransitFairHealthDeviceCount, lispTransitHealthPercentage, lispTransitTotalDeviceCount, lispTransitGoodHealthDeviceCount,lispTransitPoorHealthDeviceCount, lispTransitFairHealthDeviceCount, internetAvailTransitHealthPercentage, internetAvailTransitTotalDeviceCount,internetAvailTransitGoodHealthDeviceCount,internetAvailTransitPoorHealthDeviceCount,internetAvailTransitFairHealthDeviceCount, bgpTcpHealthPercentage,bgpTcpTotalDeviceCount, bgpTcpGoodHealthDeviceCount, bgpTcpPoorHealthDeviceCount, bgpTcpFairHealthDeviceCount]
+
+        Examples:
+
+        attribute=GoodHealthPercentage (single attribute requested)
+
+        attribute=GoodHealthPercentage&attribute=pubsubTransitFairHealthDeviceCount (multiple attributes requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    callerId:
+      name: X-CALLER-ID
+      in: header
+      description: |
+        Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+      required: false
+      schema:
+        type: string
+        default: unknown
+      example: ui:client360
+    startTime:
+      name: startTime
+      in: query
+      description: |
+        Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      schema:
+        type: integer
+        format: int64
+      example: 1705348800000
+    endTime:
+      name: endTime
+      in: query
+      description: |
+        End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      required: false
+      schema:
+        type: integer
+        format: int64
+      example: 1705435200000
+    limit_100:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        maximum: 100
+        minimum: 1
+        type: integer
+        default: 100
+    offset:
+      name: offset
+      in: query
+      description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+      schema:
+        minimum: 1
+        type: integer
+        default: 1
+    sortBy:
+      name: sortBy
+      in: query
+      description: A field within the response to sort by.
+      schema:
+        type: string
+    order:
+      name: order
+      in: query
+      description: The sort order of the field ascending or descending.
+      schema:
+        type: string
+        default: asc
+        enum:
+        - asc
+        - desc
+    ids:
+      name: id
+      in: query
+      description: |
+        The list of entity Uuids. (Ex."6bef213c-19ca-4170-8375-b694e251101c")
+        Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested)
+        id=6bef213c-19ca-4170-8375-b694e251101c&id=32219612-819e-4b5e-a96b-cf22aca13dd9&id=2541e9a7-b80d-4955-8aa2-79b233318ba0 (multiple entity uuid with '&' separator)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    trendInterval:
+      name: trendInterval
+      in: query
+      description: "The time window to aggregate the metrics. \nInterval can be 5 minutes or 10 minutes or 1 hour or 1 day or 7 days\n"
+      schema:
+        type: string
+        enum:
+        - 5MIN
+        - 10MIN
+        - 1HR
+        - 1DAY
+        - 7DAY
+    limit_500:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        maximum: 500
+        minimum: 1
+        type: integer
+        default: 500
+  examples:
+    TransitNetworksResponseExample1:
+      summary: Virtual Network Summary response example
+      value:
+        response:
+        - id: 43bda617-c55a-4154-8e0b-5da9e5ea75aa
+          name: transit_1
+          controlPlaneCount: 2
+          transitType: SD-TRANSIT
+          fabricSitesCount: 2
+          goodHealthPercentage: 40
+          goodHealthDeviceCount: 2
+          totalDeviceCount: 5
+          poorHealthDeviceCount: 2
+          fairHealthDeviceCount: 1
+          transitControlPlaneHealthPercentage: 60
+          transitControlPlaneTotalDeviceCount: 5
+          transitControlPlaneGoodHealthDeviceCount: 3
+          transitControlPlanePoorHealthDeviceCount: 1
+          transitControlPlaneFairHealthDeviceCount: 1
+          transitServicesHealthPercentage: 80
+          transitServicesTotalDeviceCount: 5
+          transitServicesGoodHealthDeviceCount: 4
+          transitServicesPoorHealthDeviceCount: 0
+          transitServicesFairHealthDeviceCount: 1
+          pubsubTransitHealthPercentage: 60
+          pubsubTransitTotalDeviceCount: 5
+          pubsubTransitGoodHealthDeviceCount: 3
+          pubsubTransitPoorHealthDeviceCount: 1
+          pubsubTransitFairHealthDeviceCount: 1
+          lispTransitHealthPercentage: 80
+          lispTransitTotalDeviceCount: 5
+          lispTransitGoodHealthDeviceCount: 4
+          lispTransitPoorHealthDeviceCount: 0
+          lispTransitFairHealthDeviceCount: 1
+          internetAvailTransitHealthPercentage: 60
+          internetAvailTransitTotalDeviceCount: 5
+          internetAvailTransitGoodHealthDeviceCount: 3
+          internetAvailTransitPoorHealthDeviceCount: 1
+          internetAvailTransitFairHealthDeviceCount: 1
+          bgpTcpHealthPercentage: 60
+          bgpTcpTotalDeviceCount: 5
+          bgpTcpGoodHealthDeviceCount: 3
+          bgpTcpPoorHealthDeviceCount: 1
+          bgpTcpFairHealthDeviceCount: 1
+    TransitNetworkResponseExample1:
+      summary: Virtual Network Summary response example
+      value:
+        response:
+          id: 43bda617-c55a-4154-8e0b-5da9e5ea75aa
+          name: transit_1
+          controlPlaneCount: 2
+          transitType: SD-TRANSIT
+          fabricSitesCount: 2
+          goodHealthPercentage: 40
+          goodHealthDeviceCount: 2
+          totalDeviceCount: 5
+          poorHealthDeviceCount: 2
+          fairHealthDeviceCount: 1
+          transitControlPlaneHealthPercentage: 60
+          transitControlPlaneTotalDeviceCount: 5
+          transitControlPlaneGoodHealthDeviceCount: 3
+          transitControlPlanePoorHealthDeviceCount: 1
+          transitControlPlaneFairHealthDeviceCount: 1
+          transitServicesHealthPercentage: 80
+          transitServicesTotalDeviceCount: 5
+          transitServicesGoodHealthDeviceCount: 4
+          transitServicesPoorHealthDeviceCount: 0
+          transitServicesFairHealthDeviceCount: 1
+          pubsubTransitHealthPercentage: 60
+          pubsubTransitTotalDeviceCount: 5
+          pubsubTransitGoodHealthDeviceCount: 3
+          pubsubTransitPoorHealthDeviceCount: 1
+          pubsubTransitFairHealthDeviceCount: 1
+          lispTransitHealthPercentage: 80
+          lispTransitTotalDeviceCount: 5
+          lispTransitGoodHealthDeviceCount: 4
+          lispTransitPoorHealthDeviceCount: 0
+          lispTransitFairHealthDeviceCount: 1
+          internetAvailTransitHealthPercentage: 60
+          internetAvailTransitTotalDeviceCount: 5
+          internetAvailTransitGoodHealthDeviceCount: 3
+          internetAvailTransitPoorHealthDeviceCount: 1
+          internetAvailTransitFairHealthDeviceCount: 1
+          bgpTcpHealthPercentage: 60
+          bgpTcpTotalDeviceCount: 5
+          bgpTcpGoodHealthDeviceCount: 3
+          bgpTcpPoorHealthDeviceCount: 1
+          bgpTcpFairHealthDeviceCount: 1
+    TransitNetworkTrendExample1:
+      summary: Transit Network health trend response example
+      value:
+        response:
+        - timestamp: 1718582400000
+          attributes:
+          - name: goodHealthPercentage
+            value: 70
+        - timestamp: 1718586000000
+          attributes:
+          - name: goodHealthPercentage
+            value: 50
+        - timestamp: 1718589600000
+          attributes:
+          - name: goodHealthPercentage
+            value: 80
+        - timestamp: 1718593200000
+          attributes:
+          - name: goodHealthPercentage
+            value: 60
+        - timestamp: 1718596800000
+          attributes:
+          - name: goodHealthPercentage
+            value: 30
+        - timestamp: 1718600400000
+          attributes:
+          - name: goodHealthPercentage
+            value: 50
+        page:
+          limit: 6
+          offset: 0
+          timeSortOrder: asc
+        version: 2.0
