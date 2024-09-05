@@ -30,7 +30,7 @@ paths:
       tags:
       - networkApplications
       summary: Retrieves the list of network applications along with experience and health metrics
-      description: "Retrieves the list of network applications along with experience and health metrics. If startTime and endTime are not provided, the API defaults to the last 24 hours."
+      description: "Retrieves the list of network applications along with experience and health metrics. If startTime and endTime are not provided, the API defaults to the last 24 hours. `siteId` is mandatory. `siteId` must be a site UUID of a building."
       operationId: readNetworkApplications
       parameters:
       - name: startTime
@@ -82,7 +82,7 @@ paths:
       - name: siteId
         in: query
         description: |-
-          The site UUID without the top level hierarchy. (Ex."buildingUuid") Examples:
+          The site UUID without the top level hierarchy. `siteId` is mandatory. `siteId` must be a site UUID of a building. (Ex."buildingUuid") Examples:
           `siteId=buildingUuid` (single siteId requested)
           `siteId=buildingUuid1&siteId=buildingUuid2` (multiple siteId requested)
         required: true
@@ -201,7 +201,7 @@ paths:
       tags:
       - networkApplications
       summary: Retrieves the total count of network applications by applying basic filtering
-      description: "Retrieves the number of network applications by applying basic filtering. If startTime and endTime are not provided, the API defaults to the last 24 hours."
+      description: "Retrieves the number of network applications by applying basic filtering. If startTime and endTime are not provided, the API defaults to the last 24 hours. `siteId` is mandatory. `siteId` must be a site UUID of a building."
       operationId: readNetworkApplicationsCount
       parameters:
       - name: startTime
@@ -224,7 +224,7 @@ paths:
       - name: siteId
         in: query
         description: |-
-          The site UUID without the top level hierarchy. (Ex."buildingUuid") Examples:
+          The site UUID without the top level hierarchy. `siteId` is mandatory. `siteId` must be a site UUID of a building. (Ex."buildingUuid") Examples:
           `siteId=buildingUuid` (single siteId requested)
           `siteId=buildingUuid1&siteId=buildingUuid2` (multiple siteId requested)
         required: true
@@ -341,14 +341,14 @@ paths:
       - networkApplications
       summary: Retrieves the Trend analytics data related to network applications.
       description: |-
-        Retrieves the trend analytics of applications experience data for the specified time range. The data will be grouped based on the given trend time interval. This API facilitates obtaining consolidated insights into the performance and status of the network applications over the specified start and end time. If startTime and endTime are not provided, the API defaults to the last 24 hours.
+        Retrieves the trend analytics of applications experience data for the specified time range. The data will be grouped based on the given trend time interval. This API facilitates obtaining consolidated insights into the performance and status of the network applications over the specified start and end time. If startTime and endTime are not provided, the API defaults to the last 24 hours. `siteId` and `trendInterval` are mandatory. `siteId` must be a site UUID of a building.
 
         **The input payload contains the following fields,**
         |Field Name | Description |
         | --- | --- |
         | `startTime` | The start time indicates when the API begins retrieving data related to the resource. It must be specified in the UNIX epoch time format, measured in milliseconds. This value is inclusive, and if left unspecified, the default is 1 day before the  endTime.|
         | `endTime` | The end time indicates the upper limit until which the API retrieves data related to the resource. It must be defined in the UNIX epoch time format, measured in milliseconds. This value is inclusive, and if left unspecified, the default is the latest available data. |
-        | `siteIds` |  The list of Building UUID  |
+        | `siteIds` |  The list of Building UUID. This is a mandatory field. |
         | `trendInterval` |  The time window for aggregating metrics. This is a mandatory request field. Possible values include *5 minutes, 10 minutes, 1 hour or 3 hour. |
         | `groupBy` | Specifies the attributes for grouping the data. Refer to `NetworkApplicationGroupByField` model for the supported grouping attributes|
         | `attributes` | A list of attributes associated with the resource, which can be requested to be included in the response alongside the required attributes. Refer to `NetworkApplicationTrendAttribute` model for the supported attributes |
@@ -424,9 +424,7 @@ components:
       - businessRelevance
       - exporterIpAddress
       - siteId
-      - throughput
       - trafficClass
-      - usage
     NetworkApplicationFilterField:
       type: string
       description: Supported filter attributes related to network applications
@@ -1067,7 +1065,7 @@ components:
       name: siteId
       in: query
       description: |-
-        The site UUID without the top level hierarchy. (Ex."buildingUuid") Examples:
+        The site UUID without the top level hierarchy. `siteId` is mandatory. `siteId` must be a site UUID of a building. (Ex."buildingUuid") Examples:
         `siteId=buildingUuid` (single siteId requested)
         `siteId=buildingUuid1&siteId=buildingUuid2` (multiple siteId requested)
       required: true
@@ -1267,7 +1265,7 @@ components:
         - 364ff1bd-5125-4fa1-9ae3-55e7fb6ca592
         trendInterval: 5MIN
         groupBy:
-        - applicationName
+        - businessRelevance
         attributes:
         - applicationName
         - trafficClass
@@ -1340,7 +1338,7 @@ components:
         response:
         - timestamp: 1707759900000
           groups:
-          - id: applicationName=webex-media
+          - id: businessRelevance=business-relevant
             attributes:
             - name: applicationName
               value: webex-media
@@ -1353,7 +1351,7 @@ components:
             - name: usage
               function: max
               value: 62199
-          - id: applicationName=webex-video
+          - id: businessRelevance=business-irrelevant
             attributes:
             - name: applicationName
               value: webex-video
@@ -1368,7 +1366,7 @@ components:
               value: 62199
         - timestamp: 1707760200000
           groups:
-          - id: applicationName=exporters-counters
+          - id: businessRelevance=default
             attributes:
             - name: applicationName
               value: bulk-data
@@ -1381,7 +1379,7 @@ components:
             - name: usage
               function: max
               value: 62199
-          - id: applicationName=activesync
+          - id: businessRelevance=business-irrelevant
             attributes:
             - name: applicationName
               value: activesync
