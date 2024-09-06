@@ -1,0 +1,363 @@
+---
+openapi: 3.0.0
+info:
+  title: Open API Spec for Assurance Fabric Summary
+  description: "### OpenAPI specification defined for the purpose of providing visibility into the overall fabric entities and health in Catalyst Center\n\n**Relevant Concepts**\n\n| Term | Description |\n| -- | -- |\n| `Fabric Site` | A fabric site is a logical subdivision of a larger network fabric, containing its own control plane nodes for management, border nodes for routing traffic between sites, and edge nodes that connect devices to the fabric. |\n| `Virtual Network` | A fabric virtual network is a logical network overlay created on top of a physical network fabric. This overlay network allows you to segment your network into isolated, secure, and policy-driven environments for different departments, applications, or security zones. |\n| `Transit Network` | A fabric transit site is a special type of fabric site that connects multiple other fabric sites within a single fabric domain.  This applies only to SD-Access transit networks because health status is only  monitored for these sites, not for IP transit sites|\n| `Fabric deployments` | There are 2 types of Fabric deployments, namely 'LISP' and 'EVPN'.| \n| `LISP-based deployments` | LISP based deployments accommodate the following fabric entities: 'Fabric sites', 'Virtual networks (L2/L3)', and 'Transit Networks'. L2 VN health is not applicable for LISP based deployments.|\n| `EVPN-based deployments` | EVPN based deployments support 'Fabric sites' and 'Virtual networks (L2/L3)' currently. Transit networks is not applicable for EVPN based deployments.|              \n| `Fabric Health` | The health status of the fabric is determined by examining the session status among the various fabric entities. A valid Health score for Fabric entity ranges from 0-100 and is categorized as follows: Good (80-100), Fair (40-80), Poor (0-40), and No Health (--).|\n| `Fabric Issues` | Issues are identified when a monitored session between various fabric entities becomes disrupted or goes down.|\n> **Additonal information**:\n  - This API does not support Summary analytics and Trend analytics as this API aggregates information related to various fabric entities covering Fabric sites, Virtual networks and Transit Sites.\n  - Virtual networks and Transit networks are global entities and only shown to users with access to global resorce domain. These entity counts will be shows as 0 for users with limited site level access.\n"
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.1-oas3
+externalDocs:
+  description: Catalyst Center Developer API resources
+  url: https://developer.cisco.com/dnacenter/
+servers:
+- url: https://developer.cisco.com/data/api/v1
+tags:
+- name: fabric
+  description: Operations related to retrieving fabric information for Catalyst Center
+  externalDocs:
+    description: Catalyst Center Assurance user guide
+    url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
+paths:
+  /fabricSummary:
+    get:
+      tags:
+      - fabricSummary
+      summary: Read Fabric entity summary
+      description: Read Fabric summary for overall deployment. Get an aggregated summary of all fabric entities in a deployment including the entity health.
+      operationId: readFabricSummary
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      responses:
+        "200":
+          description: Fabric summmary response covering all fabric entities and their health.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/FabricSummaryResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "405":
+          description: The client made a request using an http method which is not supported for this resource.
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request due to internal server error
+        "502":
+          description: There is a bad gateway connection from the client to the server.
+        default:
+          description: Default error response
+components:
+  schemas:
+    FabricSummaryResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/FabricSummary'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Fabric summmary response schema
+    FabricSummary:
+      type: object
+      properties:
+        protocolSummaries:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricSummary_protocolSummaries'
+      description: "Summary of fabric entities with health info. Used for fabric sites, l2vns, l3vns and transit networks"
+    fabricSiteGoodHealthCount:
+      type: integer
+      description: number of fabric sites with good health (score range of 80-100)
+      format: int64
+      example: 4
+    fabricSiteCount:
+      type: integer
+      description: total number of fabric sites
+      format: int64
+      example: 5
+    fabricSiteGoodHealthPercentage:
+      type: number
+      description: percentage of fabric sites with good health over total fabric sites
+      format: double
+      example: 80
+    fabricSiteNoHealthCount:
+      type: integer
+      description: number of fabric sites with No health (score of --)
+      format: int64
+      example: 40
+    fabricSitePoorHealthCount:
+      type: integer
+      description: number of fabric sites with Poor health (score of 0-40)
+      format: int64
+      example: 1
+    fabricSiteFairHealthCount:
+      type: integer
+      description: number of fabric sites with fair health (score range of 40-80)
+      format: int64
+      example: 0
+    l3VnGoodHealthCount:
+      type: integer
+      description: number of l3 virtual network with good health (score range of 80-100)
+      format: int64
+      example: 4
+    l3VnCount:
+      type: integer
+      description: total number of l3 virtual networks.
+      format: int64
+      example: 4
+    l3VnGoodHealthPercentage:
+      type: number
+      description: percentage of l3 virtual network with good health over total l3 virtual networks
+      format: double
+      example: 100
+    l3VnNoHealthCount:
+      type: integer
+      description: number of l3 virtual network with No health (score of --)
+      format: int64
+      example: 4
+    l3VnPoorHealthCount:
+      type: integer
+      description: number of l3 virtual network with No health (score of 0-40)
+      format: int64
+      example: 1
+    l3VnFairHealthCount:
+      type: integer
+      description: number of l3 virtual network with Fair health (score of 40-80)
+      format: int64
+      example: 0
+    l2VnGoodHealthCount:
+      type: integer
+      description: number of l2 virtual network with good health (score range of 80-100)
+      format: int64
+      example: 2
+    l2VnCount:
+      type: integer
+      description: total number of l2 virtual networks
+      format: int64
+      example: 4
+    l2VnGoodHealthPercentage:
+      type: number
+      description: percentage of l2 virtual network with good health over total l2 virtual networks
+      format: double
+      example: 50
+    l2VnNoHealthCount:
+      type: integer
+      description: number of l2 virtual network with No health (score of --)
+      format: int64
+      example: 2
+    l2VnPoorHealthCount:
+      type: integer
+      description: number of l2 virtual network with No health (score of 0-40)
+      format: int64
+      example: 2
+    l2VnFairHealthCount:
+      type: integer
+      description: number of l2 virtual network with Fair health (score of 40-80)
+      format: int64
+      example: 0
+    transitNetworkGoodHealthCount:
+      type: integer
+      description: number of transit sites with good health (score range of 80-100)
+      format: int64
+      example: 2
+    transitNetworkCount:
+      type: integer
+      description: total number of transit sites
+      format: int64
+      example: 3
+    transitNetworkGoodHealthPercentage:
+      type: number
+      description: percentage of transit sites with good health over total transit sites
+      format: double
+      example: 66
+    transitNetworkNoHealthCount:
+      type: integer
+      description: number of transit sites with No health (score of --)
+      format: int64
+      example: 2
+    transitNetworkPoorHealthCount:
+      type: integer
+      description: number of transit sites with Poor health (score of 0-40)
+      format: int64
+      example: 2
+    transitNetworkFairHealthCount:
+      type: integer
+      description: number of transit sites with Fair health (score of 40-80)
+      format: int64
+      example: 0
+    fabricDeviceCount:
+      type: integer
+      description: total number of Fabric Devices across all fabric sites
+      format: int64
+      example: 15
+    p1IssueCount:
+      type: integer
+      description: the number of p1 issues
+      format: int64
+      example: 1
+    p2IssueCount:
+      type: integer
+      description: the number of p2 issues
+      format: int64
+      example: 10
+    networkSegmentProtocol:
+      type: string
+      description: type of fabric deployment
+      example: LISP
+      enum:
+      - LISP
+      - EVPN
+      - UNKNOWN
+      - HYBRID
+    FabricSummary_protocolSummaries:
+      type: object
+      properties:
+        fabricSiteGoodHealthCount:
+          $ref: '#/components/schemas/fabricSiteGoodHealthCount'
+        fabricSiteCount:
+          $ref: '#/components/schemas/fabricSiteCount'
+        fabricSiteGoodHealthPercentage:
+          $ref: '#/components/schemas/fabricSiteGoodHealthPercentage'
+        fabricSiteNoHealthCount:
+          $ref: '#/components/schemas/fabricSiteNoHealthCount'
+        fabricSitePoorHealthCount:
+          $ref: '#/components/schemas/fabricSitePoorHealthCount'
+        fabricSiteFairHealthCount:
+          $ref: '#/components/schemas/fabricSiteFairHealthCount'
+        l3VnGoodHealthCount:
+          $ref: '#/components/schemas/l3VnGoodHealthCount'
+        l3VnCount:
+          $ref: '#/components/schemas/l3VnCount'
+        l3VnGoodHealthPercentage:
+          $ref: '#/components/schemas/l3VnGoodHealthPercentage'
+        l3VnNoHealthCount:
+          $ref: '#/components/schemas/l3VnNoHealthCount'
+        l3VnFairHealthCount:
+          $ref: '#/components/schemas/l3VnFairHealthCount'
+        l3VnPoorHealthCount:
+          $ref: '#/components/schemas/l3VnPoorHealthCount'
+        l2VnGoodHealthCount:
+          $ref: '#/components/schemas/l2VnGoodHealthCount'
+        l2VnCount:
+          $ref: '#/components/schemas/l2VnCount'
+        l2VnGoodHealthPercentage:
+          $ref: '#/components/schemas/l2VnGoodHealthPercentage'
+        l2VnNoHealthCount:
+          $ref: '#/components/schemas/l2VnNoHealthCount'
+        l2VnPoorHealthCount:
+          $ref: '#/components/schemas/l2VnPoorHealthCount'
+        l2VnFairHealthCount:
+          $ref: '#/components/schemas/l2VnFairHealthCount'
+        transitNetworkGoodHealthCount:
+          $ref: '#/components/schemas/transitNetworkGoodHealthCount'
+        transitNetworkCount:
+          $ref: '#/components/schemas/transitNetworkCount'
+        transitNetworkGoodHealthPercentage:
+          $ref: '#/components/schemas/transitNetworkGoodHealthPercentage'
+        transitNetworkNoHealthCount:
+          $ref: '#/components/schemas/transitNetworkNoHealthCount'
+        transitNetworkPoorHealthCount:
+          $ref: '#/components/schemas/transitNetworkPoorHealthCount'
+        transitNetworkFairHealthCount:
+          $ref: '#/components/schemas/transitNetworkFairHealthCount'
+        fabricDeviceCount:
+          $ref: '#/components/schemas/fabricDeviceCount'
+        p1IssueCount:
+          $ref: '#/components/schemas/p1IssueCount'
+        p2IssueCount:
+          $ref: '#/components/schemas/p2IssueCount'
+        networkSegmentProtocol:
+          $ref: '#/components/schemas/networkSegmentProtocol'
+  responses:
+    FabricSummaryResponse:
+      description: Fabric summmary response covering all fabric entities and their health.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/FabricSummaryResponse'
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+    "401":
+      description: The client's authentication credentials included with the request are missing or invalid.
+    "403":
+      description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+    "404":
+      description: The client made a request for a resource that does not exist.
+    "405":
+      description: The client made a request using an http method which is not supported for this resource.
+    "415":
+      description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+    "500":
+      description: The server could not fulfill the request due to internal server error
+    "502":
+      description: There is a bad gateway connection from the client to the server.
+    defaultError:
+      description: Default error response
+  parameters:
+    callerId:
+      name: X-CALLER-ID
+      in: header
+      description: |
+        Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+      required: false
+      schema:
+        type: string
+        default: unknown
+      example: ui:client360
+    startTime:
+      name: startTime
+      in: query
+      description: |
+        Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      schema:
+        type: integer
+        format: int64
+      example: 1705348800000
+    endTime:
+      name: endTime
+      in: query
+      description: |
+        End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      required: false
+      schema:
+        type: integer
+        format: int64
+      example: 1705435200000
