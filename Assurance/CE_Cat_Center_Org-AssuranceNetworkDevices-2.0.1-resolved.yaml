@@ -307,7 +307,7 @@ paths:
           type: array
           items:
             type: string
-      - name: l2VirtualNetworkId
+      - name: l2Vn
         in: query
         description: |
           The L2 Virtual Network Id or list to Virtual Network Ids to filter the data
@@ -316,9 +316,9 @@ paths:
 
           Examples:
 
-          `?l2VirtualNetworkIds=virtualNetworkId
+          `?l2Vn=virtualNetworkId
 
-          `?l2VirtualNetworkIds=virtualNetworkId1&l2VirtualNetworkIds=virtualNetworkId2` (multiple virtualNetworkIds requested)
+          `?l2Vn=virtualNetworkId1&l2Vn=virtualNetworkId2` (multiple virtualNetworkId's requested)
         required: false
         style: form
         explode: true
@@ -326,7 +326,7 @@ paths:
           type: array
           items:
             type: string
-      - name: l3VirtualNetworkId
+      - name: l3Vn
         in: query
         description: |
           The L3 Virtual Network Id or list to Virtual Network Ids to filter the data
@@ -335,9 +335,9 @@ paths:
 
           Examples:
 
-          `?l3VirtualNetworkIds=virtualNetworkId
+          `?l3Vn=virtualNetworkId
 
-          `?l3VirtualNetworkIds=virtualNetworkId1&l3VirtualNetworkIds=virtualNetworkId2` (multiple virtualNetworkIds requested)
+          `?l3Vn=virtualNetworkId1&l3Vn=virtualNetworkId2` (multiple virtualNetworkId's requested)
         required: false
         style: form
         explode: true
@@ -369,7 +369,7 @@ paths:
         description: |
           The list of fabric device role.
           Examples:
-          fabricRole=BORDER, fabricRole=BORDER&role=EDGE (multiple fabric device roles with & separator)
+          fabricRole=BORDER, fabricRole=BORDER&fabricRole=EDGE (multiple fabric device roles with & separator)
         required: false
         style: form
         explode: true
@@ -647,7 +647,7 @@ paths:
           type: array
           items:
             type: string
-      - name: l2VirtualNetworkId
+      - name: l2Vn
         in: query
         description: |
           The L2 Virtual Network Id or list to Virtual Network Ids to filter the data
@@ -656,9 +656,9 @@ paths:
 
           Examples:
 
-          `?l2VirtualNetworkIds=virtualNetworkId
+          `?l2Vn=virtualNetworkId
 
-          `?l2VirtualNetworkIds=virtualNetworkId1&l2VirtualNetworkIds=virtualNetworkId2` (multiple virtualNetworkIds requested)
+          `?l2Vn=virtualNetworkId1&l2Vn=virtualNetworkId2` (multiple virtualNetworkId's requested)
         required: false
         style: form
         explode: true
@@ -666,7 +666,7 @@ paths:
           type: array
           items:
             type: string
-      - name: l3VirtualNetworkId
+      - name: l3Vn
         in: query
         description: |
           The L3 Virtual Network Id or list to Virtual Network Ids to filter the data
@@ -675,9 +675,9 @@ paths:
 
           Examples:
 
-          `?l3VirtualNetworkIds=virtualNetworkId
+          `?l3Vn=virtualNetworkId
 
-          `?l3VirtualNetworkIds=virtualNetworkId1&l3VirtualNetworkIds=virtualNetworkId2` (multiple virtualNetworkIds requested)
+          `?l3Vn=virtualNetworkId1&l3Vn=virtualNetworkId2` (multiple virtualNetworkId's requested)
         required: false
         style: form
         explode: true
@@ -709,7 +709,7 @@ paths:
         description: |
           The list of fabric device role.
           Examples:
-          fabricRole=BORDER, fabricRole=BORDER&role=EDGE (multiple fabric device roles with & separator)
+          fabricRole=BORDER, fabricRole=BORDER&fabricRole=EDGE (multiple fabric device roles with & separator)
         required: false
         style: form
         explode: true
@@ -1186,7 +1186,7 @@ components:
           $ref: '#/components/schemas/FabricDetails'
         switchPoeDetails:
           $ref: '#/components/schemas/SwitchPoEDetails'
-        fabricMetrics:
+        fabricMetricsDetails:
           $ref: '#/components/schemas/FabricHealth'
       description: Network Devices details with health and configuration
       allOf:
@@ -1694,11 +1694,11 @@ components:
           items:
             type: string
             description: The fabric role of the device
-        fabricName:
+        fabricSiteName:
           type: string
           description: The device assigned fabric site name
           example: TestFabricSiteName
-        transitFabricList:
+        transitFabrics:
           type: array
           example:
           - transitSite1
@@ -1709,16 +1709,16 @@ components:
         l2Vns:
           type: array
           example:
-          - l2vn1
-          - l2vn2
+          - l2Vn1
+          - l2Vn2
           items:
             type: string
             description: The list of L2 virtual networks
         l3Vns:
           type: array
           example:
-          - l3vn1
-          - l3vn2
+          - l3Vn1
+          - l3Vn2
           items:
             type: string
             description: The list of L3 virtual networks
@@ -1733,7 +1733,7 @@ components:
     FabricHealth:
       type: object
       properties:
-        fabricScore:
+        overallFabricScore:
           type: integer
           description: Overall score for all fabric impacting kpi's.
           format: int64
@@ -1937,7 +1937,7 @@ components:
           type: number
           description: Amount of total allocated system power (watts) in switch from the total powerBudget
           example: 690
-        availablePower:
+        powerRemaining:
           type: number
           description: Total power (watts) available for allocation not currently in use
           example: 1692.2
@@ -2004,7 +2004,7 @@ components:
           type: number
           description: Amount of total allocated system power  in switch
           example: 690
-        moduleAvailablePower:
+        modulePowerRemaining:
           type: number
           description: Total power available for allocation
           example: 1692.2
@@ -2329,7 +2329,7 @@ components:
       - fabricSiteId
       - networkProtocol
       - l3Vns
-      - fabricScore
+      - overallFabricScore
       - tcpConnStatus
       - bgpBgpSiteStatus
       - vniStatusStatus
@@ -2411,7 +2411,7 @@ components:
       - wlcApLicenseInUse
       - wlcApLicenseAvailable
       - radioTrafficUtilization
-      - fabricScore
+      - overallFabricScore
       - fabricTransitScore
       - fabricSiteScore
       - fabricVnScore
@@ -2615,7 +2615,7 @@ components:
       - interferenceScore
       - airQualityScore
       - overallHealthScore
-      - fabricScore
+      - overallFabricScore
       - fabricTransitScore
       - fabricSiteScore
       - fabricVnScore
@@ -2672,7 +2672,7 @@ components:
         $ref: '#/components/schemas/NetworkDeviceView'
     NetworkDeviceView:
       type: string
-      description: "Views which are supported by this API. Each view represents a specific data set.\n1. **configuration** \n     name,managementIpAddress,macAddress,communicationState,collectionStatus,haStatus,lastBootTime,platformId,deviceFamily,serialNumber,deviceSeries,softwareVersion,productVendor,siteHierarchyId,siteHierarchy,deviceGroupHierarchyId,siteId,tagNames,stackType,osType,ringStatus,maintenanceModeEnabled,deviceRole,deviceType,wiredClientCount,wirelessClientCount,portCount,redundancyMode,featureFlagList,haLastResetReason,redundancyPeerStateDerived,redundancyPeerState,redundancyStateDerived,redundancyState\n2. **metrics**\n     name,managementIpAddress,macAddress,overallHealthScore,cpuUtilization,cpuScore,memory,memoryScore,avgTemperature,maxTemperature,discardScore,discardInterfaces,errorScore,errorInterfaces,interDeviceLinkScore,interDeviceConnectedDownInterfaces,linkUtilizationScore,freeTimerScore,freeTimer,packetPoolScore,packetPool,freeMemoryBufferScore,freeMemoryBuffer,wqePoolScore,wqePool,apCount,clientCount,noiseScore,utilizationScore,interferenceScore,airQualityScore,radioBand,noise,airQuality,interference,trafficUtil,utilization,clientCount\n3. **apConfiguration**\n    name,managementIpAddress,macAddress,policyTagName,apOpState,powerSaveMode,mode,resetReason,protocol,powerMode,connectedTime,ledFlashEnabled,ledFlashSeconds,subMode,homeApEnabled,powerType,apType,adminState,icapCapability,regulatoryDomain,ethernetMac,rfTagName,siteTagName,upTime,powerSaveModeCapable,powerProfile,flexGroup,powerCalendarProfile,apGroup\n4. **apRadio**\n    name,managementIpAddress,macAddress,slot,radioBand,noise,airQuality,interference,trafficUtil,utilization,clientCount\n5. **fabric**\n    fabricRole,transitFabricList,fabricName,l2Vns, fabricSiteId,networkProtocol,l3Vns            \n6. **fabricMetrics**\n    fabricScore,fabricTransitScore,fabricSiteScore, fabricVnScore, fabsiteFcpScore,fabsiteInfraScore, fabsiteFsconnScore, vnExitScore,vnFcpScore, vnStatusScore,vnServiceScore,transitControlPlaneScore, transitServicesScore,tcpConnScore,bgpBgpSiteScore, vniStatusScore,pubsubTransitConnScore, bgpPeerInfraVnScore,internetAvailScore,bgpEvpnScore, lispTransitConnScore,ctsEnvDataDownloadScore, pubsubInfraVnScore,peerScore,bgpPeerScore, remoteInternetAvailScore,bgpTcpScore,pubsubSessionScore, aaaStatusScore,lispCpConnScore,bgpPubsubSiteScore, mcastScore,portChannelScore  \n7. **poeDetails**\n    name,managementIpAddress,macAddress,switchPortCount,usedPortCount,freePortCount,\n    powerConsumed,poePowerConsumed,systemPowerConsumed,powerBudget,poePowerAllocated,systemPowerAllocated,availablePower,poeVersion,chassisCount,moduleCount\n8. **switchModules** \n  name,managementIpAddress,macAddress,moduleCount,moduleId,chassisId,modulePortCount,moduleUsedPortCount,moduleFreePortCount,modulePowerConsumed,modulePoePowerConsumed,moduleSystemPowerConsumed,modulePowerBudget,modulePoePowerAllocated,moduleSystemPowerAllocated,moduleAvailablePower,interfacePowerMax\n"
+      description: "Views which are supported by this API. Each view represents a specific data set.\n1. **configuration** \n     name,managementIpAddress,macAddress,communicationState,collectionStatus,haStatus,lastBootTime,platformId,deviceFamily,serialNumber,deviceSeries,softwareVersion,productVendor,siteHierarchyId,siteHierarchy,deviceGroupHierarchyId,siteId,tagNames,stackType,osType,ringStatus,maintenanceModeEnabled,deviceRole,deviceType,wiredClientCount,wirelessClientCount,portCount,redundancyMode,featureFlagList,haLastResetReason,redundancyPeerStateDerived,redundancyPeerState,redundancyStateDerived,redundancyState\n2. **metrics**\n     name,managementIpAddress,macAddress,overallHealthScore,cpuUtilization,cpuScore,memory,memoryScore,avgTemperature,maxTemperature,discardScore,discardInterfaces,errorScore,errorInterfaces,interDeviceLinkScore,interDeviceConnectedDownInterfaces,linkUtilizationScore,freeTimerScore,freeTimer,packetPoolScore,packetPool,freeMemoryBufferScore,freeMemoryBuffer,wqePoolScore,wqePool,apCount,clientCount,noiseScore,utilizationScore,interferenceScore,airQualityScore,radioBand,noise,airQuality,interference,trafficUtil,utilization,clientCount\n3. **apConfiguration**\n    name,managementIpAddress,macAddress,policyTagName,apOpState,powerSaveMode,mode,resetReason,protocol,powerMode,connectedTime,ledFlashEnabled,ledFlashSeconds,subMode,homeApEnabled,powerType,apType,adminState,icapCapability,regulatoryDomain,ethernetMac,rfTagName,siteTagName,upTime,powerSaveModeCapable,powerProfile,flexGroup,powerCalendarProfile,apGroup\n4. **apRadio**\n    name,managementIpAddress,macAddress,slot,radioBand,noise,airQuality,interference,trafficUtil,utilization,clientCount\n5. **fabric**\n    fabricRole,transitFabricList,fabricName,l2Vns, fabricSiteId,networkProtocol,l3Vns            \n6. **fabricMetrics**\n    overallFabricScore,fabricTransitScore,fabricSiteScore, fabricVnScore, fabsiteFcpScore,fabsiteInfraScore, fabsiteFsconnScore, vnExitScore,vnFcpScore, vnStatusScore,vnServiceScore,transitControlPlaneScore, transitServicesScore,tcpConnScore,bgpBgpSiteScore, vniStatusScore,pubsubTransitConnScore, bgpPeerInfraVnScore,internetAvailScore,bgpEvpnScore, lispTransitConnScore,ctsEnvDataDownloadScore, pubsubInfraVnScore,peerScore,bgpPeerScore, remoteInternetAvailScore,bgpTcpScore,pubsubSessionScore, aaaStatusScore,lispCpConnScore,bgpPubsubSiteScore, mcastScore,portChannelScore  \n7. **poeDetails**\n    name,managementIpAddress,macAddress,switchPortCount,usedPortCount,freePortCount,\n    powerConsumed,poePowerConsumed,systemPowerConsumed,powerBudget,poePowerAllocated,systemPowerAllocated,availablePower,poeVersion,chassisCount,moduleCount\n8. **switchModules** \n  name,managementIpAddress,macAddress,moduleCount,moduleId,chassisId,modulePortCount,moduleUsedPortCount,moduleFreePortCount,modulePowerConsumed,modulePoePowerConsumed,moduleSystemPowerConsumed,modulePowerBudget,modulePoePowerAllocated,moduleSystemPowerAllocated,moduleAvailablePower,interfacePowerMax\n"
       enum:
       - configuration
       - metrics
@@ -2856,7 +2856,7 @@ components:
       - fabricSiteId
       - networkProtocol
       - l3Vns
-      - fabricScore
+      - overallFabricScore
       - fabricTransitScore
       - fabricSiteScore
       - fabricVnScore
@@ -3321,7 +3321,7 @@ components:
       - fabricSiteId
       - networkProtocol
       - l3Vns
-      - fabricScore
+      - overallFabricScore
       - fabricTransitScore
       - fabricSiteScore
       - fabricVnScore
@@ -3421,7 +3421,7 @@ components:
       - fabricSiteId
       - networkProtocol
       - l3Vns
-      - fabricScore
+      - overallFabricScore
       - fabricTransitScore
       - fabricSiteScore
       - fabricVnScore
@@ -3956,8 +3956,8 @@ components:
         type: array
         items:
           type: string
-    l2VirtualNetworkIds:
-      name: l2VirtualNetworkId
+    l2Vns:
+      name: l2Vn
       in: query
       description: |
         The L2 Virtual Network Id or list to Virtual Network Ids to filter the data
@@ -3966,9 +3966,9 @@ components:
 
         Examples:
 
-        `?l2VirtualNetworkIds=virtualNetworkId
+        `?l2Vn=virtualNetworkId
 
-        `?l2VirtualNetworkIds=virtualNetworkId1&l2VirtualNetworkIds=virtualNetworkId2` (multiple virtualNetworkIds requested)
+        `?l2Vn=virtualNetworkId1&l2Vn=virtualNetworkId2` (multiple virtualNetworkId's requested)
       required: false
       style: form
       explode: true
@@ -3976,8 +3976,8 @@ components:
         type: array
         items:
           type: string
-    l3VirtualNetworkIds:
-      name: l3VirtualNetworkId
+    l3Vns:
+      name: l3Vn
       in: query
       description: |
         The L3 Virtual Network Id or list to Virtual Network Ids to filter the data
@@ -3986,9 +3986,9 @@ components:
 
         Examples:
 
-        `?l3VirtualNetworkIds=virtualNetworkId
+        `?l3Vn=virtualNetworkId
 
-        `?l3VirtualNetworkIds=virtualNetworkId1&l3VirtualNetworkIds=virtualNetworkId2` (multiple virtualNetworkIds requested)
+        `?l3Vn=virtualNetworkId1&l3Vn=virtualNetworkId2` (multiple virtualNetworkId's requested)
       required: false
       style: form
       explode: true
@@ -4022,7 +4022,7 @@ components:
       description: |
         The list of fabric device role.
         Examples:
-        fabricRole=BORDER, fabricRole=BORDER&role=EDGE (multiple fabric device roles with & separator)
+        fabricRole=BORDER, fabricRole=BORDER&fabricRole=EDGE (multiple fabric device roles with & separator)
       required: false
       style: form
       explode: true
