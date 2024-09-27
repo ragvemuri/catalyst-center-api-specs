@@ -26,7 +26,7 @@ paths:
       tags:
       - issues
       summary: Resolve the given lists of issues
-      description: Resolves the given list of issues. The response contains the list of issues which were successfully resoved as well as the issues which are failed to resovle.
+      description: "Resolves the given list of issues. The response contains the list of issues which were successfully resoved as well as the issues which are failed to resovle. After this API returns success response, it may take few seconds for the issue status to be updated if the system is heavily loaded. Please use `GET /dna/data/api/v1/assuranceIssues/{id}` API to fetch the details of a particular issue and verify `updatedTime`."
       operationId: resolveIssues
       parameters:
       - name: X-CALLER-ID
@@ -81,7 +81,7 @@ paths:
       tags:
       - issues
       summary: Ignore the given list of issues
-      description: Ignores the given list of issues. The response contains the list of issues which were successfully ignored as well as the issues which are failed to ignore.
+      description: "Ignores the given list of issues. The response contains the list of issues which were successfully ignored as well as the issues which are failed to ignore. After this API returns success response, it may take few seconds for the issue status to be updated if the system is heavily loaded. Please use `GET /dna/data/api/v1/assuranceIssues/{id}` API to fetch the details of a particular issue and verify `updatedTime`."
       operationId: ignoreIssues
       parameters:
       - name: X-CALLER-ID
@@ -136,7 +136,7 @@ paths:
       tags:
       - issues
       summary: Update the given issue by updating selected fields
-      description: Updates selected fields in the given issue. Currently the only field that can be updated is 'notes' field.
+      description: "Updates selected fields in the given issue. Currently the only field that can be updated is 'notes' field. After this API returns success response, it may take few seconds for the issue status to be updated if the system is heavily loaded. Please use `GET /dna/data/api/v1/assuranceIssues/{id}` API to fetch the details of a particular issue and verify `updatedTime`."
       operationId: updateIssue
       parameters:
       - name: X-CALLER-ID
