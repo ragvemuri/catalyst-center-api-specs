@@ -280,7 +280,6 @@ paths:
             - connectionSpeedFailureImpactedEntities
             - connectionSpeedFailureMetrics
             - apCount
-            - wirelessClientCount
       - name: limit
         in: query
         description: Maximum number of records to return
@@ -810,7 +809,6 @@ paths:
             - connectionSpeedFailureImpactedEntities
             - connectionSpeedFailureMetrics
             - apCount
-            - wirelessClientCount
       responses:
         "200":
           description: Response containing site anlytics details for one site
@@ -1723,7 +1721,6 @@ components:
       - connectionSpeedFailureImpactedEntities
       - connectionSpeedFailureMetrics
       - apCount
-      - wirelessClientCount
     SiteAnalyticsTrendResponseAttribute:
       type: string
       description: Field names which are supported by this trend API as response attributes
@@ -2317,7 +2314,6 @@ components:
           - connectionSpeedFailureImpactedEntities
           - connectionSpeedFailureMetrics
           - apCount
-          - wirelessClientCount
     slaBand:
       name: band
       in: query
