@@ -1,0 +1,1779 @@
+---
+openapi: 3.0.0
+info:
+  title: Assurance Sites Energy API
+  description: "### This collection of APIs offers insights into the energy usage data for Sites within the Catalyst Center.\nBelow are some of the important attributes related to energy.\nNote that, for a specific queried site, the values below include data from the queried site as well as all sites below it in the hierarchy. For example, the `energyConsumed` value for the *Global* site entry will correspond to the total energy consumed by all devices in all sites below the *Global* site.\n    \n|Attributes | Description |\n| --- | --- |\n| `energyConsumed` | Energy consumed by devices in kWh.|\n| `estimatedCost` | Estimated cost based on unit price in US dollars.|    \n| `estimatedEmission` | Estimated emission of green house equivalent gases in CO2e. The value is calculated from energy consumption and carbon intensity.|\n| `carbonIntensity` | Estimated carbon intensity for the area in gCO2eq/kWh.|\n| `numberOfDevices` | Number of devices returning energy data.|\n\n## Asynchronous APIs\nAll endpoints of the Sites Energy APIs are asynchronous, which means there are two main steps for querying sites energy data, one to generate the request task ID, and another to get the response data. This process is as follows.\n1. Make request to API to generate intended sites energy data. For a list of supported query options, see main description of each endpoint. The response will be a 202 HTTP code with information regarding the generated taskId for this submitted request and the URL to poll the status of this task (e.g., */dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191*).\n2. Once the status is completed, the response data will be retrievable using the method GET of the same sites energy API endpoint by providing the query parameter `taskId` (e.g., */dna/data/api/v1/energy/sites?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191*). When a *taskId* is provided in a given request, all others query parameters are ignored.\n"
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Cisco Catalyst Center License
+    url: https://www.cisco.com/c/en/us/products/collateral/software/dna-software-ebook-cte.html
+  version: 1.0.1
+externalDocs:
+  description: Catalyst Center Developer API resources
+  url: https://developer.cisco.com/dnacenter/
+servers:
+- url: https://developer.cisco.com/data/api/v1
+tags:
+- name: energy
+  description: Operations related to retrieving overall energy information for Catalyst Center Devices
+  externalDocs:
+    description: Catalyst Center Assurance user guide
+    url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
+paths:
+  /dna/data/api/v1/energy/sites:
+    get:
+      tags:
+      - energy
+      summary: Get sites energy
+      description: "Retrieves a list of sites with energy data based on the specified query parameters. The response includes the total energy data for the period between the provided start and end times. If the start and end times are not specified, the data for the last 24 hours is returned.\n\n  This API is asynchronous, which means there are two main steps using it, one to generate the request task ID, and another to get the response data. This process is as follows.\n\n  1. Make request to API to generate intended sites energy data. The response will be a 202 HTTP code with information regarding the generated taskId for this submitted request and the URL to poll the status of this task (e.g., */dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191*).\n  \n  2. Once the status is completed, the response data will be retrievable using the method GET of the same sites energy API endpoint by providing the query parameter `taskId` (e.g., */dna/data/api/v1/energy/sites?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191*). When a *taskId* is provided, all others query parameters are ignored."
+      operationId: readSitesEnergy
+      parameters:
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+
+          If `startTime` is not provided, API will default to one day before `endTime`.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+
+          If `endTime` is not provided, API will default to one day after `startTime`. If `startTime` is not provided either, API will default to current time.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          minimum: 1
+          type: integer
+          default: 500
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: sortBy
+        in: query
+        description: A field within the response to sort by.
+        schema:
+          type: string
+      - name: order
+        in: query
+        description: The sort order of the field ascending or descending.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteName
+        in: query
+        description: |
+          The name of the site. (Ex. `FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*San*, *San, San*`
+
+          Examples:
+
+          `?siteName=building1` (single siteName requested)
+
+          `?siteName=building1&siteName=building2&siteName=building3` (multiple siteNames requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteType
+        in: query
+        description: |
+          The type of the site. A site can be an area, building, or floor.
+
+          Default when not provided will be `[floor,building,area]`
+
+          Examples:
+
+          `?siteType=area` (single siteType requested)
+
+          `?siteType=area&siteType=building&siteType=floor` (multiple siteTypes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+          default: "floor,building,area"
+      - name: deviceCategory
+        in: query
+        description: "The list of device categories. Note that this filter specifies which devices will be included when calculating energy consumption values, rather than specifying the list of returned sites. \n\nExamples:\n\n`deviceCategory=Switch` (single device category requested)\n\n`deviceCategory=Switch&deviceCategory=Router` (multiple device categories with comma separator)\n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: string
+      - name: siteId
+        in: query
+        description: |
+          The UUID of the site. (Ex. `flooruuid`)
+
+          Examples:
+
+          `?siteId=id1` (single id requested)
+
+          `?siteId=id1&siteId=id2&siteId=id3` (multiple ids requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: views
+        in: query
+        description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n### Response data proviced by each view:  \n\n1. **Site**\n[id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude]  \n\n2. **Energy**\n[energyConsumed, estimatedCost, estimatedEmission, carbonIntensity, numberOfDevices]   \n\nWhen this query parameter is not added the default summaries are:  \n\n**[site,energy]**\n\nExamples:\n\nviews=site (single view requested)\n\nviews=site,energy (multiple views requested)\n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          maxItems: 5
+          minItems: 1
+          type: array
+          items:
+            type: string
+          default:
+          - site
+          - energy
+      - name: attribute
+        in: query
+        description: |
+          Supported Attributes:
+
+          [id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude, energyConsumed, estimatedCost, estimatedEmission, carbonIntensity, numberOfDevices]
+
+          If length of attribute list is too long, please use 'view' param instead.
+
+          Examples:
+
+          attribute=siteHierarchy (single attribute requested)
+
+          attribute=siteHierarchy&attribute=energyConsumed (multiple attributes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          maxItems: 5
+          minItems: 1
+          type: array
+          items:
+            type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      - name: taskId
+        in: query
+        description: |
+          used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Site Energy Summaries Response model on success
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/SitesEnergyResponse'
+              example:
+                response:
+                - id: dc55b6c0-fc6f-4362-8078-9487c6d1119d
+                  siteHierarchy: Global/Canada/Ottawa/2000 innovation
+                  siteHierarchyId: /9722c7e7-90c5-4af0-a77b-fa007f391f64/bba8d2b8-f3cb-45bd-9a0c-ded436246e0e/1cc17af5-387f-4fa9-82f9-b74bdc24df6b/dc55b6c0-fc6f-4362-8078-9487c6d1119d/
+                  siteType: building
+                  latitude: 45.342065
+                  longitude: -75.926259
+                  deviceCategories:
+                  - Switch
+                  - AccessPoint
+                  numberOfDevices: 2
+                  parentSiteId: 1cc17af5-387f-4fa9-82f9-b74bdc24df6b
+                  energyConsumed: 191697
+                  estimatedCost: 798
+                  estimatedEmission: 653.3
+                  carbonIntensity: 227.864
+                - id: 1cc17af5-387f-4fa9-82f9-b74bdc24df6b
+                  siteHierarchy: Global/Canada/Ottawa
+                  siteHierarchyId: /9722c7e7-90c5-4af0-a77b-fa007f391f64/bba8d2b8-f3cb-45bd-9a0c-ded436246e0e/1cc17af5-387f-4fa9-82f9-b74bdc24df6b/
+                  siteType: area
+                  deviceCategories:
+                  - Switch
+                  - AccessPoint
+                  - OtherPOEDevices
+                  numberOfDevices: 3
+                  parentSiteId: bba8d2b8-f3cb-45bd-9a0c-ded436246e0e
+                  energyConsumed: 191697
+                  estimatedCost: 798
+                  estimatedEmission: 653.3
+                  carbonIntensity: 227.864
+                page:
+                  limit: 10
+                  offset: 1
+                  count: 20
+                  sortBy:
+                  - name: name
+                    order: asc
+                version: "1.0"
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/energy/sites/{id}:
+    get:
+      tags:
+      - energy
+      summary: Get site energy by ID
+      description: "Retrieve the energy summary data for a specific site based on the site ID.\n\n  This API is asynchronous, which means there are two main steps using it, one to generate the request task ID, and another to get the response data. This process is as follows.\n\n  1. Make request to API to generate intended sites energy data. The response will be a 202 HTTP code with information regarding the generated taskId for this submitted request and the URL to poll the status of this task (e.g., */dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191*).\n  \n  2. Once the status is completed, the response data will be retrievable using the method GET of the same sites energy API endpoint by providing the query parameter `taskId` (e.g., */dna/data/api/v1/energy/sites/bcbb2a8c-deae-4a3e-9459-0eb1dc12c192?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191*). When a *taskId* is provided, all others query parameters are ignored."
+      operationId: readSitesEnergyById
+      parameters:
+      - name: id
+        in: path
+        description: The UUID of the Site. (Ex. "6bef213c-19ca-4170-8375-b694e251101c")
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+
+          If `startTime` is not provided, API will default to one day before `endTime`.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+
+          If `endTime` is not provided, API will default to one day after `startTime`. If `startTime` is not provided either, API will default to current time.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: views
+        in: query
+        description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n### Response data proviced by each view:  \n\n1. **Site**\n[id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude]  \n\n2. **Energy**\n[energyConsumed, estimatedCost, estimatedEmission, carbonIntensity, numberOfDevices]   \n\nWhen this query parameter is not added the default summaries are:  \n\n**[site,energy]**\n\nExamples:\n\nviews=site (single view requested)\n\nviews=site,energy (multiple views requested)\n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          maxItems: 5
+          minItems: 1
+          type: array
+          items:
+            type: string
+          default:
+          - site
+          - energy
+      - name: attribute
+        in: query
+        description: |
+          Supported Attributes:
+
+          [id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude, energyConsumed, estimatedCost, estimatedEmission, carbonIntensity, numberOfDevices]
+
+          If length of attribute list is too long, please use 'view' param instead.
+
+          Examples:
+
+          attribute=siteHierarchy (single attribute requested)
+
+          attribute=siteHierarchy&attribute=energyConsumed (multiple attributes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          maxItems: 5
+          minItems: 1
+          type: array
+          items:
+            type: string
+      - name: deviceCategory
+        in: query
+        description: "The list of device categories. Note that this filter specifies which devices will be included when calculating energy consumption values, rather than specifying the list of returned sites. \n\nExamples:\n\n`deviceCategory=Switch` (single device category requested)\n\n`deviceCategory=Switch&deviceCategory=Router` (multiple device categories with comma separator)\n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      - name: taskId
+        in: query
+        description: |
+          used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Site Energy Summaries Response model on success
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/SiteEnergyResponse'
+              example:
+                response:
+                  id: dc55b6c0-fc6f-4362-8078-9487c6d1119d
+                  siteHierarchy: Global/Canada/Ottawa/2000 innovation
+                  siteHierarchyId: /9722c7e7-90c5-4af0-a77b-fa007f391f64/bba8d2b8-f3cb-45bd-9a0c-ded436246e0e/1cc17af5-387f-4fa9-82f9-b74bdc24df6b/dc55b6c0-fc6f-4362-8078-9487c6d1119d/
+                  siteType: building
+                  latitude: 45.342065
+                  longitude: -75.926259
+                  deviceCategories:
+                  - Switch
+                  - AccessPoint
+                  - OtherPOEDevices
+                  numberOfDevices: 6
+                  parentSiteId: 1cc17af5-387f-4fa9-82f9-b74bdc24df6b
+                  energyConsumed: 135423
+                  estimatedCost: 724.5
+                  estimatedEmission: 611.24
+                  carbonIntensity: 44.508
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/energy/sites/count:
+    get:
+      tags:
+      - energy
+      summary: Count sites energy
+      description: "Retrieves the total count of sites that provide energy data, filtered according to the specified query parameters.\n\n  This API is asynchronous, which means there are two main steps using it, one to generate the request task ID, and another to get the response data. This process is as follows.\n\n  1. Make request to API to generate intended sites energy data. The response will be a 202 HTTP code with information regarding the generated taskId for this submitted request and the URL to poll the status of this task (e.g., */dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191*).\n  \n  2. Once the status is completed, the response data will be retrievable using the method GET of the same sites energy API endpoint by providing the query parameter `taskId` (e.g., */dna/data/api/v1/energy/sites/count?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191*). When a *taskId* is provided, all others query parameters are ignored."
+      operationId: countSitesEnergy
+      parameters:
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+
+          If `startTime` is not provided, API will default to one day before `endTime`.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+
+          If `endTime` is not provided, API will default to one day after `startTime`. If `startTime` is not provided either, API will default to current time.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: siteHierarchy
+        in: query
+        description: |
+          The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+          Examples:
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+          `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteHierarchyId
+        in: query
+        description: |
+          The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+          Examples:
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+          `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteName
+        in: query
+        description: |
+          The name of the site. (Ex. `FloorName`)
+
+          This field supports wildcard asterisk (`*`) character search support. E.g. `*San*, *San, San*`
+
+          Examples:
+
+          `?siteName=building1` (single siteName requested)
+
+          `?siteName=building1&siteName=building2&siteName=building3` (multiple siteNames requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: siteType
+        in: query
+        description: |
+          The type of the site. A site can be an area, building, or floor.
+
+          Default when not provided will be `[floor,building,area]`
+
+          Examples:
+
+          `?siteType=area` (single siteType requested)
+
+          `?siteType=area&siteType=building&siteType=floor` (multiple siteTypes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+          default: "floor,building,area"
+      - name: deviceCategory
+        in: query
+        description: "The list of device categories. Note that this filter specifies which devices will be included when calculating energy consumption values, rather than specifying the list of returned sites. \n\nExamples:\n\n`deviceCategory=Switch` (single device category requested)\n\n`deviceCategory=Switch&deviceCategory=Router` (multiple device categories with comma separator)\n"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: string
+      - name: siteId
+        in: query
+        description: |
+          The UUID of the site. (Ex. `flooruuid`)
+
+          Examples:
+
+          `?siteId=id1` (single id requested)
+
+          `?siteId=id1&siteId=id2&siteId=id3` (multiple ids requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      - name: taskId
+        in: query
+        description: |
+          used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Reponse object containing total count of the records after applying requested filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/energy/sites/query:
+    get:
+      tags:
+      - energy
+      summary: Query sites energy for the given task ID
+      description: |
+        Gets query sites energy task result for the given task ID. First use the POST API (POST /dna/data/api/v1/energy/sites/query) to submit a request to query sites energy, which returns a task ID. Then use this GET API and pass the taskId as query parameter to get the sites energy data.
+      operationId: querySitesEnergyTask
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      - name: taskId
+        in: query
+        description: |
+          used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Site Energy Summaries Query Response model on success
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/SitesEnergyQueryResponse'
+              examples:
+                SiteEnergyQueryAPIWithViewPassedResponseExample:
+                  $ref: '#/components/examples/SiteEnergyQueryAPIWithViewPassedResponseExample'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+    post:
+      tags:
+      - energy
+      summary: Submit request to query sites energy
+      description: "Submits a request to retrieve a list of sites along with their energy data for a specified time range, based on the filters provided in the request body.\n\n  This API is asynchronous, which means there are two main steps using it, one to generate the request task ID, and another to get the response data. This process is as follows.\n\n  1. Make request to API to generate intended sites energy data. The response will be a 202 HTTP code with information regarding the generated taskId for this submitted request and the URL to poll the status of this task (e.g., */dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191*).\n  \n  2. Once the status is completed, the response data will be retrievable using the method GET of the same sites energy API endpoint by providing the query parameter `taskId` (e.g., */dna/data/api/v1/energy/sites/query?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191*). When a *taskId* is provided, all others query parameters are ignored.\n\n**The input payload contains the following fields**\n|Field Name | Description |\n| --- | --- |\n| `startTime` | Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive. If `startTime` is not provided, API will default to one day before `endTime`. |\n| `endTime` | End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive. If `endTime` is not provided, API will default to one day after `startTime`. If `startTime` is not provided either, API will default to current time. |\n| `views` | An optional field, similar to attributes, is useful when a large number of fields are required in the response data. The supported logical views and their respective fields are available in. Not specifying an option for \"view\" will return both energy and site fields. |\n| `attributes` | An optional filed that is used to get certain attributes in the response. The supported attributes are listed in `siteEnergyAttributes` model. Note: When view and attributes have different variants, the attributes returned in the response will be the union of both sets.\n| `filters` | Used to define one or more conditions. Only the devices that satisfy these conditions will be taken into consideration during the aggregation calculation. This field can be empty. The supported list of fiters are: **\"id\" - [eq, in], \"siteName\" - [eq, in, like], \"siteType\" - [eq, in], \"siteHierarchy\"-[eq, in, like], \"siteHierarchyId\" - [eq, in, like], and \"deviceCategory\" - [eq, in]**. Note that the \"devicecategory\" filter specifies which devices will be included when calculating energy consumption values, rather than specifying the list of returned sites.\n| `aggregateAttributes` | Specifies the name of the attribute on which the aggregate function should be applied when querying the data. The supported attribute names are listed in `SiteEnergyAggregateAttribute` model. |\n|`page`| contains **limit, offset and sortBy** fields. *limit* - Number of records to fetch in a page, *offset* - starting offset of data and *sortBy* - attribute name, order and function if you want to sort by the aggregated field. *sortBy* field is a list, but only single field sorting is supported on this API.|\n\n **How the filtering behavior works**\n\n\nThe filters field in each post body can be used in numerous ways:\n\nEach filter in the list of filters will applied ''together''.\n\nIn the example below, we would be filtering the sites to only include all the sites under \"/5b455edc-7c4e-4763-9bb3-5e826e20200f\". \n```\n\"filters\": [\n  {\n    key: \"siteHierarchyId\",\n    operator: \"like\",\n    value: \"/5b455edc-7c4e-4763-9bb3-5e826e20200f.*\"\n  }\n]\n```\n\nEach filter object can contrastingly utilize its `logical operator` to provide nested filtering functionality.\nPlease refer to the 'API Support Documentation' section to understand which fields and filters are supported.\n\n**How Pagination Works**\n\n'limit' field, is the total number of records you want to retrieve.\n\n'offset' field, is the record you want to start on.\n\nIf you have a limit of 100, each page would be viewed as 100 elements. So starting with an offset of 1, means look at the first page (starting from first record). To get the second page, you need to specify offset 101 (starting with the 101st element). \n\n'sortBy' field is a list, but only single field sorting is supported on this API.\n\nwith 'asc' (ascending), or 'desc' (descending) ordering\n\n**Below is the sample example of the request payload.**\n```\n  {\n    \"startTime\": 1706590800000,\n    \"endTime\": 1707496410913,\n    \"filters\": [\n        {\n            \"key\": \"siteHierarchyId\",\n            \"operator\": \"like\",\n            \"value\": \"/8df02c92-755e-4583-8c19-fb62ea75daf9/416e8ba7-87d6-43c4-943a-d33dd3a93236/006be1b2-ffea-4a0c-9783-1a845ccddfec*\"\n        }\n    ],\n    \"aggregateAttributes\": [\n        {\n            \"name\": \"deviceCount\",\n            \"function\": \"distinctCount\"\n        },\n        {\n            \"name\": \"energyConsumed\",\n            \"function\": \"sum\"\n        }\n    ],\n    \"page\": {\n        \"limit\": 100,\n        \"offset\": 1\n    }\n  }\n  \n```\n"
+      operationId: querySitesEnergy
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      requestBody:
+        description: Post body to query a list of site energy summaries
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SitesEnergyQueryRequest'
+            examples:
+              SiteEnergyQueryAPIWithViewPassedRequestExample:
+                $ref: '#/components/examples/SiteEnergyQueryAPIWithViewPassedRequestExample'
+        required: true
+      responses:
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+  /dna/data/api/v1/energy/sites/query/count:
+    get:
+      tags:
+      - energy
+      summary: Count sites energy for the given task ID
+      description: |
+        Gets count sites energy task result for the given task ID. First use the POST API (POST /dna/data/api/v1/energy/sites/query/count) to submit a request to count sites energy, which returns a task ID. Then use this GET API and pass the taskId as query parameter to get the sites energy data.
+      operationId: querySitesEnergyCountTask
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      - name: taskId
+        in: query
+        description: |
+          used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Reponse object containing total count of the records after applying requested filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+    post:
+      tags:
+      - energy
+      summary: Submit request to count sites energy from query
+      description: "Submits a request to retrieve the total count of sites that provide energy data, filtered according to the specified query parameters. The request payload format is similar to that used with the query API.\n\n  This API is asynchronous, which means there are two main steps using it, one to generate the request task ID, and another to get the response data. This process is as follows.\n\n  1. Make request to API to generate intended sites energy data. The response will be a 202 HTTP code with information regarding the generated taskId for this submitted request and the URL to poll the status of this task (e.g., */dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191*).\n  \n  2. Once the status is completed, the response data will be retrievable using the method GET of the same sites energy API endpoint by providing the query parameter `taskId` (e.g., */dna/data/api/v1/energy/sites/query/count?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191*). When a *taskId* is provided, all others query parameters are ignored.\n"
+      operationId: querySitesEnergyCount
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: intent
+      requestBody:
+        description: Payload to query site energy summaries count
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SitesEnergyQueryRequest'
+        required: true
+      responses:
+        "202":
+          description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asyncInfoContainer'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+        default:
+          description: Unexpected Error
+components:
+  schemas:
+    SiteEnergyView:
+      type: string
+      description: "Views which are supported by this API. Each view represents a specific data set.\n\n### Response data provided by each view:  \n\n1. **Site**\n[id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude]  \n\n2. **Energy**\n[energyConsumed, estimatedCost, estimatedEmission, carbonIntensity]   \n\nWhen this list is not added the default summaries will be: \n\n**[site,energy]**\n"
+      enum:
+      - site
+      - energy
+    SiteEnergyAttribute:
+      type: string
+      description: Field names which are supported by this API as attributes or filter keys
+      enum:
+      - id
+      - siteName
+      - siteHierarchy
+      - siteHierarchyId
+      - siteType
+      - latitude
+      - longitude
+      - numberOfDevices
+      - deviceCategories
+      - energyConsumed
+      - estimatedCost
+      - estimatedEmission
+      - carbonIntensity
+    SiteEnergyFilterKey:
+      type: string
+      description: Field names which are supported by this API for filter keys.
+      enum:
+      - id
+      - siteName
+      - siteHierarchy
+      - siteHierarchyId
+      - siteType
+      - latitude
+      - longitude
+      - numberOfDevices
+      - deviceCategory
+    SiteEnergyFilters:
+      type: array
+      description: |
+        List of filters to apply when querying the site energy data.
+
+        Supported operators are [in, eq, like]
+      example:
+      - key: siteHierarchy
+        operator: eq
+        value: Global/Ottawa
+      - key: siteHierarchyId
+        operator: in
+        value:
+        - /57df4064-82d8-4314-8059-00aaf146e6fe/20e0a1db-96ec-4b3e-b787-827edd12dc1e/
+        - /57df4064-82d8-4314-8059-00aaf146e6fe/
+      - logicalOperator: or
+        filters:
+        - key: siteHierarchy
+          operator: like
+          value: Global/.*
+        - key: siteHierarchyId
+          operator: eq
+          value: /57df4064-82d8-4314-8059-00aaf146e6fe/20e0a1db-96ec-4b3e-b787-827edd12dc1e/
+      items:
+        $ref: '#/components/schemas/SiteEnergyFilter'
+    SiteEnergyFilter:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/SiteEnergyFilterKey'
+        operator:
+          $ref: '#/components/schemas/Operator'
+        logicalOperator:
+          $ref: '#/components/schemas/LogicalOperator'
+        value:
+          type: object
+          description: |
+            Field value(s) to filter the data set. Array of values is used for   "in" or "out" operator. Values will be of whatever type the   specific field being filtered is defined with.
+
+            For other operators, filter value is of whatever type the specific   field being filtered is defined with.
+
+            In the case of an "and" or "or" operator, this values array will be   ignored, and the values arrays in each of the *nested filters*   will be used.
+        filters:
+          type: array
+          description: |
+            Nested array of filters in case of AND/OR based filters. Only one   level of nesting will be supported.
+
+            Structure of nested filter is the same as parent with all operators   supported except AND or OR.
+          items:
+            $ref: '#/components/schemas/SiteEnergyFilter'
+      description: |
+        In case of single filter, please use `key`, `operator` and `value` combination. If multiple filters need to be applied using a logical   operation, please use `logicalOperator` and populate the list of 'filters' with a   combination of FilterObj. Filters can be nested to build complex queries.
+    SiteEnergyResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/SiteEnergy'
+        version:
+          type: string
+          description: The version of the response
+          example: "2.0"
+    SitesEnergyResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          description: Successfully returned list of Sites Energy information
+          items:
+            $ref: '#/components/schemas/SiteEnergy'
+        page:
+          $ref: '#/components/schemas/SiteEnergyPaginationWithAggregateSortBy'
+        version:
+          type: string
+          description: The version of the response
+          example: "2.0"
+    SiteEnergy:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique ID of the Site.
+          example: 8f741bdf-788c-48f7-8ab1-017a826e4521
+        siteName:
+          type: string
+          description: Site name.
+          example: Site1
+        siteHierarchy:
+          type: string
+          description: Site hierarchy.
+          example: Global/Country1/Site1
+        siteHierarchyId:
+          type: string
+          description: Site hierarchy ID.
+          example: 8f741bdf-788c-48f7-8ab1-017a826e4521/8f741bdf-788c-48f7-8ab1-017a826e4521
+        siteType:
+          type: string
+          description: |
+            Type of site For aggregation requests, the value may be null since the unique identifier may not apply
+          enum:
+          - floor
+          - building
+          - area
+          - global
+        latitude:
+          type: number
+          description: Longitude of the site.
+          format: long
+          example: 37.418652
+        longitude:
+          type: number
+          description: Longitude of the site.
+          format: long
+          example: 121.919367
+        deviceCategories:
+          type: array
+          description: Device categories.
+          items:
+            type: string
+            format: string
+        energyConsumed:
+          type: number
+          description: Total energy consumed in kWh.
+          example: 2023
+        estimatedCost:
+          type: number
+          description: Estimate of the total financial cost.
+          example: 2524.23
+        estimatedEmission:
+          type: number
+          description: Estimate of the total emission in kg CO2.
+          example: 513
+        carbonIntensity:
+          type: number
+          description: Carbon intensity.
+          example: 123
+        numberOfDevices:
+          type: number
+          description: |
+            number of devices for the sites that are returning energy data.
+      description: Assurance site and corresponding energy details
+    SiteEnergyAggregateAttributeKey:
+      type: string
+      description: "Field name on which the aggregate function should be applied when querying the data. The fields supported for aggregation in the API response object are, [energyConsumed, estimatedEmission, estimatedCost, carbonIntensity]"
+      enum:
+      - energyConsumed
+      - estimatedEmission
+      - estimatedCost
+      - carbonIntensity
+      - numberOfDevices
+    SiteEnergyAggregateAttributesResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/SiteEnergyAggregateAttributesResponse_inner'
+    SitesEnergyQueryRequest:
+      type: object
+      properties:
+        views:
+          type: array
+          example:
+          - site
+          - energy
+          items:
+            $ref: '#/components/schemas/SiteEnergyView'
+        attributes:
+          type: array
+          example:
+          - estimatedEmission
+          - energyConsumed
+          items:
+            $ref: '#/components/schemas/SiteEnergyAttribute'
+        filters:
+          $ref: '#/components/schemas/SiteEnergyFilters'
+        aggregateAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteEnergyAggregateAttribute'
+        page:
+          $ref: '#/components/schemas/SiteEnergyPaginationWithAggregateSortBy'
+      allOf:
+      - $ref: '#/components/schemas/startAndEndTime'
+    SitesEnergyQueryResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          description: Successfully returned list of Sites Energy information
+          items:
+            allOf:
+            - $ref: '#/components/schemas/SiteEnergy'
+            - type: object
+              properties:
+                aggregateAttributes:
+                  $ref: '#/components/schemas/SiteEnergyAggregateAttributesResponse'
+              description: Response object for site energy summaries query API.
+        page:
+          $ref: '#/components/schemas/SiteEnergyPaginationWithAggregateSortBy'
+        version:
+          type: string
+          description: The version of the response
+          example: "2.0"
+    SiteEnergyAggregateAttribute:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/SiteEnergyAggregateAttributeKey'
+        function:
+          $ref: '#/components/schemas/Function'
+      example:
+        name: energyConsumed
+        function: sum
+    SiteEnergyPaginationWithAggregateSortBy:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: The reference to the limit applied in the Pagination Request.
+          example: 500
+        offset:
+          type: integer
+          description: |-
+            The reference to the record offset applied in the Pagination
+                    Request.
+          example: 1
+        count:
+          type: integer
+          description: Total number of records related to the resource after applying applicable filtering
+          example: 12500
+        sortBy:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteEnergySortByObj'
+      description: Pagination model with support for aggregate sort by.
+      example:
+        limit: 100
+        offset: 1
+        sortBy:
+        - name: energyConsumed
+          order: desc
+          function: sum
+    SiteEnergySortByObj:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/SiteEnergyAttribute'
+        order:
+          type: string
+          description: The sort order of the field ascending or descending.
+          example: asc
+          enum:
+          - asc
+          - desc
+        function:
+          $ref: '#/components/schemas/Function'
+      description: |
+        This is a unified sortBy model for attributes and aggregate attributes request. If function is specified then API will sort the collection on aggregated attribute. If function is not specified API will sort the collection on attribute.
+    asyncInfoContainer:
+      properties:
+        response:
+          $ref: '#/components/schemas/asyncInfo'
+        version:
+          type: string
+          example: "1.0"
+      description: |
+        Generic model that will contain the asynchronous task/process information
+    asyncInfo:
+      properties:
+        taskLocation:
+          type: string
+          description: url resource where the client can fetch their task's lifecycle updates
+          example: /dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191
+        taskId:
+          type: string
+          description: the specific task id associated with the specific request made
+          example: bcbb2a8c-deae-4a3e-9459-0eb1dc12c191
+      description: |
+        Generic model with information on the asynchronous task/process
+         that was created to handle an API request
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorObject'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured   processing this request.
+      example:
+        response:
+        - errorCode: 2600
+          message: Error message
+          detail: Error details
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    ErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: Application specific error code returned by the server
+        message:
+          type: string
+          description: Brief message about the error condition
+        detail:
+          type: string
+          description: "A more detailed explanation of the error condition the   parameter and its value, that caused the condition and why it caused it."
+    CountIntegerResponse:
+      title: Count Integer Response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/CountIntegerResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Reports
+    Operator:
+      type: string
+      description: Type of filter operator to use for querying data | in and out operator takes multiple values and applies the filters
+      enum:
+      - in
+      - neq
+      - lt
+      - gt
+      - lte
+      - gte
+      - eq
+      - notIn
+      - like
+    LogicalOperator:
+      type: string
+      description: |
+        Operator to use when attempting to apply a logical conjunction of more   than 1 filter
+
+        Logical operations include: 'and', 'or'.
+      enum:
+      - and
+      - or
+    Function:
+      type: string
+      description: Type of aggregate function to apply on the field when querying   data
+      example: sum
+      enum:
+      - sum
+      - min
+      - max
+      - avg
+      - count
+      - latest
+      - distinctCount
+      - median
+    startAndEndTime:
+      type: object
+      properties:
+        startTime:
+          type: integer
+          description: |
+            Start time from which the API queries the dataset related to the resource. It must be specified in terms of milliseconds since UNIX epoch. Value is inclusive.
+
+            If `startTime` is not provided, API will default to current time.
+          format: int64
+          example: 1705348800000
+        endTime:
+          type: integer
+          description: |
+            End time to which the API queries the dataset related to the resource. It must be specified in terms of milliseconds since UNIX epoch. Value is inclusive.
+
+            If `endTime` is not provided, API will default to current time.
+          format: int64
+          example: 1705435200000
+      description: start and end time of data set to query. Data is aggregated   based on time window and timestamped with window start time. | For example - 1. When data events falls in a 5 minute window from 12-13-2023 11:25 PM to 12-13-2023 11:30 PM the timestamp of the aggregated data is 12-13-2023 11:25 PM - 1702509900000 (Unix epochtime). If user needs data from 12-13-2023 11:25 PM to 12-13-2023 11:30 PM user must use below timestamps | startTime = 1702509900000 (12-13-2023 11:25 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM) | 2. When data to be queried is for 3 hours period from 12-13-2023 08:30 PM to 12-13-2023 11:30 PM. User must use below timestamps | startTime = 1702528200000 (12-13-2023 08:30 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM) | 2. When data to be queried is for 24 hours period from 12-12-2023 11:30 PM to 12-13-2023 11:30 PM. User must use below timestamps | startTime = 1702423800000 (12-12-2023 11:30 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM) | 3. When data to be queried is for 7 days period from 12-06-2023 11:30 PM to 12-13-2023 11:30 PM. User must use below timestamps | startTime = 1701905400000 (12-06-2023 11:30 PM) | endTime = 1702510199000 (12-13-2023 11:29:59 PM)
+    SiteEnergyAggregateAttributesResponse_inner:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/SiteEnergyAggregateAttributeKey'
+        function:
+          $ref: '#/components/schemas/Function'
+        value:
+          type: number
+          description: The value based on the functions requested in the input data
+    CountIntegerResponse_response:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The total number of records related to the resource
+          format: int64
+          example: 1000
+  responses:
+    SiteEnergyResponse:
+      description: Site Energy Summaries Response model on success
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/SiteEnergyResponse'
+          example:
+            response:
+              id: dc55b6c0-fc6f-4362-8078-9487c6d1119d
+              siteHierarchy: Global/Canada/Ottawa/2000 innovation
+              siteHierarchyId: /9722c7e7-90c5-4af0-a77b-fa007f391f64/bba8d2b8-f3cb-45bd-9a0c-ded436246e0e/1cc17af5-387f-4fa9-82f9-b74bdc24df6b/dc55b6c0-fc6f-4362-8078-9487c6d1119d/
+              siteType: building
+              latitude: 45.342065
+              longitude: -75.926259
+              deviceCategories:
+              - Switch
+              - AccessPoint
+              - OtherPOEDevices
+              numberOfDevices: 6
+              parentSiteId: 1cc17af5-387f-4fa9-82f9-b74bdc24df6b
+              energyConsumed: 135423
+              estimatedCost: 724.5
+              estimatedEmission: 611.24
+              carbonIntensity: 44.508
+    SitesEnergyResponse:
+      description: Site Energy Summaries Response model on success
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/SitesEnergyResponse'
+          example:
+            response:
+            - id: dc55b6c0-fc6f-4362-8078-9487c6d1119d
+              siteHierarchy: Global/Canada/Ottawa/2000 innovation
+              siteHierarchyId: /9722c7e7-90c5-4af0-a77b-fa007f391f64/bba8d2b8-f3cb-45bd-9a0c-ded436246e0e/1cc17af5-387f-4fa9-82f9-b74bdc24df6b/dc55b6c0-fc6f-4362-8078-9487c6d1119d/
+              siteType: building
+              latitude: 45.342065
+              longitude: -75.926259
+              deviceCategories:
+              - Switch
+              - AccessPoint
+              numberOfDevices: 2
+              parentSiteId: 1cc17af5-387f-4fa9-82f9-b74bdc24df6b
+              energyConsumed: 191697
+              estimatedCost: 798
+              estimatedEmission: 653.3
+              carbonIntensity: 227.864
+            - id: 1cc17af5-387f-4fa9-82f9-b74bdc24df6b
+              siteHierarchy: Global/Canada/Ottawa
+              siteHierarchyId: /9722c7e7-90c5-4af0-a77b-fa007f391f64/bba8d2b8-f3cb-45bd-9a0c-ded436246e0e/1cc17af5-387f-4fa9-82f9-b74bdc24df6b/
+              siteType: area
+              deviceCategories:
+              - Switch
+              - AccessPoint
+              - OtherPOEDevices
+              numberOfDevices: 3
+              parentSiteId: bba8d2b8-f3cb-45bd-9a0c-ded436246e0e
+              energyConsumed: 191697
+              estimatedCost: 798
+              estimatedEmission: 653.3
+              carbonIntensity: 227.864
+            page:
+              limit: 10
+              offset: 1
+              count: 20
+              sortBy:
+              - name: name
+                order: asc
+            version: "1.0"
+    SitesEnergyQueryResponse:
+      description: Site Energy Summaries Query Response model on success
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/SitesEnergyQueryResponse'
+          examples:
+            SiteEnergyQueryAPIWithViewPassedResponseExample:
+              $ref: '#/components/examples/SiteEnergyQueryAPIWithViewPassedResponseExample'
+    AsyncResponse:
+      description: Response model for asynchronous APIs to use for providing corresponding task information to API caller
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/asyncInfoContainer'
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "500":
+      description: The server could not fulfill the request due to internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "1XX":
+      description: Informational Responses - The server received the request and sent an informational response.
+    "2XX":
+      description: "Successful Responses - The server received the client request, understood it, and accepted it."
+    "3XX":
+      description: Redirection Messages - The client must take additional action to complete the request.
+    "4XX":
+      description: Client Error Responses - The client request caused the error.
+    "5XX":
+      description: Server Error Responses - The server failed to fulfill the request.
+    defaultError:
+      description: Unexpected Error
+    "404":
+      description: The client made a request for a resource that does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    CountIntegerResponse:
+      description: Reponse object containing total count of the records after applying requested filters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CountIntegerResponse'
+  parameters:
+    startTime:
+      name: startTime
+      in: query
+      description: |
+        Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+
+        If `startTime` is not provided, API will default to one day before `endTime`.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: integer
+        format: int64
+      example: 1705348800000
+    endTime:
+      name: endTime
+      in: query
+      description: |
+        End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+
+        If `endTime` is not provided, API will default to one day after `startTime`. If `startTime` is not provided either, API will default to current time.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: integer
+        format: int64
+      example: 1705435200000
+    siteEnergyAttributes:
+      name: attribute
+      in: query
+      description: |
+        Supported Attributes:
+
+        [id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude, energyConsumed, estimatedCost, estimatedEmission, carbonIntensity, numberOfDevices]
+
+        If length of attribute list is too long, please use 'view' param instead.
+
+        Examples:
+
+        attribute=siteHierarchy (single attribute requested)
+
+        attribute=siteHierarchy&attribute=energyConsumed (multiple attributes requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        maxItems: 5
+        minItems: 1
+        type: array
+        items:
+          type: string
+    siteEnergyViews:
+      name: views
+      in: query
+      description: "The specific summary view being requested. This is an optional parameter which can be passed to get one or more of the specific health data summaries associated with sites.\n\n### Response data proviced by each view:  \n\n1. **Site**\n[id, siteHierarchy, siteHierarchyId, siteType, latitude, longitude]  \n\n2. **Energy**\n[energyConsumed, estimatedCost, estimatedEmission, carbonIntensity, numberOfDevices]   \n\nWhen this query parameter is not added the default summaries are:  \n\n**[site,energy]**\n\nExamples:\n\nviews=site (single view requested)\n\nviews=site,energy (multiple views requested)\n"
+      required: false
+      style: form
+      explode: true
+      schema:
+        maxItems: 5
+        minItems: 1
+        type: array
+        items:
+          type: string
+        default:
+        - site
+        - energy
+    siteDeviceCategories:
+      name: deviceCategory
+      in: query
+      description: "The list of device categories. Note that this filter specifies which devices will be included when calculating energy consumption values, rather than specifying the list of returned sites. \n\nExamples:\n\n`deviceCategory=Switch` (single device category requested)\n\n`deviceCategory=Switch&deviceCategory=Router` (multiple device categories with comma separator)\n"
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+          format: string
+    limit:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        minimum: 1
+        type: integer
+        default: 500
+    offset:
+      name: offset
+      in: query
+      description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+      schema:
+        minimum: 1
+        type: integer
+        default: 1
+    sortBy:
+      name: sortBy
+      in: query
+      description: A field within the response to sort by.
+      schema:
+        type: string
+    order:
+      name: order
+      in: query
+      description: The sort order of the field ascending or descending.
+      schema:
+        type: string
+        default: asc
+        enum:
+        - asc
+        - desc
+    siteHierarchies:
+      name: siteHierarchy
+      in: query
+      description: |
+        The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. `Global/AreaName/BuildingName/FloorName`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*/San*, */San, /San*`
+
+        Examples:
+
+        `?siteHierarchy=Global/AreaName/BuildingName/FloorName` (single siteHierarchy requested)
+
+        `?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2` (multiple siteHierarchies requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteHierarchyIds:
+      name: siteHierarchyId
+      in: query
+      description: |
+        The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. `globalUuid/areaUuid/buildingUuid/floorUuid`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*uuid*, *uuid, uuid*`
+
+        Examples:
+
+        `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid `(single siteHierarchyId requested)
+
+        `?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2` (multiple siteHierarchyIds requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteNames:
+      name: siteName
+      in: query
+      description: |
+        The name of the site. (Ex. `FloorName`)
+
+        This field supports wildcard asterisk (`*`) character search support. E.g. `*San*, *San, San*`
+
+        Examples:
+
+        `?siteName=building1` (single siteName requested)
+
+        `?siteName=building1&siteName=building2&siteName=building3` (multiple siteNames requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    siteTypes:
+      name: siteType
+      in: query
+      description: |
+        The type of the site. A site can be an area, building, or floor.
+
+        Default when not provided will be `[floor,building,area]`
+
+        Examples:
+
+        `?siteType=area` (single siteType requested)
+
+        `?siteType=area&siteType=building&siteType=floor` (multiple siteTypes requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        default: "floor,building,area"
+    siteIds:
+      name: siteId
+      in: query
+      description: |
+        The UUID of the site. (Ex. `flooruuid`)
+
+        Examples:
+
+        `?siteId=id1` (single id requested)
+
+        `?siteId=id1&siteId=id2&siteId=id3` (multiple ids requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    callerId:
+      name: X-CALLER-ID
+      in: header
+      description: |
+        Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+      required: false
+      schema:
+        type: string
+        default: unknown
+      example: intent
+    taskId:
+      name: taskId
+      in: query
+      description: |
+        used to retrieve asynchronously processed & stored data. When this parameter is used, the rest of the request params will be ignored.
+      schema:
+        type: string
+  examples:
+    SiteEnergyQueryAPIWithViewPassedRequestExample:
+      summary: SiteEnergyQueryAPIWithViewPassedRequestExample
+      value:
+        startTime: 1710959466452
+        endTime: 1713210303205
+        filters:
+        - key: siteHierarchyId
+          operator: like
+          value: /9722c7e7-90c5-4af0-a77b-fa007f391f64/bba8d2b8-f3cb-45bd-9a0c-ded436246e0e.*
+        attributes: []
+        views:
+        - site
+        - energy
+        aggregateAttributes:
+        - name: energyConsumed
+          function: sum
+        page:
+          limit: 100
+          offset: 1
+        sortBy:
+        - name: energyConsumed
+          order: desc
+          function: sum
+    SiteEnergyQueryAPIWithViewPassedResponseExample:
+      summary: SiteEnergyQueryAPIWithViewPassedRequestExample
+      value:
+        response:
+        - siteId: dc55b6c0-fc6f-4362-8078-9487c6d1119d
+          siteHierarchy: Global/Canada/Ottawa/2000 innovation
+          siteHierarchyId: /9722c7e7-90c5-4af0-a77b-fa007f391f64/bba8d2b8-f3cb-45bd-9a0c-ded436246e0e/1cc17af5-387f-4fa9-82f9-b74bdc24df6b/dc55b6c0-fc6f-4362-8078-9487c6d1119d/
+          siteType: building
+          latitude: 45.342065
+          longitude: -75.926259
+          deviceCategories:
+          - Switch
+          - AccessPoint
+          - OtherPOEDevices
+          numberOfDevices: 6
+          parentSiteId: 1cc17af5-387f-4fa9-82f9-b74bdc24df6b
+          energyConsumed: 135423
+          estimatedCost: 724.5
+          estimatedEmission: 611.24
+          carbonIntensity: 44.508
+          aggregateAttributes:
+          - name: energyConsumed
+            function: sum
+            value: 191697
+        - siteId: 1cc17af5-387f-4fa9-82f9-b74bdc24df6b
+          siteHierarchy: Global/Canada/Ottawa
+          siteHierarchyId: /9722c7e7-90c5-4af0-a77b-fa007f391f64/bba8d2b8-f3cb-45bd-9a0c-ded436246e0e/1cc17af5-387f-4fa9-82f9-b74bdc24df6b/
+          siteType: area
+          deviceCategories:
+          - Switch
+          - AccessPoint
+          - OtherPOEDevices
+          numberOfDevices: 6
+          parentSiteId: bba8d2b8-f3cb-45bd-9a0c-ded436246e0e
+          energyConsumed: 135423
+          estimatedCost: 724.5
+          estimatedEmission: 611.24
+          carbonIntensity: 44.508
+          aggregateAttributes:
+          - name: energyConsumed
+            function: sum
+            value: 191697
+        - siteId: bba8d2b8-f3cb-45bd-9a0c-ded436246e0e
+          siteHierarchy: Global/Canada
+          siteHierarchyId: /9722c7e7-90c5-4af0-a77b-fa007f391f64/bba8d2b8-f3cb-45bd-9a0c-ded436246e0e/
+          siteType: area
+          deviceCategories:
+          - Switch
+          - AccessPoint
+          - OtherPOEDevices
+          numberOfDevices: 6
+          parentSiteId: 9722c7e7-90c5-4af0-a77b-fa007f391f64
+          energyConsumed: 135423
+          estimatedCost: 724.5
+          estimatedEmission: 611.24
+          carbonIntensity: 44.508
+          aggregateAttributes:
+          - name: energyConsumed
+            function: sum
+            value: 191697
+        page:
+          limit: 100
+          offset: 1
+          count: 6
+          sortBy:
+          - name: energyConsumed
+            order: desc
+            function: sum
+        version: "1.0"
