@@ -14,7 +14,7 @@ info:
 servers:
 - url: https://developer.cisco.com
 tags:
-- name: siteAnalytics
+- name: Site Analytics
   description: Operations related to Catalyst Center - Site Analytics
   externalDocs:
     description: Catalyst Center Assurance user guide
@@ -297,6 +297,7 @@ paths:
           default: 1
       - name: sortBy
         in: query
+        description: Field name on which sorting needs to be done.
         required: false
         style: form
         explode: true
@@ -856,8 +857,8 @@ paths:
     get:
       tags:
       - siteAnalytics
-      summary: Get site analytics summary data for a taskId
-      description: "Gets the summary analytics data for a given taskId. First use the POST API (POST /dna/data/api/v1/siteKpiSummaries/summaryAnalytics) to request summary analytics, which returns a task id. Then use this GET API and pass the taskId as query parameter to get the summary analytics data."
+      summary: Get site analytics summary data for the given task id
+      description: "Gets site analytics summary data for the given task id. First use the POST API (POST /dna/data/api/v1/siteKpiSummaries/summaryAnalytics) to request summary analytics, which returns a task id. Then use this GET API and pass the taskId as query parameter to get the summary analytics data."
       operationId: querySiteKpiSummariesSummaryAnalyticsTask
       parameters:
       - name: X-CALLER-ID
@@ -909,9 +910,9 @@ paths:
     post:
       tags:
       - siteAnalytics
-      summary: Get site analytics summary data
+      summary: Submit request for site analytics summary data
       description: |-
-        Gets the summary analytics data for a given site. This data is calculated by aggregating anlytics of all child sites of the given site id. If site id is not provided, then data is aggregated from all child sites of Global site.
+        Submits the task to get summary analytics data for a given site. This data is calculated by aggregating anlytics of all child sites of the given site id. If site id is not provided, then data is aggregated from all child sites of Global site.
         **The input payload contains the following fields**
         |Field Name | Description |
         | --- | --- |
@@ -989,8 +990,8 @@ paths:
     get:
       tags:
       - siteAnalytics
-      summary: Get site analytics trend data
-      description: "Gets the trend analytics data for a given taskId. First use the POST API (POST /dna/data/api/v1/siteKpiSummaries/trendAnalytics) to request trend analytics, which returns a task id. Then use this GET API and pass the taskId as query parameter to get the summary analytics data."
+      summary: Get site analytics trend data for the given task id
+      description: "Gets site analytics trend data for the given task id. First use the POST API (POST /dna/data/api/v1/siteKpiSummaries/trendAnalytics) to request trend analytics, which returns a task id. Then use this GET API and pass the taskId as query parameter to get the summary analytics data."
       operationId: querySiteKpiSummariesTrendAnalyticsTask
       parameters:
       - name: X-CALLER-ID
@@ -1042,9 +1043,10 @@ paths:
     post:
       tags:
       - siteAnalytics
-      summary: Get site analytics trend data
+      summary: Submit request for site analytics trend data
       description: |-
-        Gets the trend analytics data for a given site. This data is calculated by aggregating anlytics of all child sites of the given site id. If site id is not provided, then data is aggregated from all child sites of Global site. This data can be used to find site analytics in different intervals over a period of time.
+        Submits the task to get site analytics trend data for a given site. This data is calculated by aggregating anlytics of all child sites of the given site id. If site id is not provided, then data is aggregated from all child sites of Global site. This data can be used to find site analytics in different intervals over a period of time.
+
         **The input payload contains the following fields**
         |Field Name | Description |
         | --- | --- |
@@ -1126,8 +1128,8 @@ paths:
     get:
       tags:
       - siteAnalytics
-      summary: Get Top N entities related to site analytics
-      description: "Gets the topN analytics data for a given taskId. First use the POST API (POST /dna/data/api/v1/siteKpiSummaries/topNAnalytics) to request topN analytics, which returns a task id. Then use this GET API and pass the taskId as query parameter to get the topN analytics data."
+      summary: Get Top N entities related to site analytics for the given task id
+      description: "Gets Top N entities related to site analytics for the given task id. First use the POST API (POST /dna/data/api/v1/siteKpiSummaries/topNAnalytics) to request topN analytics, which returns a task id. Then use this GET API and pass the taskId as query parameter to get the topN analytics data."
       operationId: querySiteKpiSummariesTopNAnalyticsTask
       parameters:
       - name: X-CALLER-ID
@@ -1179,8 +1181,8 @@ paths:
     post:
       tags:
       - siteAnalytics
-      summary: Get Top N entities related to site analytics
-      description: "Gets the Top N entites related based on site analytics for a given kpi type. The data is also filtered based on given filters. The entity type is determined by groupBy field.\n**The input payload contains the following fields**\n|Field Name | Description |\n| --- | --- |\n| `startTime` | start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |\n| `endTime` | end time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |\n| `topN` | the total number of records to retrive. This is a required input |\n| `groupBy` | specifies the attributes for grouping. This is mandatory field|\n| `filters`| used to define one or more conditions. Only the data that satisfy these filter conditions will be taken into consideration during the site analytics calculation. 'kpiType' filter is mandatory for this API|\n| `page`| contains **limit, offset** fields. *limit* - Number of records to be returned in response, *offset* - starting offset of data,         \n**The process for using this API is as follows**:\n\n1). Make request to API to generate intended summary analytics data.\n\n2). The success response will be a 202 HTTP code, with information regarding the generated taskId for this submitted request and the URL to poll the status of this task.\n\n\n Example: \"/dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191\"\n\n\n3). Once the task is completed, the response data will be retrievable using GET API, by providing the `taskId` query parameter:\n\nExample: GET /dna/data/api/v1/siteKpiSummaries/topNAnalytics?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191."
+      summary: Submit request for Top N entities related to site analytics
+      description: "Gets the Top N entites based on site analytics for a given kpi type. The data is also filtered based on given filters. The entity type is determined by groupBy field.\n\n**The input payload contains the following fields**\n|Field Name | Description |\n| --- | --- |\n| `startTime` | start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |\n| `endTime` | end time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |\n| `topN` | the total number of records to retrive. This is a required input |\n| `groupBy` | specifies the attributes for grouping. This is mandatory field|\n| `filters`| used to define one or more conditions. Only the data that satisfy these filter conditions will be taken into consideration during the site analytics calculation. 'kpiType' filter is mandatory for this API. Valid values for 'kpiType' filter are: `coverage`,`onboardingAttempts`, `onboardingDuration`,`roamingAttempts`,`roamingDuration`, `connectionSpeed`|\n| `page`| contains **limit, offset** fields. *limit* - Number of records to be returned in response, *offset* - starting offset of data,         \n**The process for using this API is as follows**:\n\n1). Make request to API to generate intended summary analytics data.\n\n2). The success response will be a 202 HTTP code, with information regarding the generated taskId for this submitted request and the URL to poll the status of this task.\n\n\n Example: \"/dna/data/api/v1/assuranceTasks/bcbb2a8c-deae-4a3e-9459-0eb1dc12c191\"\n\n\n3). Once the task is completed, the response data will be retrievable using GET API, by providing the `taskId` query parameter:\n\nExample: GET /dna/data/api/v1/siteKpiSummaries/topNAnalytics?taskId=bcbb2a8c-deae-4a3e-9459-0eb1dc12c191."
       operationId: querySiteKpiSummariesTopNAnalytics
       parameters:
       - name: X-CALLER-ID
@@ -2539,9 +2541,8 @@ components:
           limit: 10
           offset: 1
           sortBy:
-          - name: coverageAverage
+            name: coverageAverage
             order: asc
-          order: asc
     SiteAnalyticsQueryCountRequestExample1:
       description: This request has parent site filter.
       value:
