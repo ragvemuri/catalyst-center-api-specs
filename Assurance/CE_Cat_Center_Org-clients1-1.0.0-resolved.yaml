@@ -39,8 +39,6 @@ paths:
         in: query
         description: |
           Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
-
-          If `startTime` is not provided, API will default to current time.
         schema:
           type: integer
           format: int64
@@ -58,7 +56,7 @@ paths:
         in: query
         description: Maximum number of records to return
         schema:
-          maximum: 100
+          maximum: 500
           minimum: 1
           type: integer
           default: 100
@@ -351,8 +349,6 @@ paths:
         in: query
         description: |
           Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
-
-          If `startTime` is not provided, API will default to current time.
         schema:
           type: integer
           format: int64
@@ -457,8 +453,6 @@ paths:
         in: query
         description: |
           Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
-
-          If `startTime` is not provided, API will default to current time.
         schema:
           type: integer
           format: int64
@@ -1651,6 +1645,7 @@ components:
       type: object
       properties:
         limit:
+          maximum: 500
           minimum: 1
           type: integer
           description: Number of records to fetch in a page
@@ -3207,8 +3202,6 @@ components:
       in: query
       description: |
         Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
-
-        If `startTime` is not provided, API will default to current time.
       schema:
         type: integer
         format: int64
@@ -3223,12 +3216,12 @@ components:
         type: integer
         format: int64
       example: 1705435200000
-    limit_100:
+    limit_500:
       name: limit
       in: query
       description: Maximum number of records to return
       schema:
-        maximum: 100
+        maximum: 500
         minimum: 1
         type: integer
         default: 100
@@ -3509,7 +3502,7 @@ components:
           cursor: ""
           timeSortOrder: desc
     clientTrendResponseWithoutGroupBy:
-      summary: Client Trend Request without GroupBy
+      summary: Client Trend Response without GroupBy
       value:
         response:
         - timestamp: 1707759900000
