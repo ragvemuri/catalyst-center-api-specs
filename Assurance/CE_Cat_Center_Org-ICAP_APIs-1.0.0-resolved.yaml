@@ -1,0 +1,1718 @@
+---
+openapi: 3.0.0
+info:
+  title: Intelligent Capture (ICAP) Provisioning APIs
+  description: "APIs to manage Catalyst Center Assurance Intelligent Capture (ICAP) configurations. Catalyst Center ICAP is a suite of features for troubleshooting client onboarding issues by capturing client Wi-Fi packets and statistics for offline analysis.\n\n**Configurations supported include**\n\n|Configuration Type | Description |\n| --- | --- |\n| `ANOMALY` | This proactively monitors client onboarding issues. When an issue occurs, the AP device sends a client anomaly event, including a set of client Wi-Fi packets from the time of the event. |\n| `FULL` | This is to capture all Wi-Fi packets to and from a specific client MAC address. |\n| `ONBOARDING` | This captures client onboarding packets and client RF statistics with a 5-second granularity. |\n| `OTA` | This captures all Wi-Fi packets on a specific Wi-Fi band and channel. This feature can be used on up to two neighboring AP devices of an AP experiencing client-serving band or channel issues. |\n| `RFSTATS` | This captures both client and AP radio RF statistics with a 30-second granularity. |\n| `SPECTRUM` | This captures Wi-Fi Layer 2 signal strength and sources of interference across all supported Wi-Fi bands and channels. |\n\n**ICAP Configuration limitations**\n* The minimum duration for FULL packet capture is 30 minutes, and the maximum is 8 hours.\n* The duration for OTA packet capture is 15 minutes\n* ONBOARDING packet capture supports 16 unique client MAC addresses with up to 3 WLCs for each client MAC address. The duration of capture can be set between 30 minutes and 8 hours.\n* SPECTRUM settings can be enabled on a maximum of 10 APs.  The duration of SPECTRUM data is 10 minutes.\n* RFSTATS settings \n  * At AP level, the feature can be enabled on a maximum of 1000 APs\n  * At WLC level, the feature can be enabled only if Catalyst Center does not have more than 1,000 managed APs.\n  * Mixture of AP and WLC level configuration is not supported.\n* OTA settings\n  * Can have up to 2 APs with both support radio role sniffer, but 1 AP which supports AP mode sniffer. Consult AP hardware/software documetation about packet sniffing limitations. Minimum required AP software is IOSxe 17.11.  AP running AireOS is not supported.  AP must be in client-serving mode prior to enabling OTA on the AP.  Changing an AP from client-serving to AP mode sniffer is not supported when the AP supports radio role sniffer.  Most AP platforms support radio role sniffer at radio slot 0.  The radio must be admin/oper UP and in client-serving mode prior to using ICAP OTA on the AP radio.  Changing 2 or more radios of 1 AP from client-serving mode to radio role sniffer is not supported.  Enabling OTA is to change AP from client-serving to sniffer, which will force all clients at the radio to roam to neighboring APs.  Client network service experiences will be impacted.\n  \n  **WARNING:** Enalbing OTA will reset AP radio (or the AP device if OTA mode is \"AP\").  This will force all clients who are associating with the AP radio to roam to other AP devices.  Clients WIFI network experiences will be impacted.\n* ANOMALY Settings\n  * Must be applied at the WLC level, although AP-level ANOMALY is also supported. Applying ANOMALY at the AP level is intended for troubleshooting a specific client at a specific AP. Catalyst Center does not allow applying ANOMALY at both the WLC and AP levels simultaneously. The feature can be disabled on demand.\n  * Mixture of AP and WLC level configuration is not supported.\n* Applying ICAP configurations at the WLC level is to apply the configurations to all AP profiles known to the Catalyst Center.  Wireless controller devices must be managed and in good health prior to use ICAP features for troubleshooting client WIFI issues.\n"
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Cisco Catalyst Center License
+    url: https://www.cisco.com/c/en/us/products/collateral/software/dna-software-ebook-cte.html
+  version: 1.0.0
+externalDocs:
+  description: Catalyst Center Developer API resources
+  url: https://developer.cisco.com/dnacenter/
+servers:
+- url: https://developer.cisco.com
+tags:
+- name: direct-deploy
+  description: APIs to deploy ICAP configurations without previewing the intents.
+- name: preview-deploy
+  description: "APIs to preview, approve, and cancel (discard) ICAP provisioning intents."
+- name: status
+  description: APIs to check the status of ICAP deployment operation.
+- name: pre-deploy
+  description: (Note supported) These apis are for INPROGRESS validations before the deploy or the preview deploy operation.
+- name: resource
+  description: APIs to retrieve the resources that were previewed or deployed.
+paths:
+  /dna/intent/api/v1/icapSettings:
+    get:
+      tags:
+      - resource
+      summary: Retrieves deployed ICAP configurations while supporting basic filtering.
+      description: "Retrieves deployed ICAP configurations while supporting basic filtering.  \n\n**Configuration Status**\n\n|Status | Description |\n| --- | --- |\n| `INPROGRESS` | Configuration is deployed on the device. ICAP data is sent by the device to the Catalyst Center. Supported filters include captureType, clientMac, apId, and wlcId. |\n| `COMPLETE` | Configuration is removed from device. This information is used to retrieve ICAP data collected by the Catalyst Center while the features were enabled on the device. Supported filters include captureType, clientMac, apId, and wlcId. |\n| `SCHEDULED` | The configuration is scheduled to be deployed in the near future. Configurations in this state do not support filters, but pagination with limit and offset is supported. |\n"
+      operationId: getIcap
+      parameters:
+      - name: captureStatus
+        in: query
+        description: Catalyst Center ICAP configuration status
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - COMPLETE
+          - INPROGRESS
+          - SCHEDULED
+      - name: captureType
+        in: query
+        description: Catalyst Center ICAP configuration type
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          example: FULL
+          enum:
+          - ANOMALY
+          - FULL
+          - ONBOARDING
+          - OTA
+          - RFSTATS
+          - SPECTRUM
+      - name: clientMac
+        in: query
+        description: The client device MAC address in ICAP configuration
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          example: AA:AA:AA:AA:AA:01
+      - name: apId
+        in: query
+        description: The AP device's UUID.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: uuid
+          example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+      - name: wlcId
+        in: query
+        description: The wireless controller device's UUID
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: uuid
+          example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+      - name: offset
+        in: query
+        description: The first record to show for this page; the first record is numbered 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: limit
+        in: query
+        description: The number of records to show for this page.
+        schema:
+          maximum: 500
+          minimum: 1
+          type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PacketCaptureDeployedInfoListResponse'
+              examples:
+                captureSettings:
+                  $ref: '#/components/examples/CaptureSettingOutput'
+        "204":
+          description: "The request was successful, however no content was returned."
+        "206":
+          description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "409":
+          description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and timed-out.
+  /dna/intent/api/v1/icapSettings/configurationModels:
+    post:
+      tags:
+      - preview-deploy
+      summary: Creates an ICAP configuration intent for preview-approve.
+      description: |
+        This creates an ICAP configuration intent for preview approval. The intent is not deployed to the device until further preview-approve APIs are applied. This API is the first step in the preview-approve workflow, which consists of several APIs. Skipping any API in the process is not recommended for a complete preview-approve use case.
+
+        **POST Body**:  See **/dna/intent/api/v1/icapSettings/deploy** description
+
+        **The general guidline for preview-approve workflow is below**
+
+        **Step 1**: Use this API to POST the intent request.  The intent is not deployed to the device yet.  The TaskResponse body has the taskId UUID.  This taskId value is the previewAcitivityId in all subsequent APIs.  After this POST API, **DELETE /dna/intent/api/v1/icapSettings/configurationModels/{previewActivityId}** API could be used at any step to discard/cancel the intent.  A discarded intent complete the prevew-approve workflow, and so ICAP intent is not applied to the device.  The API response body includes a URL which should be used to GET the status of the task.  The task must be successfully complete before proceeding to the next step.  Otherwise, subsequent API in the preview-approve process may not be functioning well due to internal task timing.  A failed task at any step completes the preview-approve workflow process.
+
+        **Step 2**: Use **GET /dna/intent/api/v1/icapSettings/configurationModels/{previewActivityId}/networkDeviceStatusDetails** to check potential conficts.
+
+        **Step 3**: Use **POST /dna/intent/api/v1/icapSettings/{previewActivityId}/networkDevices/{networkDeviceId}/config** to generate device CLIs for preview-approve.  The response body of this POST has a task ID and a URL for checking the task status.  Task must be successfully complete before using the GET API to view CLIs.  A failed task at this step completes the preview-approve workflow.  This POST API requires the networkDeviceId, which is the value of the property wlcId in the **POST /dna/intent/api/icapSettings/configurationModels**.  Multiple POST requests, each with different wlcId value of the same previewActivityId, could be applied to generate CLIs for the device.  Each POST returns a task and must be checked before proceeding to the next step.  It is not recommended to proceed when there is one ore more task failure in this step.  When there is any task failure at this step, use **DELETE /dna/intent/api/v1/icapSettings/configurationModels/{previewActivityId}** to discard activity.
+
+        **Step 4**: Use **GET /dna/intent/api/v1/icapSettings/configurationModels/{previewAcitivityId}/networkDevices/{networkDeviceId}/config** to view the CLIs that will be applied to the device.
+
+        **Step 5**: Use **POST /dna/intent/api/v1/icapSettings/configurationModels/{previewActivityId}/deploy** to push the intent to device.  This complete the preview/approve workflow.  This POST returns a task, which should be checked for task status.
+
+
+        **NOTE: ONBOARDING, FULL, OTA, and SPECTRUM** have duration.  A "disable" task is scheduled to remove the ICAP intent at the duration expiring time.  Use **GET /dna/intent/api/v1/icap** API to retrieve the "disable" task ID.  This task ID could be used to preview the CLIs of the "disable" task.  However, steps of preview-approve workflow are not available after the duration has expired.
+      operationId: postConfigurationModel
+      parameters:
+      - name: previewDescription
+        in: query
+        description: The ICAP intent's preview-deploy description string
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          example: FULL for client AA:AA:AA:AA:AA:01 on WLC
+      requestBody:
+        description: Request payload to prepare for preview ICAP configuration.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PacketCaptureDeployInfoList'
+            examples:
+              FULL:
+                $ref: '#/components/examples/FULL'
+              ONBOARDING:
+                $ref: '#/components/examples/ONBOARDING'
+              RFSTATS on WLC:
+                $ref: '#/components/examples/RFSTATS_WLC'
+              RFSTATS on AP:
+                $ref: '#/components/examples/RFSTATS_AP'
+              ANOMALY on WLC:
+                $ref: '#/components/examples/ANOMALY_WLC'
+              ANOMALY on AP:
+                $ref: '#/components/examples/ANOMALY_AP'
+              SPECTRUM:
+                $ref: '#/components/examples/SPECTRUM'
+              OTA:
+                $ref: '#/components/examples/OTA'
+              OTA AP Mode Sniffer:
+                $ref: '#/components/examples/OTA_AP_Mode'
+              OTA Radio Mode Sniffer:
+                $ref: '#/components/examples/OTA_Radio_Role'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_202'
+        "204":
+          description: "The request was successful, however no content was returned."
+        "206":
+          description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "409":
+          description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and timed-out.
+  /dna/intent/api/v1/icapSettings/configurationModels/{id}/deleteDeploy:
+    post:
+      tags:
+      - preview-deploy
+      summary: Creates a ICAP configuration workflow for ICAP intent to remove the ICAP configuration on the device.
+      description: "Creates a ICAP configuration intent to remove the ICAP RFSTATS or ANOMALY configuration from the device. The task has not been applied to the device yet. Subsequent preview-approve workflow APIs must be used to complete the preview-approve process.  The path parameter 'id' can be retrieved from **GET /dna/intent/api/v1/icapSettings** API.\n\nThe response body has the taskId value for preview-approve.  The same workflow API steps (2 thru 5) as documented in the **POST /dna/intent/api/icapSettings/configurationModesl** apply after this POST API.\n\n**Note:**  ICAP configuration types (captureType) FULL, ONBOADING, OTA, and SPECTRUM have duration 'durationInMins'. A \"disable\" task has been deployed to be triggered at 'durantionInMins' time for removing the ICAP configuration on the device.  Use Direct-Deploy **POST /dna/intent/api/v1/icapSettings/deploy/{id}/deleteDeploy** to remove the configuration from the device if a shorter capture duration is desired. Although the disabled task is pre-scheduled for deployment, the CLIs are not yet available for preview. To preview the CLIs that will be applied to the device for the disabled task, use the same information in  **Step 3** and **Step 4** of the **POST /dna/intent/api/v1/icapSettings/configurationModels/deploy**.  The disable task's activity ID value can be obtained from **GET /dna/intent/api/icapSettings**\n\nThe API does not need a request body. If your API utility needs request body to run the API send an empty array [] in the body as a workaround. \n"
+      operationId: deleteIcapConfigurationModel
+      parameters:
+      - name: id
+        in: path
+        description: "A unique ID of the deployed ICAP object, which can be obtained from **GET /dna/intent/api/v1/icapSettings**"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+          example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        "204":
+          description: "The request was successful, however no content was returned."
+        "206":
+          description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "409":
+          description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and timed-out.
+  /dna/intent/api/v1/icapSettings/configurationModels/{previewActivityId}/networkDeviceStatusDetails:
+    get:
+      tags:
+      - preview-deploy
+      summary: Get ICAP configuration status per network device.
+      description: "Get ICAP configuration status per network device using the activity ID, which was returned in property \"taskId\" of the TaskResponse of the POST."
+      operationId: getConfigurationModelNetworkDeviceStatusDetails
+      parameters:
+      - name: previewActivityId
+        in: path
+        description: activity from the POST /deviceConfigugrationModels task response
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+          example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewDeviceStatusDetailsListResponse'
+        "204":
+          description: "The request was successful, however no content was returned."
+        "206":
+          description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "409":
+          description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and timed-out.
+  /dna/intent/api/v1/icapSettings/configurationModels/{previewActivityId}/networkDevices/{networkDeviceId}/config:
+    get:
+      tags:
+      - preview-deploy
+      summary: Retrieves the device's CLIs of the ICAP intent.
+      description: Returns the device's CLIs of the ICAP intent.
+      operationId: getDeviceConfigurationModelNetworkDeviceConfig
+      parameters:
+      - name: previewActivityId
+        in: path
+        description: activity from the POST /deviceConfigugrationModels task response
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+          example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+      - name: networkDeviceId
+        in: path
+        description: device id from intent/api/v1/network-device
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/NetworkDeviceId'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewListResponse'
+        "204":
+          description: "The request was successful, however no content was returned."
+        "206":
+          description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "409":
+          description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and timed-out.
+    post:
+      tags:
+      - preview-deploy
+      summary: Generates the device's CLIs of the ICAP configuration intent.
+      description: "Generates the device's CLIs of the ICAP intent for preview and approve prior to deploying the ICAP configuration intent to the device.  After deploying the configuration intent, generating intent CLIs will not be available for preview."
+      operationId: postConfigurationModelNetworkDeviceConfig
+      parameters:
+      - name: previewActivityId
+        in: path
+        description: activity from the POST /deviceConfigugrationModels task response
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+          example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+      - name: networkDeviceId
+        in: path
+        description: device id from intent/api/v1/network-device
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/NetworkDeviceId'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        "204":
+          description: "The request was successful, however no content was returned."
+        "206":
+          description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "409":
+          description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and timed-out.
+  /dna/intent/api/v1/icapSettings/configurationModels/{previewActivityId}:
+    delete:
+      tags:
+      - preview-deploy
+      summary: Discards the ICAP configuration intent by activity ID.
+      description: |
+        Discard the ICAP configuration intent by activity ID, which was returned in TaskResponse's property "taskId" at the beginning of the preview-approve workflow.  Discarding the intent can only be applied to intent activities that have not been deployed.
+
+        Note that ICAP type FULL, ONBOARDING, OTA, and SPECTRUM for the scheduled-disabled task cannot be discarded or cancelled because they have already deployed.  The feature can only be disabled by sending in a direct-deploy DELETE with API /dna/intent/api/v1/icapSettings/deploy/deployedId/{icapDeployedId}
+      operationId: deleteConfigurationModel
+      parameters:
+      - name: previewActivityId
+        in: path
+        description: activity from the POST /deviceConfigugrationModels task response
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+          example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        "204":
+          description: "The request was successful, however no content was returned."
+        "206":
+          description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "409":
+          description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and timed-out.
+  /dna/intent/api/v1/icapSettings/configurationModels/{previewActivityId}/deploy:
+    post:
+      tags:
+      - preview-deploy
+      summary: Deploys the ICAP configuration intent by activity ID.
+      description: |
+        Deploys the ICAP configuration intent by activity ID, which was returned in property "taskId" of the TaskResponse of the POST.  POST'ing the intent prior to generating the intent CLI for preview-approve has the same effect as direct-deploy'ing the intent to the device.
+
+        Generating of device's CLIs for preview-approve is not available for this activity ID after using this POST API.
+      operationId: postConfigurationModelDeploy
+      parameters:
+      - name: previewActivityId
+        in: path
+        description: activity from the POST /deviceConfigugrationModels task response
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+          example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_202_1'
+        "204":
+          description: "The request was successful, however no content was returned."
+        "206":
+          description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "409":
+          description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and timed-out.
+  /dna/intent/api/v1/icapSettings/count:
+    get:
+      tags:
+      - resource
+      summary: Retrieves the count of deployed ICAP configurations while supporting basic filtering.
+      description: Retrieves the count of deployed ICAP configurations while supporting basic filtering.
+      operationId: getIcapCount
+      parameters:
+      - name: captureType
+        in: query
+        description: Catalyst Center ICAP configuration type
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          example: FULL
+          enum:
+          - ANOMALY
+          - FULL
+          - ONBOARDING
+          - OTA
+          - RFSTATS
+          - SPECTRUM
+      - name: captureStatus
+        in: query
+        description: Catalyst Center ICAP configuration status
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - COMPLETE
+          - INPROGRESS
+          - SCHEDULED
+      - name: clientMac
+        in: query
+        description: The client device MAC address in ICAP configuration
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          example: AA:AA:AA:AA:AA:01
+      - name: apId
+        in: query
+        description: The AP device's UUID.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: uuid
+          example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+      - name: wlcId
+        in: query
+        description: The wireless controller device's UUID
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: uuid
+          example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegerResponse'
+        "204":
+          description: "The request was successful, however no content was returned."
+        "206":
+          description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "409":
+          description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and timed-out.
+  /dna/intent/api/v1/icapSettings/deploy:
+    post:
+      tags:
+      - direct-deploy
+      summary: Deploys the given ICAP configuration intent without preview and approve.
+      description: "Deploys the given ICAP intent without preview and approval. The response body contains a task object with a taskId and a URL for more information about the task. The deployment status of this ICAP intent can be found in the output of the URL.  \n\nFULL, ONBOARDING, OTA, and SPECTRUM configurations have a durationInMins field. A disable task is scheduled to remove the configuration from the device. Although the enablement of this ICAP configuration deployment has skipped the preview-deploy workflow, the disable task can still be previewed and deployed using the disableActivityId in the preview-deploy APIs to view the CLIs. See **Step 3** and **Step 4** in the **POST /dna/intent/api/v1/icapSettings/configurationModels** description for more information. Use the **GET /dna/intent/api/v1/icapSettings?captureStatus=INPROGRESS** API to obtain the disableActivityId value. It may take a few minutes for the disableActivityId (a UUID string) to become available. When it is not available, the **POST /dna/intent/api/v1/icapSettings/deploy/{id}/deleteDeploy** API is not ready to remove the ICAP configuration from the device.\n\n**POST Body**\n\nDepending on the ICAP feature (captureType) that the list of required fields in POST body is different.  All objects in the POST body must contain the same captureType value.  POST body object must have the following fields:\n\n* **ANOMALY**:<br/>\n  * At AP level:  captureType=ANOMALY, wlcId, apId\n  * At WLC level: captureType=ANOMALY, wlcId\n   \n* **FULL**:  captureType=FULL, wlcId, clientMac, durationInMins (30-480)\n\n* **OBOARDING**: captureType=ONBOARDING, wlcId, clientMac, durationInMins (30-480)\n\n* **OTA**: captureType=OTA, wlcId, apId, otaBand, otaChannel, otaChannelWidth, slots (1 element), otaMode (Optional.  RADIO or AP.  Default to RADIO), durationInMins=15 (optional)\n\n* **RFSTATS**:\n  * At AP level: captureType=RFSTATS, wlcId, apId\n  * At WLC level: captureType=RFSTATS, wlcId\n\n* **SPECTRUM**: captureType=SPECTRUM, wlcId, apId, slots, durationInMins=10 (Optional)\n"
+      operationId: postIcapDeploy
+      parameters:
+      - name: previewDescription
+        in: query
+        description: The ICAP intent's preview-deploy description string
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          example: FULL for client AA:AA:AA:AA:AA:01 on WLC
+      requestBody:
+        description: Request payload to deploy ICAP configuration.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PacketCaptureDeployInfoList'
+            examples:
+              FULL:
+                $ref: '#/components/examples/FULL'
+              ONBOARDING:
+                $ref: '#/components/examples/ONBOARDING'
+              RFSTATS on WLC:
+                $ref: '#/components/examples/RFSTATS_WLC'
+              RFSTATS on AP:
+                $ref: '#/components/examples/RFSTATS_AP'
+              ANOMALY on WLC:
+                $ref: '#/components/examples/ANOMALY_WLC'
+              ANOMALY on AP:
+                $ref: '#/components/examples/ANOMALY_AP'
+              SPECTRUM:
+                $ref: '#/components/examples/SPECTRUM'
+              OTA:
+                $ref: '#/components/examples/OTA'
+              OTA AP Mode Sniffer:
+                $ref: '#/components/examples/OTA_AP_Mode'
+              OTA Radio Mode Sniffer:
+                $ref: '#/components/examples/OTA_Radio_Role'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_202_2'
+        "204":
+          description: "The request was successful, however no content was returned."
+        "206":
+          description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "409":
+          description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and timed-out.
+  /dna/intent/api/v1/icapSettings/deploy/{id}/deleteDeploy:
+    post:
+      tags:
+      - direct-deploy
+      summary: Remove the ICAP configuration on the device without preview
+      description: |
+        Remove the ICAP configuration from the device by *id* without preview-deploy. The path parameter *id* can be retrieved from the **GET /dna/intent/api/v1/icapSettings** API. The response body contains a task object with a taskId and a URL. Use the URL to check the task status. ICAP FULL, ONBOARDING, OTA, and SPECTRUM configurations have a durationInMins field. A disable task is scheduled to remove the configuration from the device. Removing the ICAP intent should be done after the pre-scheduled disable task has been deployed.
+      operationId: deleteIcapDeploy
+      parameters:
+      - name: id
+        in: path
+        description: "A unique ID of the deployed ICAP object, which can be obtained from **GET /dna/intent/api/v1/icapSettings**"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+          example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        "204":
+          description: "The request was successful, however no content was returned."
+        "206":
+          description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "409":
+          description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and timed-out.
+  /dna/intent/api/v1/icapSettings/deviceDeployments:
+    get:
+      tags:
+      - status
+      summary: Get device deployment status.
+      description: Retrieves ICAP configuration deployment status(s) per device based on filter criteria.
+      operationId: getDeviceDeployments
+      parameters:
+      - name: deployActivityId
+        in: query
+        description: activity from the /deploy task response
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: uuid
+          example: 98762eeb-effe-4938-9371-ccf6dc2fe15e
+      - name: networkDeviceIds
+        in: query
+        description: "device ids, retrievable from the id attribute in intent/api/v1/network-device"
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            maxItems: 500
+            type: string
+            format: uuid
+      - name: offset
+        in: query
+        description: The first record to show for this page; the first record is numbered 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: limit
+        in: query
+        description: The number of records to show for this page.
+        schema:
+          maximum: 500
+          minimum: 1
+          type: integer
+      - name: sortBy
+        in: query
+        description: A property within the response to sort by.
+        schema:
+          type: string
+      - name: order
+        in: query
+        description: Whether ascending or descending order should be used to sort the response.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceDeploymentStatusListResponse'
+        "204":
+          description: "The request was successful, however no content was returned."
+        "206":
+          description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "409":
+          description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and timed-out.
+  /dna/intent/api/v1/icapSettings/deviceDeployments/count:
+    get:
+      tags:
+      - status
+      summary: Get device deployment status count.
+      description: Returns the count of device deployment status(s) based on filter criteria
+      operationId: getDeviceDeploymentsCount
+      parameters:
+      - name: deployActivityId
+        in: query
+        description: activity from the /deploy task response
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: uuid
+          example: 98762eeb-effe-4938-9371-ccf6dc2fe15e
+      - name: networkDeviceIds
+        in: query
+        description: "device ids, retrievable from the id attribute in intent/api/v1/network-device"
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            maxItems: 500
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountResponse'
+        "204":
+          description: "The request was successful, however no content was returned."
+        "206":
+          description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+        "409":
+          description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and timed-out.
+components:
+  schemas:
+    PacketCaptureDeployInfoItem:
+      required:
+      - captureType
+      - wlcId
+      type: object
+      properties:
+        id:
+          type: string
+          description: A unique ID that identifies this ICAP configuration that is currently applied on the device.  Use this ID value to remove ICAP configuration on device.  This value is not available after the ICAP configuration has been removed from the device.
+          format: uuid
+          example: 42444d12-c46f-4257-a8fd-89785ec81376
+        captureType:
+          type: string
+          description: Catalyst Center ICAP supported capture type
+          example: FULL
+          enum:
+          - FULL
+          - ONBOARDING
+          - OTA
+          - ANOMALY
+          - RFSTATS
+          - SPECTRUM
+        wlcId:
+          type: string
+          description: Wireless controller device at which the ICAP features are to be deployed.  This parameter is required for all captureType
+          format: uuid
+          example: 42444d12-c46f-4257-a8fd-89785ec81376
+        apId:
+          type: string
+          description: "AP device at which the ICAP features are to be deployed.  This parameter is required for RFSTATS at AP level, ANOMALY at AP level, SPECTRUM, and OTA"
+          format: uuid
+          example: 42444d12-c46f-4257-a8fd-89785ec81376
+        clientMac:
+          type: string
+          description: Client MAC address.  This is required for ONBOARDING and FULL.  All other captureType do not use this parameter
+          example: AA:AA:AA:AA:AA:01
+        slots:
+          type: array
+          description: The radio slot for the ICAP feature.  This is required for OTA and SPECTRUM.  All other captureType do not use this parameter.  OTA accepts 1 slot.  SPECTRUM could have multiple slots.
+          items:
+            type: integer
+        otaBand:
+          type: string
+          description: "The OTA band (2.4, 5, or 6).  This is used for OTA.  All other captureType do not use this parameter"
+          example: "2.4"
+        otaChannel:
+          type: integer
+          description: The channel number that AP will capture packets at the otaBand.  This parameter is used in OTA only.
+        otaChannelWidth:
+          type: integer
+          description: "The channel width (20, 40, 80, 160) at the band/channel that AP will capture packets.  This parameter is used in OTA only."
+        durationInMins:
+          type: integer
+          description: "The duration in minutes of the ICAP features.  This is used in ONBOARDING and FULL in the range of [30, 480].  Other captureType do not use this parameter.  OTA is set to 15 minutes.  SPECTRUM is set to 10 minutes."
+        deployedId:
+          type: string
+          description: A unique ID that identifies this ICAP configuration that is currently applied on the device.  Use this ID value to remove ICAP configuration on device.  This value is not available after the ICAP configuration has been removed from the device.
+          format: uuid
+          example: 42444d12-c46f-4257-a8fd-89785ec81376
+        deployActivityId:
+          type: string
+          description: A unique ID that identifies the deployment activity of this intent.
+          format: uuid
+          example: 42444d12-c46f-4257-a8fd-89785ec81376
+        disableActivityId:
+          type: string
+          description: "A unique ID that identifies the pre-scheduled disable activity which will be triggered when the ICAP feature durationInMins expires.  This value is applicable for ONBOARDING, FULL, OTA, and SPECTRUM.  This value could be used to view the CLI commands that will be deployed to device for disable the ICAP configuration on the device."
+          format: uuid
+          example: 42444d12-c46f-4257-a8fd-89785ec81376
+        name:
+          type: string
+          description: The ICAP intent's preview-deploy description string
+          example: The deployment activity name
+        createTime:
+          allOf:
+          - $ref: '#/components/schemas/EpochMilliseconds'
+          - description: create time of the device deployment status record; as measured in Unix epoch time in milliseconds
+          - example: 1699826101192
+        endTime:
+          allOf:
+          - $ref: '#/components/schemas/EpochMilliseconds'
+          - description: device provisioning end time; as measured in Unix epoch time in milliseconds
+          - example: 1699826442677
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DeviceStatus'
+          - description: provisioning status on the device
+          - example: SUCCESS
+        otaMode:
+          type: string
+          description: AP is to change the AP mode from client-serving to sniffer.  RADIO is to change the selected radio slot from client-serving to radio role sniffer.  Catalyst Center allows RADIO only when the AP platform supports radio role sniffer.  Default is RADIO if not provided
+          example: RADIO
+          enum:
+          - AP
+          - RADIO
+      description: |
+        A common definition of an ICAP configuration.  It depends on the value in type that certain field values in an ICAP configuration could be null (not applicable).
+      example: |
+        {"captureType": "FULL","wlcId": "9079ce39-25fe-4ab0-88cb-e89f5e700ddb", "clientMac": "AA:AA:AA:AA:AA:02", "durationInMins": 10}
+    PacketCaptureDeployInfoList:
+      type: array
+      description: A list of ICAP configuration intents
+      example:
+        FULL for client AA:AA:AA:AA:AA:01 on 2 WLC devices:
+        - captureType: FULL
+          durationInMins: 60
+          wlcId: 4dab2492-cead-4036-83d1-2e44b2211111
+          clientMac: AA:AA:AA:AA:AA:01
+        ONBOARDING for client AA:AA:AA:AA:AA:01 on 2 WLC devices:
+        - captureType: FULL
+          durationInMins: 60
+          wlcId: 4dab2492-cead-4036-83d1-2e44b2211111
+          clientMac: AA:AA:AA:AA:AA:01
+      items:
+        $ref: '#/components/schemas/PacketCaptureDeployInfoItem'
+    ActivityId:
+      type: string
+      description: activity id from intent/api/v1/activity
+      format: uuid
+      example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+    ConfigGroupName:
+      type: string
+      description: name of the config group that has been provisioned.
+      example: application.telemetry
+    ConfigGroupVersion:
+      type: integer
+      description: version of the config group that has been provisioned. version increments everytime for a provisioning operation.
+    DeviceDeployment:
+      required:
+      - configGroupName
+      - configGroupVersion
+      - deployActivityId
+      - networkDeviceId
+      - status
+      type: object
+      properties:
+        deployActivityId:
+          $ref: '#/components/schemas/ActivityId'
+        configGroupName:
+          $ref: '#/components/schemas/ConfigGroupName'
+        configGroupVersion:
+          $ref: '#/components/schemas/ConfigGroupVersion'
+        createTime:
+          allOf:
+          - $ref: '#/components/schemas/EpochMilliseconds'
+          - description: create time of the device deployment status record; as measured in Unix epoch time in milliseconds
+          - example: 1699826101192
+        endTime:
+          allOf:
+          - $ref: '#/components/schemas/EpochMilliseconds'
+          - description: device provisioning end time; as measured in Unix epoch time in milliseconds
+          - example: 1699826442677
+        error:
+          $ref: '#/components/schemas/DeviceError'
+        lastUpdateTime:
+          allOf:
+          - $ref: '#/components/schemas/EpochMilliseconds'
+          - description: last update time of the device deployment status record; as measured in Unix epoch time in milliseconds
+          - example: 1699826111352
+        networkDeviceId:
+          $ref: '#/components/schemas/NetworkDeviceId'
+        startTime:
+          allOf:
+          - $ref: '#/components/schemas/EpochMilliseconds'
+          - description: device provisioning start time; as measured in Unix epoch time in milliseconds
+          - example: 1699826098738
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DeviceStatus'
+          - description: provisioning status on the device
+          - example: SUCCESS
+    DeviceDeploymentStatusList:
+      type: array
+      items:
+        $ref: '#/components/schemas/DeviceDeployment'
+    DeviceDeploymentStatusListResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/DeviceDeploymentStatusList'
+        version:
+          type: string
+          example: "1.0"
+      example:
+        response:
+        - deployActivityId: c0fc8ffc-10e1-4402-8806-910e366959b6
+          networkDeviceId: 4dab2492-cead-4036-83d1-2e44b2213c54
+          configGroupName: f:assurance-icap ait:ONBOARDING s:Global wlc:4dab2492-cead-4036-83d1-2e44b2213c54 mac:AA:AA:AA:AA:AA:01 a:Enable op:CREATE
+          configGroupVersion: 2
+          status: Success
+          startTime: 1724968922353
+          endTime: 1724968935093
+        version: "1.0"
+    DeviceError:
+      type: object
+      properties:
+        message:
+          type: string
+          description: A brief message about the error
+          example: Connection to device timedout
+        remedy:
+          type: string
+          description: A brief message to suggest remedy to the failure
+          example: Upgrade the IOS version
+    DeviceStatus:
+      type: string
+      description: "Device status:\n  * 'NOT_STARTED' - provisioning has not started on this device\n  * 'SUCCESS' - provisioning has completed with a success\n  * 'FAILED' - provisioning has completed with a failure\n  * 'CONFIGURING' - provisioning is in progress\n  * 'ROLLBACK_SUCCESS' - provisioning has successfully rolled back to the previous version \n  * 'ROLLBACK_FAILURE' - there was a failure in rolling back to the previous version\n  * 'CANCELLED' - provisioning was cancelled by the user\n  * 'NOT_SUPPORTED' - provisioning cannot be done on the device as the device does not support it\n  * 'PENDING' - provisioning will start soon on the device\n"
+      enum:
+      - NOT_STARTED
+      - SUCCESS
+      - FAILED
+      - CONFIGURING
+      - ROLLBACK_SUCCESS
+      - ROLLBACK_FAILURE
+      - CANCELLED
+      - NOT_SUPPORTED
+      - PENDING
+    NetworkDeviceId:
+      type: string
+      description: Id of the device
+      format: uuid
+      example: efab65ed-dcbe-4857-999e-af3e477aed1a
+    Preview:
+      type: object
+      properties:
+        networkDeviceId:
+          $ref: '#/components/schemas/NetworkDeviceId'
+        previewItems:
+          $ref: '#/components/schemas/PreviewItems'
+        status:
+          $ref: '#/components/schemas/PreviewGenerationStatus'
+    PreviewDeviceStatusDetail:
+      type: object
+      properties:
+        networkDeviceId:
+          type: string
+          description: Id of the device
+          format: uuid
+          example: efab65ed-dcbe-4857-999e-af3e477aed1a
+        status:
+          $ref: '#/components/schemas/PreviewGenerationStatus'
+      description: status for device configuration preview
+    PreviewDeviceStatusDetailsList:
+      type: array
+      description: list of PreviewDeviceStatusDetail objects
+      items:
+        $ref: '#/components/schemas/PreviewDeviceStatusDetail'
+    PreviewDeviceStatusDetailsListResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/PreviewDeviceStatusDetailsList'
+        version:
+          type: string
+          example: "1.0"
+    PreviewGenerationStatus:
+      type: string
+      description: "Preview generation status:\n * 'Not Started' - preview generation has not started\n * 'In Progress' - preview generation is in progress\n * 'Success' - preview generation completed and was succesful \n * 'Failed' - preview generation completed with failure\n * 'Warning' - preview generation completed with warning\n"
+      enum:
+      - Not Started
+      - In Progress
+      - Success
+      - Failed
+      - Warning
+    PreviewItem:
+      type: object
+      properties:
+        configPreview:
+          type: string
+          description: the actual preview item. this is what will be configured on the device if the user decides to go ahead with the provisioning.
+          example: interface FortyGigabitEthernet1/1/2 device-tracking attach-policy IPDT_POLICY
+        configType:
+          type: string
+          description: |
+            Preview item type:
+             * 'CLI' - preview item is of type CLI (Command Line Interface)
+             * 'YANG' - preview item is of type Yang (data modeling language)
+          enum:
+          - CLI
+          - YANG
+        errorMessages:
+          type: array
+          items:
+            type: string
+            description: error messages during preview generation
+        name:
+          type: string
+          description: user friendly description of the preview item
+          example: Telemetry & Other Catalyst Center Settings
+    PreviewItems:
+      type: array
+      items:
+        $ref: '#/components/schemas/PreviewItem'
+    PreviewListResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/Preview'
+        version:
+          type: string
+          example: "1.0"
+    PacketCaptureDeployedInfoListResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/PacketCaptureDeployInfoItem'
+        version:
+          type: string
+          example: "1.0"
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/ErrorResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured processing this request.
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    TaskResponse:
+      title: Task Response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/TaskResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information about a task to track the status of an asynchronous operation.
+      externalDocs:
+        description: Asynchronous operations - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!asynchronous-apis/asynchronous-operations
+    IntegerResponse:
+      title: Integer Response
+      type: object
+      properties:
+        response:
+          type: integer
+          description: The reported value
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Reports an integer.
+    CountResponse:
+      title: Count Response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/CountResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: "Reports a count, for example, a total count of records in a given resource."
+    EpochMilliseconds:
+      minimum: 0
+      type: integer
+      description: A date and time represented as ***milliseconds*** since the Unix epoch.
+      format: int64
+      example: 1524880285900
+      externalDocs:
+        description: Unix time - Wikipedia
+        url: https://en.wikipedia.org/wiki/Unix_time
+    inline_response_202:
+      allOf:
+      - $ref: '#/components/schemas/TaskResponse'
+      - description: The task when complete will have the activity url in the resultLocation field. This activity can be used for subsequent preview operations.
+    inline_response_202_1:
+      allOf:
+      - $ref: '#/components/schemas/TaskResponse'
+      - description: The task when complete will have the activity url in the resultLocation field. The progress of this deploy operation can be tracked using the activity.
+    inline_response_202_2:
+      allOf:
+      - $ref: '#/components/schemas/TaskResponse'
+      - description: The task when complete will have the activity url in the resultLocation field. The progress of this deploy operation can be tracked using the activity.  The GET /intent/api/v1/icap with has the icapDeployedId for each ICAP intent in the deploy body.
+    ErrorResponse_response:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: The error code
+        message:
+          type: string
+          description: A message providing more context regarding the error
+        detail:
+          type: string
+          description: Detailed information regarding the error
+    TaskResponse_response:
+      type: object
+      properties:
+        taskId:
+          type: string
+          description: The UUID of the task
+          format: uuid
+          example: 85c95140-50fc-4a57-994d-db58d3afe6b3
+        url:
+          type: string
+          description: The path to the API endpoint to GET for information on the task
+          example: /intent/api/v1/task/85c95140-50fc-4a57-994d-db58d3afe6b3
+    CountResponse_response:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The reported count.
+  responses:
+    "204":
+      description: "The request was successful, however no content was returned."
+    "206":
+      description: "The GET request included a Range Header, and the server responded with the partial content matching the range."
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+    "401":
+      description: The client's authentication credentials included with the request are missing or invalid.
+    "403":
+      description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+    "404":
+      description: The client made a request for a resource that does not exist.
+    "409":
+      description: "The target resource is in a conflicted state (for example, an edit conflict where a resource is being edited by multiple users). Retrying the request later might succeed."
+    "415":
+      description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+    "500":
+      description: The server could not fulfill the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "501":
+      description: The server has not implemented the functionality required to fulfill the request.
+    "503":
+      description: The server is (temporarily) unavailable.
+    "504":
+      description: The server did not respond inside time restrictions and timed-out.
+  parameters:
+    configGroupName:
+      name: configGroupName
+      in: query
+      description: name of the config group that has been provisioned.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        example: application.telemetry
+    configGroupVersion:
+      name: configGroupVersion
+      in: query
+      description: version of the config group that has been provisioned. version increments everytime for a provisioning operation.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: integer
+        example: 5
+    deployActivityId:
+      name: deployActivityId
+      in: query
+      description: activity from the /deploy task response
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        format: uuid
+        example: 98762eeb-effe-4938-9371-ccf6dc2fe15e
+    networkDeviceId:
+      name: networkDeviceId
+      in: path
+      description: device id from intent/api/v1/network-device
+      required: true
+      style: simple
+      explode: false
+      schema:
+        $ref: '#/components/schemas/NetworkDeviceId'
+    networkDeviceIds:
+      name: networkDeviceIds
+      in: query
+      description: "device ids, retrievable from the id attribute in intent/api/v1/network-device"
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          maxItems: 500
+          type: string
+          format: uuid
+    previewActivityId:
+      name: previewActivityId
+      in: path
+      description: activity from the POST /deviceConfigugrationModels task response
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+        format: uuid
+        example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+    taskId:
+      name: taskId
+      in: path
+      description: task id from intent/api/v1/tasks
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+        format: uuid
+    captureType:
+      name: captureType
+      in: query
+      description: Catalyst Center ICAP configuration type
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        example: FULL
+        enum:
+        - ANOMALY
+        - FULL
+        - ONBOARDING
+        - OTA
+        - RFSTATS
+        - SPECTRUM
+    captureStatus:
+      name: captureStatus
+      in: query
+      description: Catalyst Center ICAP configuration status
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: string
+        enum:
+        - COMPLETE
+        - INPROGRESS
+        - SCHEDULED
+    clientMac:
+      name: clientMac
+      in: query
+      description: The client device MAC address in ICAP configuration
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        example: AA:AA:AA:AA:AA:01
+    apId:
+      name: apId
+      in: query
+      description: The AP device's UUID.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        format: uuid
+        example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+    wlcId:
+      name: wlcId
+      in: query
+      description: The wireless controller device's UUID
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        format: uuid
+        example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+    id:
+      name: id
+      in: path
+      description: "A unique ID of the deployed ICAP object, which can be obtained from **GET /dna/intent/api/v1/icapSettings**"
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+        format: uuid
+        example: 7f422eeb-effe-4938-9371-ccf6dc2fe15e
+    previewDescription:
+      name: previewDescription
+      in: query
+      description: The ICAP intent's preview-deploy description string
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        example: FULL for client AA:AA:AA:AA:AA:01 on WLC
+    oneBasedoffset:
+      name: offset
+      in: query
+      description: The first record to show for this page; the first record is numbered 1.
+      schema:
+        minimum: 1
+        type: integer
+        default: 1
+    limit:
+      name: limit
+      in: query
+      description: The number of records to show for this page.
+      schema:
+        maximum: 500
+        minimum: 1
+        type: integer
+    sortBy:
+      name: sortBy
+      in: query
+      description: A property within the response to sort by.
+      schema:
+        type: string
+    order:
+      name: order
+      in: query
+      description: Whether ascending or descending order should be used to sort the response.
+      schema:
+        type: string
+        default: asc
+        enum:
+        - asc
+        - desc
+  examples:
+    FULL:
+      summary: FULL for client AA:AA:AA:AA:AA:01 on 2 WLC devices
+      value:
+      - captureType: FULL
+        durationInMins: 60
+        wlcId: 4dab2492-cead-4036-83d1-2e44b2211111
+        clientMac: AA:AA:AA:AA:AA:01
+      - captureType: FULL
+        durationInMins: 60
+        wlcId: 4dab2492-cead-4036-83d1-2e44b22AAAAA
+        clientMac: AA:AA:AA:AA:AA:01
+    ONBOARDING:
+      summary: ONBOARDING for client AA:AA:AA:AA:AA:01 on 1 WLC
+      value:
+      - captureType: ONBOARDING
+        durationInMins: 60
+        wlcId: 4dab2492-cead-4036-83d1-2e44b2211111
+        clientMac: AA:AA:AA:AA:AA:01
+    RFSTATS_AP:
+      summary: RFSTATS on 1 AP
+      value:
+      - captureType: RFSTATS
+        wlcId: 4dab2492-cead-4036-83d1-2e44b2211111
+        apId: 4dab2492-cead-4036-83d1-2e44b22AAAAA
+    RFSTATS_WLC:
+      summary: RFSTATS on 1 WLC
+      value:
+      - captureType: RFSTATS
+        wlcId: 4dab2492-cead-4036-83d1-2e44b2211111
+    ANOMALY_AP:
+      summary: ANOMALY on 1 AP
+      value:
+      - captureType: ANOMALY
+        wlcId: 4dab2492-cead-4036-83d1-2e44b2211111
+        apId: 4dab2492-cead-4036-83d1-2e44b22AAAAA
+    ANOMALY_WLC:
+      summary: ANOMALY on 1 WLC
+      value:
+      - captureType: ANOMALY
+        wlcId: 4dab2492-cead-4036-83d1-2e44b2211111
+    SPECTRUM:
+      summary: "SPECTRUM on slot 0, 1, and 2"
+      value:
+      - captureType: SPECTRUM
+        wlcId: 4dab2492-cead-4036-83d1-2e44b2211111
+        apId: 4dab2492-cead-4036-83d1-2e44b22AAAAA
+        slots:
+        - 0
+        - 1
+        - 2
+    OTA:
+      summary: OTA (default radio role sniffer)
+      value:
+      - captureType: OTA
+        wlcId: 4dab2492-cead-4036-83d1-2e44b2211111
+        apId: 4dab2492-cead-4036-83d1-2e44b22AAAAA
+        slots:
+        - 0
+        otaBand: "2.4"
+        otaChannel: 7
+        otaChannelWidth: 20
+    OTA_AP_Mode:
+      summary: OTA (AP mode sniffer)
+      value:
+      - captureType: OTA
+        wlcId: 4dab2492-cead-4036-83d1-2e44b2211111
+        apId: 4dab2492-cead-4036-83d1-2e44b22AAAAA
+        slots:
+        - 0
+        otaBand: "5"
+        otaChannel: 32
+        otaChannelWidth: 40
+        otaMode: AP
+    OTA_Radio_Role:
+      summary: OTA (radio role sniffer)
+      value:
+      - captureType: OTA
+        wlcId: 4dab2492-cead-4036-83d1-2e44b2211111
+        apId: 4dab2492-cead-4036-83d1-2e44b22AAAAA
+        slots:
+        - 1
+        otaBand: "6"
+        otaChannel: 36
+        otaChannelWidth: 80
+        otaMode: RADIO
+    CaptureSettingOutput:
+      summary: captureSettingOutput
+      value:
+        response:
+        - name: FULL for AA:AA:AA:AA:AA:01 on WLC-20
+          slots:
+          - 0
+          - 1
+          - 2
+          otaBand: "2.4"
+          otaChannel: 7
+          otaChannelWidth: 20
+          id: 4dab2492-cead-4036-83d1-2e44b2212345
+          deployedId: 4dab2492-cead-4036-83d1-2e44b2212345
+          disableActivityId: 4dab2492-cead-4036-83d1-2e44b22abcdef
+          deployActivityId: 4dab2492-cead-4036-83d1-2e44b2255555
+          captureType: ONBOARDING
+          apId: 4dab2492-cead-4036-83d1-2e44b2255555
+          wlcId: 4dab2492-cead-4036-83d1-2e44b2213c54
+          clientMac: AA:AA:AA:AA:AA:01
+          createTime: 12345678901234
+          endTime: 12345679901234
+          durationInMins: 30
+          status: SUCCESS
+        version: "1.0"
