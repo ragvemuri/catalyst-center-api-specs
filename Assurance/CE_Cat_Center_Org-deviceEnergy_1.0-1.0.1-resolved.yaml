@@ -65,13 +65,11 @@ paths:
           minimum: 1
           type: integer
           default: 500
-      - name: offset
+      - name: cursor
         in: query
-        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        description: It's an opaque string field indicating the next record in the requested collection.
         schema:
-          minimum: 1
-          type: integer
-          default: 1
+          type: string
       - name: sortBy
         in: query
         description: A field within the response to sort by.
@@ -245,7 +243,7 @@ paths:
                   carbonIntensity: 123
                 page:
                   limit: 10
-                  offset: 1
+                  cursor: eyJ1dWlkX3Rlcm1zIjoiZTBlM2VkMDgtNjE5OS00ZmVmLWFiNDEtZjA4OTcwMTMzYjdkIn0=
                   count: 20
                   sortBy:
                   - name: name
@@ -316,13 +314,11 @@ paths:
           minimum: 1
           type: integer
           default: 500
-      - name: offset
+      - name: cursor
         in: query
-        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        description: It's an opaque string field indicating the next record in the requested collection.
         schema:
-          minimum: 1
-          type: integer
-          default: 1
+          type: string
       - name: sortBy
         in: query
         description: A field within the response to sort by.
@@ -500,7 +496,7 @@ paths:
                   carbonIntensity: 123
                 page:
                   limit: 10
-                  offset: 1
+                  cursor: eyJ1dWlkX3Rlcm1zIjoiZTBlM2VkMDgtNjE5OS00ZmVmLWFiNDEtZjA4OTcwMTMzYjdkIn0=
                   count: 20
                   sortBy:
                   - name: name
@@ -1148,7 +1144,7 @@ paths:
       tags:
       - energy
       summary: Query devices energy.
-      description: "Retrieves a list of network devices along with their energy data for a specified time range, based on the filters provided in the request body.\n\n**The input payload contains the following fields**\n|Field Name | Description |\n| --- | --- |\n| `startTime` | Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive. If `startTime` is not provided, API will default to one day before `endTime`. |\n| `endTime` | End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive. If `endTime` is not provided, API will default to one day after `startTime`. If `startTime` is not provided either, API will default to current time. |\n| `attributes` | An optional filed that is used to get certain attributes in the response. The supported attributes are listed in `networkDeviceEnergyAttributes` model. Note: When view and attributes have different variants, the attributes returned in the response will be the union of both sets. |\n| `views` | An optional field, similar to attributes, is useful when a large number of fields are required in the response data. The supported logical views and their respective fields are available in `networkDeviceEnergyViews`.  |\n| `filters` | Used to define one or more filter conditions. Only devices that satisfy these conditions will be taken into consideration during the aggregation calculation. This field can be empty. The supported list of filter keys and operators are: **\"id\" - [eq, in], \"deviceName\" - [eq, in, like], \"deviceCategory\" - [eq, in], \"deviceSubCategory\" - [eq, in], \"siteId\" - [eq, in], \"siteHierarchy\"-[eq, in, like],  \"siteHierarchyId\" - [eq, in, like]**.\n| `aggregateAttributes` | Specifies the name of the attribute on which the aggregate function should be applied when querying the data. The supported attribute names are listed in `DevicesEnergyAggregateAttribute` model. |        \n|`page`| Contains **limit, offset and sortBy** fields. *limit* - Number of records to fetch in a page, *offset* - starting offset of data and *sortBy* - attribute name, order and function if you want to sort by the aggregated field. *sortBy* field is a list, but only single field sorting is supported on this API.|\n\n**How the filtering behavior works**\n\nThe filters field in each post body can be used in numerous ways:\n\nEach filter in the list of filters will applied ''together''\n\nIn the example below, this would request filtering data from devices belonging to the ''Switch'' family `and` have series equal to ''cat9300'' or ''cat9400'.\n```\n\"filters\": [\n    {\n      \"key\": \"deviceCategory\",\n      \"operator\": \"eq\",\n      \"value\": \"Switch\"\n    },\n    {\n      \"key\": \"deviceSubCategory\",\n      \"operator\": \"in\",\n      \"value\": [\"cat9300\", \"cat9400\"]\n    }\n]\n```\n\nEach filter object can contrastingly utilize its `logical operator` to provide nested filtering functionality.\n\nIn the example below you can see a logical \"OR\" filter being applied using the nested filtering functionality:\n\nThe primary filter object does not have its 'key', 'value', or 'operator' fields populated. Only the 'logicalOperator' field is populated, to indicate the filters within the nested filters list are to be logically conjoined.\n\n```\n\"filters\": [\n    {\n      \"logicalOperator\": \"or\",\n      \"filters\": [\n        {\n          \"key\": \"deviceCategory\",\n          \"operator\": \"eq\",\n          \"value\": \"Switch\"\n        },\n        {\n          \"key\": \"deviceSubCategory\",\n          \"operator\": \"in\",\n          \"value\": [\"cat9300\", \"cat9400\"]\n        }\n      ]\n    }\n]\n```\nPlease refer to the 'API Support Documentation' section to understand which fields and filters are supported.\n\n**How Pagination Works**\n\n'limit' field, is the total number of records you want to retrieve.\n\n'offset' field, is the record you want to start on.\n\nIf you have a limit of 100, each page would be viewed as 100 elements. So starting with an offset of 1, means look at the first page (starting from first record). To get the second page, you need to specify offset 101 (starting with the 101st element). \n\n'sortBy' field is a list, but only single field sorting is supported on this API.\n\nwith 'asc' (ascending), or 'desc' (descending) ordering\n\n**Example 1**\n\nRequest body\n\n```\n{\n    \"startTime\": 1703195600000,\n    \"endTime\": 1707800400000,\n    \"filters\": [\n        {\n            \"key\": \"id\",\n            \"operator\": \"in\",\n            \"value\": [\"f4b8bceb-588b-490c-b726-3dd8caf65071\"]\n        }\n    ],\n    \"views\": [\"device\"],\n    \"attributes\": [\"siteHierarchy\"],\n    \"page\": {\n        \"limit\": 100,\n        \"offset\": 1\n    }\n}\n```\n\nResponse:\n\n``` {\n    \"response\": [\n            {\n                \"id\": \"f4b8bceb-588b-490c-b726-3dd8caf65071\",\n                \"deviceName\": \"ott-sda-c9k-01.cisco.com\",\n                \"deviceCategory\": \"Switch\",\n                \"deviceSubCategory\": \"Cisco Catalyst 9300 Switch\",\n                \"siteHierarchy\": \"Global/Ottawa\"\n            }\n        ],\n        \"page\": {\n            \"limit\": 100,\n            \"offset\": 1,\n            \"count\": 1,\n            \"sortBy\": null\n        },\n        \"version\": \"1.0\"\n    }\n```\n"
+      description: "Retrieves a list of network devices along with their energy data for a specified time range, based on the filters provided in the request body.\n\n**The input payload contains the following fields**\n|Field Name | Description |\n| --- | --- |\n| `startTime` | Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive. If `startTime` is not provided, API will default to one day before `endTime`. |\n| `endTime` | End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive. If `endTime` is not provided, API will default to one day after `startTime`. If `startTime` is not provided either, API will default to current time. |\n| `attributes` | An optional filed that is used to get certain attributes in the response. The supported attributes are listed in `networkDeviceEnergyAttributes` model. Note: When view and attributes have different variants, the attributes returned in the response will be the union of both sets. |\n| `views` | An optional field, similar to attributes, is useful when a large number of fields are required in the response data. The supported logical views and their respective fields are available in `networkDeviceEnergyViews`.  |\n| `filters` | Used to define one or more filter conditions. Only devices that satisfy these conditions will be taken into consideration during the aggregation calculation. This field can be empty. The supported list of filter keys and operators are: **\"id\" - [eq, in], \"deviceName\" - [eq, in, like], \"deviceCategory\" - [eq, in], \"deviceSubCategory\" - [eq, in], \"siteId\" - [eq, in], \"siteHierarchy\"-[eq, in, like],  \"siteHierarchyId\" - [eq, in, like]**.\n| `aggregateAttributes` | Specifies the name of the attribute on which the aggregate function should be applied when querying the data. The supported attribute names are listed in `DevicesEnergyAggregateAttribute` model. |        \n|`page`| Contains **limit, cursor and sortBy** fields. *limit* - Number of records to fetch in a page, *cursor* - string field indicating the next record in the response list and *sortBy* - attribute name, order and function if you want to sort by the aggregated field. *sortBy* field is a list, but only single field sorting is supported on this API.|\n\n**How the filtering behavior works**\n\nThe filters field in each post body can be used in numerous ways:\n\nEach filter in the list of filters will applied ''together''\n\nIn the example below, this would request filtering data from devices belonging to the ''Switch'' family `and` have series equal to ''cat9300'' or ''cat9400'.\n```\n\"filters\": [\n    {\n      \"key\": \"deviceCategory\",\n      \"operator\": \"eq\",\n      \"value\": \"Switch\"\n    },\n    {\n      \"key\": \"deviceSubCategory\",\n      \"operator\": \"in\",\n      \"value\": [\"cat9300\", \"cat9400\"]\n    }\n]\n```\n\nEach filter object can contrastingly utilize its `logical operator` to provide nested filtering functionality.\n\nIn the example below you can see a logical \"OR\" filter being applied using the nested filtering functionality:\n\nThe primary filter object does not have its 'key', 'value', or 'operator' fields populated. Only the 'logicalOperator' field is populated, to indicate the filters within the nested filters list are to be logically conjoined.\n\n```\n\"filters\": [\n    {\n      \"logicalOperator\": \"or\",\n      \"filters\": [\n        {\n          \"key\": \"deviceCategory\",\n          \"operator\": \"eq\",\n          \"value\": \"Switch\"\n        },\n        {\n          \"key\": \"deviceSubCategory\",\n          \"operator\": \"in\",\n          \"value\": [\"cat9300\", \"cat9400\"]\n        }\n      ]\n    }\n]\n```\nPlease refer to the 'API Support Documentation' section to understand which fields and filters are supported.\n\n**How Pagination Works**\n\n'limit' field, is the total number of records you want to retrieve.\n\n'cursor' field, indicating the next record in the response list.\n\nIf you have a limit of 100, each page would be viewed as 100 elements. So starting with an empty cursor, means look at the first page (starting from first record). To get the second page, you need to specify cursor returned in the response of the first request.\n\n'sortBy' field is a list, but only single field sorting is supported on this API.\n\nwith 'asc' (ascending), or 'desc' (descending) ordering\n\n**Example 1**\n\nRequest body\n\n```\n{\n    \"startTime\": 1703195600000,\n    \"endTime\": 1707800400000,\n    \"filters\": [\n        {\n            \"key\": \"id\",\n            \"operator\": \"in\",\n            \"value\": [\"f4b8bceb-588b-490c-b726-3dd8caf65071\"]\n        }\n    ],\n    \"views\": [\"device\"],\n    \"attributes\": [\"siteHierarchy\"],\n    \"page\": {\n        \"limit\": 100,\n        \"cursor\": \"\"\n    }\n}\n```\n\nResponse:\n\n``` {\n    \"response\": [\n            {\n                \"id\": \"f4b8bceb-588b-490c-b726-3dd8caf65071\",\n                \"deviceName\": \"ott-sda-c9k-01.cisco.com\",\n                \"deviceCategory\": \"Switch\",\n                \"deviceSubCategory\": \"Cisco Catalyst 9300 Switch\",\n                \"siteHierarchy\": \"Global/Ottawa\"\n            }\n        ],\n        \"page\": {\n            \"limit\": 100,\n            \"cursor\": \"abcd123\",\n            \"count\": 1,\n            \"sortBy\": null\n        },\n        \"version\": \"1.0\"\n    }\n```\n"
       operationId: queryNetworkDevicesEnergy
       parameters:
       - name: X-CALLER-ID
@@ -1213,7 +1209,7 @@ paths:
       tags:
       - energy
       summary: Query clients energy
-      description: "Retrieves a list of client devices along with their energy data for a specified time range, based on the filters provided in the request body.\n\n**The input payload contains the following fields**\n|Field Name | Description |\n| --- | --- |\n| `startTime` | Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive. If `startTime` is not provided, API will default to one day before `endTime`. |\n| `endTime` | End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive. If `endTime` is not provided, API will default to one day after `startTime`. If `startTime` is not provided either, API will default to current time. |\n| `attributes` | An optional filed that is used to get certain attributes in the response. The supported attributes are listed in `clientDeviceEnergyAttributes` model. Note: When view and attributes have different variants, the attributes returned in the response will be the union of both sets. |\n| `views` | An optional field, similar to attributes, is useful when a large number of fields are required in the response data. The supported logical views and their respective fields are available in `clientDeviceEnergyViews`  |\n| `filters` | Used to define one or more filter conditions. Only devices that satisfy these conditions will be taken into consideration during the aggregation calculation. This field can be empty. The supported list of filter keys and operators are: **\"siteId\" - [\"eq\", \"in\"],\"siteHierarchy\"-[\"in\", \"eq\", \"like\"], \"siteHierarchyId\" - [\"in\", \"eq\", \"like\"], \"deviceCategory\" - [in, eq], \"deviceSubCategory\" - [in, eq], \"Id\" - [in, eq]**.\n| `aggregateAttributes` | specifies the name of the attribute on which the aggregate function should be applied when querying the data. The supported attribute names are listed in `DevicesEnergyAggregateAttribute` model. Supported functions today are just `sum`  |        \n|`page`| contains **limit, offset and sortBy** fields. *limit* - Number of records to fetch in a page, *offset* - starting offset of data and *sortBy* - attribute name, order and function if you want to sort by the aggregated field. *sortBy* field is a list, but only single field sorting is supported on this API.|\n\nPlease refer to the 'API Support Documentation' section to understand which fields and filters are supported.\n\n**How Pagination Works**\n\n'limit' field, is the total number of records you want to retrieve.\n\n'offset' field, is the record you want to start on.\n\nIf you have a limit of 100, each page would be viewed as 100 elements. So starting with an offset of 1, means look at the first page (starting from first record). To get the second page, you need to specify offset 101 (starting with the 101st element). \n\n'sortBy' field is a list, but only single field sorting is supported on this API.\n\nwith 'asc' (ascending), or 'desc' (descending) ordering\n"
+      description: "Retrieves a list of client devices along with their energy data for a specified time range, based on the filters provided in the request body.\n\n**The input payload contains the following fields**\n|Field Name | Description |\n| --- | --- |\n| `startTime` | Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive. If `startTime` is not provided, API will default to one day before `endTime`. |\n| `endTime` | End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive. If `endTime` is not provided, API will default to one day after `startTime`. If `startTime` is not provided either, API will default to current time. |\n| `attributes` | An optional filed that is used to get certain attributes in the response. The supported attributes are listed in `clientDeviceEnergyAttributes` model. Note: When view and attributes have different variants, the attributes returned in the response will be the union of both sets. |\n| `views` | An optional field, similar to attributes, is useful when a large number of fields are required in the response data. The supported logical views and their respective fields are available in `clientDeviceEnergyViews`  |\n| `filters` | Used to define one or more filter conditions. Only devices that satisfy these conditions will be taken into consideration during the aggregation calculation. This field can be empty. The supported list of filter keys and operators are: **\"siteId\" - [\"eq\", \"in\"],\"siteHierarchy\"-[\"in\", \"eq\", \"like\"], \"siteHierarchyId\" - [\"in\", \"eq\", \"like\"], \"deviceCategory\" - [in, eq], \"deviceSubCategory\" - [in, eq], \"Id\" - [in, eq]**.\n| `aggregateAttributes` | specifies the name of the attribute on which the aggregate function should be applied when querying the data. The supported attribute names are listed in `DevicesEnergyAggregateAttribute` model. Supported functions today are just `sum`  |        \n|`page`| Contains **limit, cursor and sortBy** fields. *limit* - Number of records to fetch in a page, *cursor* - string field indicating the next record in the response list and *sortBy* - attribute name, order and function if you want to sort by the aggregated field. *sortBy* field is a list, but only single field sorting is supported on this API.|\n\nPlease refer to the 'API Support Documentation' section to understand which fields and filters are supported.\n\n**How Pagination Works**\n\n'limit' field, is the total number of records you want to retrieve.\n\n'cursor' field, indicating the next record in the response list.\n\nIf you have a limit of 100, each page would be viewed as 100 elements. So starting with an empty cursor, means look at the first page (starting from first record). To get the second page, you need to specify cursor returned in the response of the first request.\n\n'sortBy' field is a list, but only single field sorting is supported on this API.\n\nwith 'asc' (ascending), or 'desc' (descending) ordering\n"
       operationId: queryClientDevicesEnergy
       parameters:
       - name: X-CALLER-ID
@@ -2365,12 +2361,11 @@ components:
           type: integer
           description: The reference to the limit applied in the Pagination Request.
           example: 500
-        offset:
-          type: integer
-          description: |-
-            The reference to the record offset applied in the Pagination
-                    Request.
-          example: 1
+        cursor:
+          type: string
+          description: "It's an opaque string field that indicates the next record in the requested collection. If no records remain, the API returns a response with a count of zero. The default value is an empty string, and the initial value must be an empty string. The cursor value is populated by the API in the response page block. If the user wants more records, the cursor in the subsequent request must be updated with the value from the previous response."
+          example: eyJ1dWlkX3Rlcm1zIjoiZTBlM2VkMDgtNjE5OS00ZmVmLWFiNDEtZjA4OTcwMTMzYjdkIn0=
+          default: ""
         count:
           type: integer
           description: Total number of records related to the resource after applying applicable filtering
@@ -2387,12 +2382,11 @@ components:
           type: integer
           description: The reference to the limit applied in the Pagination Request.
           example: 500
-        offset:
-          type: integer
-          description: |-
-            The reference to the record offset applied in the Pagination
-                    Request.
-          example: 1
+        cursor:
+          type: string
+          description: "It's an opaque string field that indicates the next record in the requested collection. If no records remain, the API returns a response with a count of zero. The default value is an empty string, and the initial value must be an empty string. The cursor value is populated by the API in the response page block. If the user wants more records, the cursor in the subsequent request must be updated with the value from the previous response."
+          example: eyJ1dWlkX3Rlcm1zIjoiZTBlM2VkMDgtNjE5OS00ZmVmLWFiNDEtZjA4OTcwMTMzYjdkIn0=
+          default: ""
         count:
           type: integer
           description: Total number of records related to the resource after applying applicable filtering
@@ -2632,7 +2626,7 @@ components:
               carbonIntensity: 123
             page:
               limit: 10
-              offset: 1
+              cursor: eyJ1dWlkX3Rlcm1zIjoiZTBlM2VkMDgtNjE5OS00ZmVmLWFiNDEtZjA4OTcwMTMzYjdkIn0=
               count: 20
               sortBy:
               - name: name
@@ -2661,7 +2655,7 @@ components:
               carbonIntensity: 123
             page:
               limit: 10
-              offset: 1
+              cursor: eyJ1dWlkX3Rlcm1zIjoiZTBlM2VkMDgtNjE5OS00ZmVmLWFiNDEtZjA4OTcwMTMzYjdkIn0=
               count: 20
               sortBy:
               - name: name
@@ -3013,14 +3007,12 @@ components:
         minimum: 1
         type: integer
         default: 500
-    offset:
-      name: offset
+    cursor:
+      name: cursor
       in: query
-      description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+      description: It's an opaque string field indicating the next record in the requested collection.
       schema:
-        minimum: 1
-        type: integer
-        default: 1
+        type: string
     sortBy:
       name: sortBy
       in: query
@@ -3122,7 +3114,7 @@ components:
         - deviceCategory
         page:
           limit: 100
-          offset: 1
+          cursor: ""
     QueryWithViewPassedResponseExample:
       summary: QueryWithViewPassedResponse
       value:
@@ -3134,7 +3126,7 @@ components:
           deviceSubCategory: Cisco Catalyst 9300 Switch
         page:
           limit: 100
-          offset: 1
+          cursor: ""
           count: 1
         version: "1.0"
     QueryWithoutViewPassedRequestExample:
@@ -3151,7 +3143,7 @@ components:
         attributes: []
         page:
           limit: 100
-          offset: 1
+          cursor: ""
     QueryWithoutViewPassedResponseExample:
       summary: QueryWithoutViewPassedResponse
       value:
@@ -3173,7 +3165,7 @@ components:
             value: 251895
         page:
           limit: 100
-          offset: 1
+          cursor: ""
           count: 1
         version: "1.0"
     ClientDeviceQueryWithoutViewPassedRequestExample:
@@ -3190,7 +3182,7 @@ components:
         attributes: []
         page:
           limit: 100
-          offset: 1
+          cursor: ""
     ClientDeviceQueryWithoutViewPassedResponseExample:
       summary: QueryWithoutViewPassedResponse
       value:
@@ -3214,7 +3206,7 @@ components:
             value: 251895
         page:
           limit: 100
-          offset: 1
+          cursor: ""
           count: 1
         version: "1.0"
     TrendAnalyticsWithGroupByRequestExample:
