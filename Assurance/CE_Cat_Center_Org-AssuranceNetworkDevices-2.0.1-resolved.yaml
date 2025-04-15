@@ -34,7 +34,7 @@ paths:
       tags:
       - networkDevices
       summary: Gets the Network Device details based on the provided query parameters.
-      description: Gets the Network Device details based on the provided query parameters. When there is no start and end time specified returns the latest device details.
+      description: "Gets the Network Device details based on the provided query parameters. When there is no start and end time specified returns the latest device, by default this will use the last 30 minutes of data. details."
       operationId: readNetworkDevices
       parameters:
       - name: startTime
@@ -423,7 +423,7 @@ paths:
       tags:
       - networkDevices
       summary: Gets the total Network device counts based on the provided query parameters.
-      description: Gets the total Network device counts. When there is no start and end time specified returns the latest interfaces total count.
+      description: "Gets the total Network device counts. When there is no start and end time specified returns the latest device total count, by default this will use the last 30 minutes of data."
       operationId: readNetworkDevicesCount
       parameters:
       - name: startTime
@@ -763,7 +763,7 @@ paths:
       tags:
       - networkDevices
       summary: Get the device data for the given device id (Uuid)
-      description: Returns the device data for the given device Uuid in the specified start and end time range. When there is no start and end time specified returns the latest available data for the given Id.
+      description: "Returns the device data for the given device Uuid in the specified start and end time range. When there is no start and end time specified returns the latest available data for the given Id, by default this will use the last 30 minutes of data."
       operationId: readNetworkDeviceById
       parameters:
       - name: id
@@ -849,7 +849,7 @@ paths:
       - networkDevices
       summary: The Trend analytcis data for the network Device in the specified time range
       description: |
-        The Trend analytcis data for the network Device in the specified time range. The data is grouped based on the trend time Interval, other input parameters like attributes and aggregate attributes. The default time interval range is 3 hours when start and endTime is not provided.
+        The Trend analytcis data for the network Device in the specified time range. The data is grouped based on the trend time Interval, other input parameters like attributes and aggregate attributes. The default time interval range is 1 hour when start and endTime is not provided.
 
         **How the filtering behavior works**
 
@@ -931,7 +931,7 @@ paths:
       tags:
       - networkDevices
       summary: Gets the list of Network Devices based on the provided complex filters and aggregation functions.
-      description: "Gets the list of Network Devices based on the provided complex filters and aggregation functions\n\n**How the filtering behavior works**\n\nThe filters field in each post body can be used in numerous ways:\n\nEach filter in the list of filters will applied ''together''\n\nIn the example below, this would request filtering to retrieve Switches and Hubs device family `and` macAddress either 00:1E:49:81:6C:FF or 34:1E:49:81:6C:F0.\n```\n\"filters\": [\n    {\n      \"key\": \"deviceFamily\",\n      \"operator\": \"eq\",\n      \"value\": \"Switches and Hubs\"\n    },\n    {\n      \"key\": \"macAddress\",\n      \"operator\": \"in\",\n      \"value\": [\n        \"00:1E:49:81:6C:FF\",\n        \"34:1E:49:81:6C:F0\"\n      ]\n    }\n]\n```\n\nEach filter object can contrastingly utilize its `logical operator` to provide nested filtering functionality.\n\nIn the example below you can see a logical \"OR\" filter being applied using the nested filtering functionality:\n\nThe primary filter object does not have its 'key', 'value', or 'operator' fields populated. Only the 'logicalOperator' field is populated, to indicate the filters within the nested filters list are to be logically conjoined.\n\n```\n\"filters\": [\n    {\n      \"logicalOperator\": \"or\",\n      \"filters\": [\n        {\n          \"key\": \"siteHierarchy\",\n          \"operator\": \"like\",\n          \"value\": \"Global/Paris*\"\n        },\n        {\n          \"key\": \"siteHierarchy\",\n          \"operator\": \"eq\",\n          \"value\": \"Eiffel Tower\"\n        }\n      ]\n    }\n]\n```\nPlease refer to the 'API Support Documentation' section to understand which fields and filters are supported.\n\n**How Pagination Works**\n\n'limit' field, is the total number of records you want to retrieve.\n\n'offset' field, is the record you want to start on.\n\nIf you have a limit of 100, each page would be viewed as 100 elements. So starting with an offset of 1, means look at the first page of data. Starting with an offset of 2, means start on page 2 (starting with the 101st element). \n\n'sortBy' field is a list, but only single field sorting is supported on this API.\n\nwith 'asc' (ascending), or 'desc' (descending) ordering\n"
+      description: "Gets the list of Network Devices based on the provided complex filters and aggregation functions. When there is no start and end time specified returns the latest device, by default this will use the last 30 minutes of data.\n\n**How the filtering behavior works**\n\nThe filters field in each post body can be used in numerous ways:\n\nEach filter in the list of filters will applied ''together''\n\nIn the example below, this would request filtering to retrieve Switches and Hubs device family `and` macAddress either 00:1E:49:81:6C:FF or 34:1E:49:81:6C:F0.\n```\n\"filters\": [\n    {\n      \"key\": \"deviceFamily\",\n      \"operator\": \"eq\",\n      \"value\": \"Switches and Hubs\"\n    },\n    {\n      \"key\": \"macAddress\",\n      \"operator\": \"in\",\n      \"value\": [\n        \"00:1E:49:81:6C:FF\",\n        \"34:1E:49:81:6C:F0\"\n      ]\n    }\n]\n```\n\nEach filter object can contrastingly utilize its `logical operator` to provide nested filtering functionality.\n\nIn the example below you can see a logical \"OR\" filter being applied using the nested filtering functionality:\n\nThe primary filter object does not have its 'key', 'value', or 'operator' fields populated. Only the 'logicalOperator' field is populated, to indicate the filters within the nested filters list are to be logically conjoined.\n\n```\n\"filters\": [\n    {\n      \"logicalOperator\": \"or\",\n      \"filters\": [\n        {\n          \"key\": \"siteHierarchy\",\n          \"operator\": \"like\",\n          \"value\": \"Global/Paris*\"\n        },\n        {\n          \"key\": \"siteHierarchy\",\n          \"operator\": \"eq\",\n          \"value\": \"Eiffel Tower\"\n        }\n      ]\n    }\n]\n```\nPlease refer to the 'API Support Documentation' section to understand which fields and filters are supported.\n\n**How Pagination Works**\n\n'limit' field, is the total number of records you want to retrieve.\n\n'offset' field, is the record you want to start on.\n\nIf you have a limit of 100, each page would be viewed as 100 elements. So starting with an offset of 1, means look at the first page of data. Starting with an offset of 2, means start on page 2 (starting with the 101st element). \n\n'sortBy' field is a list, but only single field sorting is supported on this API.\n\nwith 'asc' (ascending), or 'desc' (descending) ordering\n"
       operationId: queryNetworkDevicesWithFilter
       requestBody:
         $ref: '#/components/requestBodies/NetworkDevicesQueryRequest'
@@ -972,10 +972,18 @@ paths:
       - networkDevices
       summary: Gets the total number Network Devices based on the provided complex filters and aggregation functions.
       description: |
-        Gets the total number Network Devices based on the provided complex filters and aggregation functions.
+        Gets the total number Network Devices based on the provided complex filters and aggregation functions. When there is no start and end time specified returns the latest device, by default this will use the last 30 minutes of data.
       operationId: queryNetworkDevicesCountWithFilter
       requestBody:
-        $ref: '#/components/requestBodies/NetworkDevicesQueryRequest'
+        description: Payload to query Network Device
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NetworkDevicesQueryRequest'
+            examples:
+              DeviceCountRequestExample:
+                $ref: '#/components/examples/DeviceCountRequestExample'
+        required: true
       responses:
         "200":
           description: Reponse object containing total count of the records after applying requested filters
@@ -1119,7 +1127,7 @@ paths:
       tags:
       - networkDevices
       summary: Gets the Trend analytics data.
-      description: "Gets the Trend analytics Network device data for the given time range. The data will be grouped based on the given trend time Interval. The required property for this API is `trendInterval`\n\n**The input payload contains the following fields,**\n|Field Name | Description |\n| --- | --- |\n| `startTime` | The start time indicates the point from which the API retrieves the dataset associated with the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |\n| `endTime` | The end time signifies the limit until which the API retrieves the dataset associated with the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |\n| `trendInterval` | The time window for aggregating metrics can be set to intervals of 5 minutes, 10 minutes, 30 minutes, 1 hour, 1 day, or 7 days. If the start and end time range exceeds 1 day, the minimum expected interval value is 1 hour or higher. The default polling or data collection interval for switches and router family devices is 10 minutes. Therefore, even if a 5-minute interval is specified in the input, the data will be available for intervals of 10 minutes. This is a required property for this API|\n| `groupBy` | The groupby defines the criteria for grouping the data based on specific attributes. The available group by fields correspond to the attributes listed. For a comprehensive list of supported attributes, please refer to the `NetworkDevicesAnalyticsGroupBy` model. |\n| `attributes` | The attribute is useful for obtaining one or more field data in addition to the aggregated data within the specified start and end time range. The supported attributes are listed in  ` NetworkDevicesAnalyticsAttributes` model|\n| `aggregateAttributes` | The aggregateAttributes denotes the attribute name(s) on which the aggregate functions is to be applied during data querying. The supported attribute names are listed in `NetworkDevicesAnalyticsAggregateAttributes` model  |\n|`filters`| The filters used to  define one or more conditions and the data that meets these conditions will be considered during the aggregation calculation. The supported list of fiters defined in `NetworkDevicesAnalyticsFilters` model|\n|`page`| The page includes **limit, offset**, and **sortBy** fields. Limit indicates the number of records to retrieve per page, offset signifies the starting position of the data, and sortBy specifies the attribute name, order, and function if sorting by the aggregated field is desired..|\n**Example 1**: The below JSON input  serves as a request body to fetch maximum CPU and healthScore data at 5-minute intervals across devices in the Milpitas site within a specified time range. <br>\n\n  By default, the data is grouped by timestamp, with sorting options available in ascending or descending order based on the timestamp.\n \n```\n  {\n    \"startTime\": 1705348800000,\n    \"endTime\": 1705435200000,\n    \"groupBy\": [],\n    \"trendInterval\" : 5MIN\n    \"attributes\": [\"healthScore],\n    \"filters\": [\n      {\n        \"key\": \"siteHierarchy\",\n        \"operator\": \"eq\",\n        \"value\": \"Global/Milpitas\"\n      }\n     ],\n    \"aggregateAttributes\": [\n      {\n        \"name\": \"cpuUtilization\",\n        \"function\": \"max\"\n      }\n    ],\n    \"page\": {\n      \"limit\": 2,\n      \"offset\": 1,\n      \"timestampOrder\": \"desc\"\n    }\n  }\n```\n**Response**: The JSON response payload below provides the health score for the Milpitas site, along with the maximum cpuUtilization value for every 5-minute interval within the specified time range. With a limit set to 2, the payload includes data points for only two timestamps.\n```\n  {\n    \"response\": [\n      {\n        \"timestamp\": 1705435200000\n        \"attributes\": [\n          {\n            \"name\": \"healthScore\",\n            \"value\": 100\n          }\n        ],\n        \"aggregateAttributes\": [\n          {\n            \"name\": \"cpuUtilization\",\n            \"function\": \"max\",\n            \"value\": 15.420\n          }\n        ],\n        \"groups\": []\n      },\n      {\n        \"timestamp\": 1705434900000\n        \"attributes\": [\n          {\n            \"name\": \"healthScore\",\n            \"value\": 15\n          }\n        ],\n        \"aggregateAttributes\": [\n          {\n            \"name\": \"cpuUtilization\",\n            \"function\": \"max\",\n             \"value\": 79.232\n          }\n        ],\n        \"groups\": []\n      }\n    ],\n    \"page\": {\n      \"limit\": 2,\n      \"offset\": 1,\n      \"count\": 250,\n      \"timestampOrder\": \"desc\"\n    },\n    \"version\": \"1.0\"\n  }\n```\n"
+      description: "Gets the Trend analytics Network device data for the given time range. The data will be grouped based on the given trend time Interval. The required property for this API is `trendInterval`\n\n**The input payload contains the following fields,**\n|Field Name | Description |\n| --- | --- |\n| `startTime` | The start time indicates the point from which the API retrieves the dataset associated with the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is endTime minus 1 hour |\n| `endTime` | The end time signifies the limit until which the API retrieves the dataset associated with the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive & the default is latest |\n| `trendInterval` | The time window for aggregating metrics can be set to intervals of 5 minutes, 10 minutes, 30 minutes, 1 hour, 1 day, or 7 days. If the start and end time range exceeds 1 day, the minimum expected interval value is 1 hour or higher. The default polling or data collection interval for switches and router family devices is 10 minutes. Therefore, even if a 5-minute interval is specified in the input, the data will be available for intervals of 10 minutes. This is a required property for this API|\n| `groupBy` | The groupby defines the criteria for grouping the data based on specific attributes. The available group by fields correspond to the attributes listed. For a comprehensive list of supported attributes, please refer to the `NetworkDevicesAnalyticsGroupBy` model. |\n| `attributes` | The attribute is useful for obtaining one or more field data in addition to the aggregated data within the specified start and end time range. The supported attributes are listed in  ` NetworkDevicesAnalyticsAttributes` model|\n| `aggregateAttributes` | The aggregateAttributes denotes the attribute name(s) on which the aggregate functions is to be applied during data querying. The supported attribute names are listed in `NetworkDevicesAnalyticsAggregateAttributes` model  |\n|`filters`| The filters used to  define one or more conditions and the data that meets these conditions will be considered during the aggregation calculation. The supported list of fiters defined in `NetworkDevicesAnalyticsFilters` model|\n|`page`| The page includes **limit, offset**, and **sortBy** fields. Limit indicates the number of records to retrieve per page, offset signifies the starting position of the data, and sortBy specifies the attribute name, order, and function if sorting by the aggregated field is desired..|\n**Example 1**: The below JSON input  serves as a request body to fetch maximum CPU and healthScore data at 5-minute intervals across devices in the Milpitas site within a specified time range. <br>\n\n  By default, the data is grouped by timestamp, with sorting options available in ascending or descending order based on the timestamp.\n \n```\n  {\n    \"startTime\": 1705348800000,\n    \"endTime\": 1705435200000,\n    \"groupBy\": [],\n    \"trendInterval\" : 5MIN\n    \"attributes\": [\"healthScore],\n    \"filters\": [\n      {\n        \"key\": \"siteHierarchy\",\n        \"operator\": \"eq\",\n        \"value\": \"Global/Milpitas\"\n      }\n     ],\n    \"aggregateAttributes\": [\n      {\n        \"name\": \"cpuUtilization\",\n        \"function\": \"max\"\n      }\n    ],\n    \"page\": {\n      \"limit\": 2,\n      \"offset\": 1,\n      \"timestampOrder\": \"desc\"\n    }\n  }\n```\n**Response**: The JSON response payload below provides the health score for the Milpitas site, along with the maximum cpuUtilization value for every 5-minute interval within the specified time range. With a limit set to 2, the payload includes data points for only two timestamps.\n```\n  {\n    \"response\": [\n      {\n        \"timestamp\": 1705435200000\n        \"attributes\": [\n          {\n            \"name\": \"healthScore\",\n            \"value\": 100\n          }\n        ],\n        \"aggregateAttributes\": [\n          {\n            \"name\": \"cpuUtilization\",\n            \"function\": \"max\",\n            \"value\": 15.420\n          }\n        ],\n        \"groups\": []\n      },\n      {\n        \"timestamp\": 1705434900000\n        \"attributes\": [\n          {\n            \"name\": \"healthScore\",\n            \"value\": 15\n          }\n        ],\n        \"aggregateAttributes\": [\n          {\n            \"name\": \"cpuUtilization\",\n            \"function\": \"max\",\n             \"value\": 79.232\n          }\n        ],\n        \"groups\": []\n      }\n    ],\n    \"page\": {\n      \"limit\": 2,\n      \"offset\": 1,\n      \"count\": 250,\n      \"timestampOrder\": \"desc\"\n    },\n    \"version\": \"1.0\"\n  }\n```\n"
       operationId: queryNetworkDevicesTrendAnalytics
       requestBody:
         description: Payload to query Trend Analytics Network Device data
@@ -1188,6 +1196,8 @@ components:
           $ref: '#/components/schemas/SwitchPoEDetails'
         fabricMetricsDetails:
           $ref: '#/components/schemas/FabricHealth'
+        licenseDetails:
+          $ref: '#/components/schemas/LicenseDetails'
       description: Network Devices details with health and configuration
       allOf:
       - $ref: '#/components/schemas/DeviceBasic'
@@ -1306,9 +1316,9 @@ components:
           example: false
         upTime:
           type: integer
-          description: The device Up time in UTC millisecond format
+          description: The device Up time in UTC seconds format
           format: int64
-          example: 1706328900000
+          example: 1706328900
         ipv4Address:
           type: string
           description: The network device Ipv4 Address
@@ -1360,7 +1370,17 @@ components:
           example: 50
         portCount:
           type: integer
-          description: The total number of physical and logical port counts
+          description: The total number of physical and virtual port counts
+          format: int64
+          example: 100
+        physicalPortCount:
+          type: integer
+          description: The total number of physical port counts
+          format: int64
+          example: 100
+        virtualPortCount:
+          type: integer
+          description: The total number of virtual port counts
           format: int64
           example: 100
         clientCount:
@@ -1506,8 +1526,12 @@ components:
       properties:
         connectedWlcName:
           type: string
-          description: The AP connected WLC name
+          description: The name of the WLC to which AP is connected
           example: Testbed24WclName
+        connectedWlcUuid:
+          type: string
+          description: The UUID of the WLC to which AP is connected
+          example: d2245637-668b-4d3f-b104-5dad478af0d7
         policyTagName:
           type: string
           description: The AP device policy name
@@ -1576,7 +1600,7 @@ components:
           - UNKNOWN_POWER
         connectedTime:
           type: integer
-          description: The device connected time in UTC time milliseconds
+          description: The device connected time in UTC time seconds
           format: int64
           example: 1706329006
         ledFlashEnabled:
@@ -1683,6 +1707,43 @@ components:
           example: SanJose-regular-AP
         radios:
           $ref: '#/components/schemas/RadioKpis'
+        apMisConfigReason:
+          type: string
+          description: Reason for AP set as misconfigured
+          example: Incorrect Country Code
+          enum:
+          - Unknown
+          - None
+          - Incorrect Country Code
+          - World Wide Mode
+          - License Non-Compliant
+    LicenseDetails:
+      type: object
+      properties:
+        required:
+          type: boolean
+          description: Indicates if the device needs license to operate.
+          example: false
+        complianceState:
+          type: string
+          description: Device license compliance state.
+          example: Non Compliant
+          enum:
+          - Unknown
+          - Not Applicable
+          - Non Compliant
+          - Compliant
+          - Policy Allowed
+        nonComplianceReason:
+          type: string
+          description: Reason for device being license non compliant.
+          example: Never Licensed
+          enum:
+          - Unknown
+          - Never Licensed
+          - Not Applicable
+          - License Expiration
+      description: License attributes of a network device
     FabricDetails:
       type: object
       properties:
@@ -2123,6 +2184,22 @@ components:
       - $ref: '#/components/schemas/AggregateResponseAttributes'
     NetworkDeviceTrendFilters:
       type: array
+      description: |-
+        When using filters, the request must contain only fields from the same grouping (across all request fields)
+         | Group | Valid Fields |
+          | --- | --- |
+          | HealthScore | deviceRole, transitFabrics, anchorClientCount, foreignClientCount, fabricRole, managementIpAddress, deviceName, fabricSiteId, avgCpuUtilization, connectedWlcUuid, idleClientCount, localClientCount, monitoredApCount, siteHierarchy, memoryUtilization, connectedWlcName, reachability, l2Vns, overallHealthScore, clientCount, l3Vns |
+          | PoE Port | maxPowerDrawn, interfaceDescription, pdClassSignal, powerAdminMax, upoePlusEnabled, policingPoeEnabled, poeModule, pdConnectedDeviceList, pdLocation, pdPowerNegotiationUsed, chassisId, interfaceName, moduleId, connectedSwitchId, interfaceOperStatus, pdPowerConsumed, fastPoeEnabled, poeOperPriority, connectedSwitch, perpetualPoeEnabled, pdClassSpare, pdDeviceType, poeAdminStatus, pdDeviceModel, pdPowerRemaining, poeOperStatus, connectedSwitchType, pdDeviceName, fourPairEnabled |
+          | PoE Module | remainingPower, allocatedPower, powerStackMode, interfacePowerMax, reservedPower, switchCount, poePowerStackName, consumedPowerPoe, poeModule, usedPower, freePorts, switchAvailablePower, powerStackTopology, usedPorts, powerBudget, powerUsagePercentage, numPorts, moduleId, totalPower, powerSupplyCount, consumedPowerSystem |
+          | AP Link Errors | ethernetRxUtilization, utilizationAbs, txErrors, txErrorsAbs, totalRate, txRate, rxErrorsAbs, rxRate, ethernetTxUtilization, rxErrors, ethernetUtilization, ethernetTotalUtilization |
+          | Session Reachability | fabricReachabilitySessionStatus, fabricDestUUid, fabricDestIp, fabricSessionName, vnName, fabricAfType, fabricDestName |
+          | Interface Stats | inputErrors, outputErrors, inputRate, outRate, interfaceName, outputUtilizationPercentage, outputDiscards, inputDiscards, inputUtilizationPercentage |
+          | Interface Availability | availability |
+          | Temperature | temperatureSensorName, temperature |
+          | ApUpDown | apUpDownStatus |
+          | WLC Stats | cpuUtilization, cpuName |
+          | WLC Ap License | wlcApLicenseInUse, wlcApiLicenseAvailable |
+          | Radio Metrics | channelUtilization, videoAteAx, BestEffortAteAx, packetCount, totalMulticastFrames, channel, radioClientCount, voiceLatencyNonax, radioId, radioAirQuality, BackgroundAteAx, txDrops, BestEffortAteNonax, ssid, BackgroundLatencyAx, BackgroundLatencyNonax, txPower, voiceAteNonax, videoLatencyNonax, radioMode, BestEffortLatencyNonax, voiceAteAx, BackgroundAteNonax, channelNumbers, txDataFrames, txRetries, voiceLatencyAx, videoLatencyAx, totalManagementFrames, txPowerUnit, radioRxUtilization, rxErrorFrames, txPackets, txErrorFrames, txRetryPacket, radioTxUtilization, BestEffortLatencyAx, radioNoise, overallAteAx, radioInterference, radioBand, operState, channelWidth, radioTrafficUtilization, videoAteNonax, overallAteNonax
       example:
       - key: deviceName
         operator: eq
@@ -2173,8 +2250,8 @@ components:
       - deviceName
       - cpuName
       - managementIpAddress
-      - siteHierarchyName
-      - role
+      - siteHierarchy
+      - deviceRole
       - fabricRole
       - fabricSiteName
       - transitFabrics
@@ -2183,7 +2260,7 @@ components:
       - fabricSiteId
       - networkProtocol
       - reachability
-      - overallScore
+      - overallHealthScore
       - cpuUtilization
       - avgCpuUtilization
       - memoryUtilization
@@ -2323,8 +2400,8 @@ components:
       - connectedSwitchId
       - connectedSwitchType
       - fabricRole
-      - transitFabricList
-      - fabricName
+      - transitFabrics
+      - fabricSiteName
       - l2Vns
       - fabricSiteId
       - networkProtocol
@@ -2354,6 +2431,27 @@ components:
       - fabricDestIp
       - fabricDestName
       - fabricReachabilitySessionStatus
+      - aaaFabricReachabilitySessionStatus
+      - bgpBgpSiteFabricReachabilitySessionStatus
+      - bgpEvpnFabricReachabilitySessionStatus
+      - bgpPeerInfraVnFabricReachabilitySessionStatus
+      - bgpPeerFabricReachabilitySessionStatus
+      - bgpPubsubSiteFabricReachabilitySessionStatus
+      - bgpTcpFabricReachabilitySessionStatus
+      - ctsEnvDataDownloadFabricReachabilitySessionStatus
+      - fabsiteFcpFabricReachabilitySessionStatus
+      - internetAvailFabricReachabilitySessionStatus
+      - lispCpConnFabricReachabilitySessionStatus
+      - lispTransitConnFabricReachabilitySessionStatus
+      - mcastFabricReachabilitySessionStatus
+      - peerFabricReachabilitySessionStatus
+      - portChannelFabricReachabilitySessionStatus
+      - pubsubInfraVnFabricReachabilitySessionStatus
+      - pubsubSessionFabricReachabilitySessionStatus
+      - pubsubTransitConnFabricReachabilitySessionStatus
+      - remoteInternetAvailFabricReachabilitySessionStatus
+      - tcpConnFabricReachabilitySessionStatus
+      - vniFabricReachabilitySessionStatus
       - fabricDestUUid
       - vnName
       - fabricAfType
@@ -2380,7 +2478,7 @@ components:
       description: Field name on which the aggregate function should be applied while querying the data.
       example: cpuUtilization
       enum:
-      - overallScore
+      - overallHealthScore
       - cpuUtilization
       - memoryUtilization
       - temperature
@@ -2566,9 +2664,9 @@ components:
           description: |
             Successfully returned list of aggregate Attributes
           example:
-          - name: memory
+          - name: memoryScore
             function: min
-          - name: memory
+          - name: memoryScore
             function: avg
           - name: apCount
             function: max
@@ -2596,7 +2694,7 @@ components:
       - cpuUtilization
       - memoryUtilization
       - memoryScore
-      - overallScore
+      - overallHealthScore
       - freeMemoryBuffer
       - freeMemoryBufferScore
       - freeTimer
@@ -2672,7 +2770,7 @@ components:
         $ref: '#/components/schemas/NetworkDeviceView'
     NetworkDeviceView:
       type: string
-      description: "Views which are supported by this API. Each view represents a specific data set.\n1. **configuration** \n     name,managementIpAddress,macAddress,communicationState,collectionStatus,haStatus,lastBootTime,platformId,deviceFamily,serialNumber,deviceSeries,softwareVersion,productVendor,siteHierarchyId,siteHierarchy,deviceGroupHierarchyId,siteId,tagNames,stackType,osType,ringStatus,maintenanceModeEnabled,deviceRole,deviceType,wiredClientCount,wirelessClientCount,portCount,redundancyMode,featureFlagList,haLastResetReason,redundancyPeerStateDerived,redundancyPeerState,redundancyStateDerived,redundancyState\n2. **metrics**\n     name,managementIpAddress,macAddress,overallHealthScore,cpuUtilization,cpuScore,memory,memoryScore,avgTemperature,maxTemperature,discardScore,discardInterfaces,errorScore,errorInterfaces,interDeviceLinkScore,interDeviceConnectedDownInterfaces,linkUtilizationScore,freeTimerScore,freeTimer,packetPoolScore,packetPool,freeMemoryBufferScore,freeMemoryBuffer,wqePoolScore,wqePool,apCount,clientCount,noiseScore,utilizationScore,interferenceScore,airQualityScore,radioBand,noise,airQuality,interference,trafficUtil,utilization,clientCount\n3. **apConfiguration**\n    name,managementIpAddress,macAddress,policyTagName,apOpState,powerSaveMode,mode,resetReason,protocol,powerMode,connectedTime,ledFlashEnabled,ledFlashSeconds,subMode,homeApEnabled,powerType,apType,adminState,icapCapability,regulatoryDomain,ethernetMac,rfTagName,siteTagName,upTime,powerSaveModeCapable,powerProfile,flexGroup,powerCalendarProfile,apGroup\n4. **apRadio**\n    name,managementIpAddress,macAddress,slot,radioBand,noise,airQuality,interference,trafficUtil,utilization,clientCount\n5. **fabric**\n    fabricRole,transitFabricList,fabricName,l2Vns, fabricSiteId,networkProtocol,l3Vns            \n6. **fabricMetrics**\n    overallFabricScore,fabricTransitScore,fabricSiteScore, fabricVnScore, fabsiteFcpScore,fabsiteInfraScore, fabsiteFsconnScore, vnExitScore,vnFcpScore, vnStatusScore,vnServiceScore,transitControlPlaneScore, transitServicesScore,tcpConnScore,bgpBgpSiteScore, vniStatusScore,pubsubTransitConnScore, bgpPeerInfraVnScore,internetAvailScore,bgpEvpnScore, lispTransitConnScore,ctsEnvDataDownloadScore, pubsubInfraVnScore,peerScore,bgpPeerScore, remoteInternetAvailScore,bgpTcpScore,pubsubSessionScore, aaaStatusScore,lispCpConnScore,bgpPubsubSiteScore, mcastScore,portChannelScore  \n7. **poeDetails**\n    name,managementIpAddress,macAddress,switchPortCount,usedPortCount,freePortCount,\n    powerConsumed,poePowerConsumed,systemPowerConsumed,powerBudget,poePowerAllocated,systemPowerAllocated,availablePower,poeVersion,chassisCount,moduleCount\n8. **switchModules** \n  name,managementIpAddress,macAddress,moduleCount,moduleId,chassisId,modulePortCount,moduleUsedPortCount,moduleFreePortCount,modulePowerConsumed,modulePoePowerConsumed,moduleSystemPowerConsumed,modulePowerBudget,modulePoePowerAllocated,moduleSystemPowerAllocated,moduleAvailablePower,interfacePowerMax\n"
+      description: "Views which are supported by this API. Each view represents a specific data set.\n\nWhen no views are requested, the default information fetched is the configuration, metrics and apConfiguration views.\n\nWhen requesting poeDetails or switchModules views, a minimum of two hour time range is expected.\n1. **configuration:** \n     name,managementIpAddress,macAddress,communicationState,collectionStatus,haStatus,lastBootTime,platformId,deviceFamily,serialNumber,deviceSeries,softwareVersion,productVendor,siteHierarchyId,siteHierarchy,deviceGroupHierarchyId,siteId,tagNames,stackType,osType,ringStatus,maintenanceModeEnabled,deviceRole,deviceType,wiredClientCount,wirelessClientCount,portCount,virtualPortCount,physicalPortCount,redundancyMode,featureFlagList,haLastResetReason,redundancyPeerStateDerived,redundancyPeerState,redundancyStateDerived,redundancyState\n2. **metrics:**\n     name,managementIpAddress,macAddress,overallHealthScore,cpuUtilization,cpuScore,memory,memoryScore,avgTemperature,maxTemperature,discardScore,discardInterfaces,errorScore,errorInterfaces,interDeviceLinkScore,interDeviceConnectedDownInterfaces,linkUtilizationScore,freeTimerScore,freeTimer,packetPoolScore,packetPool,freeMemoryBufferScore,freeMemoryBuffer,wqePoolScore,wqePool,apCount,clientCount,noiseScore,utilizationScore,interferenceScore,airQualityScore,radioBand,noise,airQuality,interference,trafficUtil,utilization,clientCount\n3. **apConfiguration:**\n    name,managementIpAddress,macAddress,policyTagName,apOpState,powerSaveMode,mode,resetReason,protocol,powerMode,connectedTime,ledFlashEnabled,ledFlashSeconds,subMode,homeApEnabled,powerType,apType,adminState,icapCapability,regulatoryDomain,ethernetMac,rfTagName,siteTagName,upTime,powerSaveModeCapable,powerProfile,flexGroup,powerCalendarProfile,apGroup,connectedWlcName,connectedWlcUuid,apMisConfigReason\n4. **apRadio:**\n    name,managementIpAddress,macAddress,slot,radioBand,noise,airQuality,interference,trafficUtil,utilization,clientCount\n5. **fabric:**\n    fabricRole,transitFabrics,fabricSiteName,l2Vns, fabricSiteId,networkProtocol,l3Vns            \n6. **fabricMetrics:**\n    overallFabricScore,fabricTransitScore,fabricSiteScore, fabricVnScore, fabsiteFcpScore,fabsiteInfraScore, fabsiteFsconnScore, vnExitScore,vnFcpScore, vnStatusScore,vnServiceScore,transitControlPlaneScore, transitServicesScore,tcpConnScore,bgpBgpSiteScore, vniStatusScore,pubsubTransitConnScore, bgpPeerInfraVnScore,internetAvailScore,bgpEvpnScore, lispTransitConnScore,ctsEnvDataDownloadScore, pubsubInfraVnScore,peerScore,bgpPeerScore, remoteInternetAvailScore,bgpTcpScore,pubsubSessionScore, aaaStatusScore,lispCpConnScore,bgpPubsubSiteScore, mcastScore,portChannelScore  \n7. **poeDetails:**\n    name,managementIpAddress,macAddress,switchPortCount,usedPortCount,freePortCount,\n    powerConsumed,poePowerConsumed,systemPowerConsumed,powerBudget,poePowerAllocated,systemPowerAllocated,availablePower,poeVersion,chassisCount,moduleCount\n8. **switchModules:** \n  name,managementIpAddress,macAddress,moduleCount,moduleId,chassisId,modulePortCount,moduleUsedPortCount,moduleFreePortCount,modulePowerConsumed,modulePoePowerConsumed,moduleSystemPowerConsumed,modulePowerBudget,modulePoePowerAllocated,moduleSystemPowerAllocated,moduleAvailablePower,interfacePowerMax\n9. **licenseDetails:**\n    name,managementIpAddress,macAddress,licenseRequired,licenseComplianceState,licenseNonComplianceReason\n"
       enum:
       - configuration
       - metrics
@@ -2682,9 +2780,10 @@ components:
       - fabricMetrics
       - poeDetails
       - switchModules
+      - licenseDetails
     NetworkDeviceFilters:
       type: array
-      description: "List of filters to apply when querying the Network devices data. \n\nSupported operators are [in, eq, neq, notIn, like]\n"
+      description: "List of filters to apply when querying the Network devices data. \n\nSupported operators are [in, eq, neq, notIn, like]\n\nWhen using filters, the request must contain only fields from the same grouping (across all request fields)\n\n\n | Group | Valid Fields |\n | -  | - |\n | Network Device:|   policyTagName, resetReason, featureFlagList, powerMode, ringStatus, ledFlashSeconds, id, deviceType, deviceGroupHierarchyId, deviceFamily, redundancyStateDerived, homeApEnabled, collectionStatus, softwareVersion, communicationState, tagNames, licenseNonComplianceReason, haLastResetReason, deviceRole, rfTagName, redundancyPeerStateDerived, siteTagName, redundancyPeerState, productVendor, apOperationalState, siteHierarchyId, siteHierarchy, siteId, ledFlashEnabled, protocol, connectedTime, subMode, haStatus, serialNumber, operationalMode, macAddress, deviceSeries, name, licenseComplianceState, powerType, redundancyMode, apMisConfigReason, connectedWlcUuid, apType, osType, adminState, icapCapability, regulatoryDomain, ethernetMac, apGroup, managementIpAddress, platformId, linkUtilizationScore, redundancyState, upTime, powerSaveModeCapable, powerProfile, licenseRequired, lastBootTime, flexGroup, maintenanceModeEnabled, powerCalendarProfile. |\n| Device Health: |   wqePool, interferenceScore, fabricRole, ctsEnvDataDownloadScore, fabsiteFcpScore, tcpConnScore, id, stackType, bgpBgpSiteScore, clientCount, apCount, deviceType, transitControlPlaneScore, vnExitScore, pubsubTransitConnScore, aaaStatusScore, deviceGroupHierarchyId, deviceFamily, portChannelScore, wqePoolScore, bgpPeerInfraVnScore, utilizationScore, softwareVersion, internetAvailScore, bgpEvpnScore, tagNames, interDeviceConnectedDownInterfaces, lispTransitConnScore, memoryUtilization, deviceRole, overallFabricScore, vnFcpScore, siteId, siteHierarchy, siteHierarchyId, discardScore, packetPoolScore, transitServicesScore, transitFabrics, fabricSiteScore, packetPool, powerSaveMode, freeMemoryBufferScore, interDeviceLinkScore, fabricTransitScore, errorInterfaces, connectedWlcName, l2Vns, pubsubInfraVnScore, vnServiceScore, vniStatusScore, macAddress, freeTimer, peerScore, name, bgpPeerScore, vnStatusScore, discardInterfaces, fabricSiteName, fabsiteFsconnScore, bgpTcpScore, pubsubSessionScore, fabricSiteId, connectedWlcUuid, freeMemoryBuffer, lispCpConnScore, overallHealthScore, bgpPubsubSiteScore, cpuUtilization, linkErrorScore, freeTimerScore, managementIpAddress, platformId, mcastScore, fabricVnScore, memoryScore, remoteInternetAvailScore, fabsiteInfraScore, siteId, l3Vns, networkProtocol, cpuScore|\n| Switch POE Data: |  powerConsumed, id, usedPortCount, moduleCount, poePowerConsumed, powerAllocationLoad, poeVersion, poePowerAllocated, chassisCount, siteHierarchy, siteHierarchyId, systemPowerAllocated, switchPortCount, name, systemPowerConsumed, powerConsumedPercent, powerRemaining, freePortCount, managementIpAddress, powerBudget, siteId|\n"
       example:
       - key: deviceFamily
         operator: eq
@@ -2813,6 +2912,8 @@ components:
       - wiredClientCount
       - wirelessClientCount
       - portCount
+      - physicalPortCount
+      - virtualPortCount
       - overallHealthScore
       - cpuUtilization
       - cpuScore
@@ -2849,9 +2950,14 @@ components:
       - channelTrafficUtil
       - channelUtilization
       - radioClientCount
+      - connectedWlcName
+      - connectedWlcUuid
+      - licenseComplianceState
+      - licenseNonComplianceReason
+      - apMisConfigReason
       - fabricRole
-      - transitFabricList
-      - fabricName
+      - transitFabrics
+      - fabricSiteName
       - l2Vns
       - fabricSiteId
       - networkProtocol
@@ -3156,7 +3262,6 @@ components:
       - noise
       - interferenceScore
       - airQuality
-      - overallFabricScore
       - fabricTransitScore
       - fabricSiteScore
       - fabricVnScore
@@ -3205,8 +3310,8 @@ components:
       type: array
       description: List of field names on which the Group By function should be applied
       example:
-      - family
-      - role
+      - deviceFamily
+      - deviceRole
       items:
         type: string
         description: List of field names to group by.
@@ -3315,13 +3420,12 @@ components:
       - poorDeviceCount
       - noHealthDeviceCount
       - fabricRole
-      - transitFabricList
-      - fabricName
+      - transitFabrics
+      - fabricSiteName
       - l2Vns
       - fabricSiteId
       - networkProtocol
       - l3Vns
-      - overallFabricScore
       - fabricTransitScore
       - fabricSiteScore
       - fabricVnScore
@@ -3376,26 +3480,26 @@ components:
       description: Summary filter support key name
       example: macAddress
       enum:
-      - ipAddress
+      - managementIpAddress
       - name
       - macAddress
       - deviceUuid
-      - family
-      - role
-      - type
+      - deviceFamily
+      - deviceRole
+      - deviceType
       - softwareVersion
       - platformId
-      - siteHierarchyName
+      - siteHierarchy
       - siteHierarchyId
-      - overallScore
+      - overallHealthScore
       - cpuScore
       - cpuUtilization
-      - memory
+      - memoryUtilization
       - memoryScore
       - interDeviceLinkScore
       - linkUtilizationScore
       - discardScore
-      - linkErrorScore
+      - errorScore
       - freeMemoryBufferScore
       - freeTimerScore
       - packetPoolScore
@@ -3413,10 +3517,10 @@ components:
       - apRadioChannel
       - apRadioClientCount
       - apRadioOperState
-      - apConnectedWlcName
+      - connectedWlcName
       - fabricRole
-      - transitFabricList
-      - fabricName
+      - transitFabrics
+      - fabricSiteName
       - l2Vns
       - fabricSiteId
       - networkProtocol
@@ -3456,7 +3560,7 @@ components:
       - portChannelScore
     NetworkDevicesAnalyticsFilters:
       type: array
-      description: "List of filters to apply when querying the Network devices data. \n\nSupported operators are [in, eq, neq, notIn, like]\n"
+      description: "List of filters to apply when querying the Network devices data. \n\nSupported operators are [in, eq, neq, notIn, like]\n\nWhen using filters, the request must contain only fields from the same grouping (across all request fields)\n\n | Group | Valid Fields |\n | --- | --- |\n| HealthScore  |   pubsubSessionScoreRange, bgpPeerInfraVnScoreRange, aaaStatusScoreRange, fabricRole, ctsEnvDataDownloadScore, deviceType, ctsEnvDataDownloadScoreRange, tcpConnScoreRange, fabsiteFcpScore,tcpConnScore, discardScoreRange, bgpEvpnScoreRange, bgpBgpSiteScore, apCount, transitControlPlaneScore, vnExitScore, pubsubTransitConnScore, aaaStatusScore, deviceFamily, portChannelScore, poorDeviceCount, wqePoolScore, siteHierarchyGraphId, bgpPubsubSiteScoreRange, bgpPeerInfraVnScore, memoryScoreRange, bgpBgpSiteScoreRange, portChannelScoreRange, softwareVersion, deviceRole, upLinkScoreRange, vniStatusScoreRange, internetAvailScore, bgpEvpnScore, remoteInternetAvailScoreRange, fabricOverallScore, fabsiteFcpScoreRange, freeMbufScoreRange, lispTransitConnScore, memoryUtilization, deviceRole, wlcClientCount, vnServiceScoreRange, bgpPeerScoreRange, fabsiteInfraScoreRange, vnFcpScore, siteHierarchy, noHealthDeviceCount, packetPoolScoreRange, siteHierarchy, discardScore, packetPoolScore, fabricSiteScoreRange, transitServicesScore, transitServicesScore, lispCpConnScoreRange, fabricSiteScore, transitServicesScoreRange, fabricTransitScoreRange, utilizationScoreRange, internetAvailScoreRange, freeMemoryBufferScore, interDeviceLinkScore, fabricTransitScore, pubsubInfraVnScoreRange, connectedWlcName, lispTransitConnScoreRange, l2Vns, fairDeviceCount, deviceUuid, pubsubInfraVnScore, mcastScoreRange, overallHealthScoreRange, vnServiceScore, channelAirQualityScoreRange, pubsubTransitConnScoreRange, vniStatusScore, macAddress, peerScore, wqePoolScoreRange, name, connectedWlcName, bgpPeerScore, vnStatusScore, errorScore, fabsiteFsconnScore, bgpTcpScore, pubsubSessionScore, fabricSiteId, vnExitScoreRange, interferenceScoreRange, goodDeviceCount, vnFcpScoreRange, lispCpConnScore, reachability, overallHealthScore, bgpPubsubSiteScore, overallFabricScoreRange, fabsiteFsconnScoreRange, cpuUtilization, bgpTcpScoreRange, channelNoiseScoreRange, transitControlPlaneScoreRange, freeTimerScore, managementIpAddress, platformId, mcastScore, peerScoreRange, fabricVnScore, linkUtilizationScore, cpuScoreRange, fabricVnScoreRange, memoryScore, remoteInternetAvailScore, errorScoreRange, vnStatusScoreRange, fabsiteInfraScore, l3Vns, cpuScore |\n    | PoE Switch | remainingPower, allocatedPowerSystem, powerAllocationLoadRange, usedPower, usedPower, allocatedPowerPoe, siteHierarchyGraphId, freePorts, usedPorts, name, powerBudget, powerUsagePercentage, numPorts | \n    | PoE Module | remainingPower, allocatedPower, interfacePowerMax, reservedPower, consumedPowerPoe, usedPower, freePorts, switchAvailablePower, usedPorts, powerBudget, powerUsagePercentage, numPorts, totalPower, consumedPowerSystem |\n    | Radio Metrics | airQuality, channelUtilization, apRadioChannel, apRadioClientCount, apMode, apEthernetMacAddress, interferenceScore, apRadioId, apOperationalState, apRadioOperState, noise, apAdminState, clientCount,apRadioBand\n"
       example:
       - key: family
         operator: eq
@@ -4290,13 +4394,13 @@ components:
         - macAddress
         attributes:
         - name
-        - ipAddress
+        - managementIpAddress
         filters:
         - key: siteHierarchy
           operator: eq
           value: Global/Paris
         aggregateAttributes:
-        - name: memory
+        - name: memoryUtilization
           function: avg
         page:
           limit: 2
@@ -4347,10 +4451,10 @@ components:
       value:
         startTime: 1705348800000
         endTime: 1705435200000
-        topN: 2
+        topN: 10
         groupBy:
-        - family
-        - role
+        - deviceFamily
+        - deviceRole
         attributes: []
         filters:
         - key: siteHierarchy
@@ -4361,7 +4465,7 @@ components:
           function: max
         - name: cpuUtilization
           function: min
-        - name: memoryUtilzation
+        - name: memoryUtilization
           function: avg
         page:
           limit: 2
@@ -4370,6 +4474,28 @@ components:
           - name: cpuUtilization
             order: desc
             function: max
+    DeviceCountRequestExample:
+      summary: DeviceCountRequestExample
+      value:
+        startTime: 1705348800000
+        endTime: 1705435200000
+        filters:
+        - key: deviceFamily
+          operator: eq
+          value: Switches and Hubs
+        - key: macAddress
+          operator: in
+          value:
+          - 00:1E:49:81:6C:FF
+          - 34:1E:49:81:6C:F0
+        - logicalOperator: or
+          filters:
+          - key: siteHierarchy
+            operator: like
+            value: Global/Paris
+          - key: siteHierarchy
+            operator: eq
+            value: Global/Eiffel Tower
     SummaryAnalyticsWithoutGroupByRequestExample:
       summary: SummaryAnalyticsWithoutGroupByRequest
       value:
@@ -4382,8 +4508,8 @@ components:
           operator: eq
           value: Global/Paris
         aggregateAttributes:
-        - name: networkDeviceId
-          function: distinctCount
+        - name: overallHealthScore
+          function: count
         page:
           limit: 100
           offset: 1
@@ -4394,8 +4520,8 @@ components:
         response:
           attributes: []
           aggregateAttributes:
-          - name: networkDeviceId
-            function: distinctCount
+          - name: overallHealthScore
+            function: count
             value: 10
           groups: []
         page:
@@ -4494,12 +4620,11 @@ components:
         trendInterval: 5MIN
         groupBy: []
         attributes:
-        - overallScore
-        - totalCount
-        - fairCount
-        - goodCount
-        - badCount
-        - noHealthCount
+        - overallHealthScore
+        - fairDeviceCount
+        - goodDeviceCount
+        - poorDeviceCount
+        - noHealthDeviceCount
         filters:
         - key: siteHierarchy
           operator: eq
@@ -4563,12 +4688,12 @@ components:
         - key: siteHierarchy
           operator: eq
           value: Global/Milpitas
-        - key: catagory
+        - key: deviceFamily
           operator: eq
           value: Unified AP
         aggregateAttributes:
-        - name: networkDeviceId
-          function: distinctCount
+        - name: overallHealthScore
+          function: count
         page:
           limit: 2
           offset: 1
@@ -4581,17 +4706,13 @@ components:
         trendInterval: 5MIN
         groupBy:
         - powerAllocationLoadRange
-        attributes: []
+        attributes:
+        - freePorts
         filters:
         - key: siteHierarchy
           operator: eq
           value: Global/Milpitas
-        - key: catagory
-          operator: eq
-          value: Unified AP
-        aggregateAttributes:
-        - name: networkDeviceId
-          function: distinctCount
+        aggregateAttributes: []
         page:
           limit: 2
           offset: 1
@@ -4610,7 +4731,7 @@ components:
               value: <20
             aggregateAttributes:
             - name: networkDeviceId
-              function: distinctCount
+              function: count
               value: 10
           - id: powerAllocationLoadRange=20-40
             attributes:
@@ -4618,7 +4739,7 @@ components:
               value: 20-40
             aggregateAttributes:
             - name: networkDeviceId
-              function: distinctCount
+              function: count
               value: 7
           - id: powerAllocationLoadRange=40-60
             attributes:
@@ -4626,7 +4747,7 @@ components:
               value: 40-60
             aggregateAttributes:
             - name: networkDeviceId
-              function: distinctCount
+              function: count
               value: 2
         - timestamp: 1705348500000
           attributes: []
@@ -4638,7 +4759,7 @@ components:
               value: <20
             aggregateAttributes:
             - name: networkDeviceId
-              function: distinctCount
+              function: count
               value: 12
           - id: powerAllocationLoadRange=20-40
             attributes:
@@ -4646,7 +4767,7 @@ components:
               value: 20-40
             aggregateAttributes:
             - name: networkDeviceId
-              function: distinctCount
+              function: count
               value: 5
           - id: powerAllocationLoadRange=40-60
             attributes:
@@ -4654,7 +4775,7 @@ components:
               value: 40-60
             aggregateAttributes:
             - name: networkDeviceId
-              function: distinctCount
+              function: count
               value: 2
     TrendAnalyticsWithGroupByResponseExample:
       summary: TrendAnalyticsWithGroupByResponse
@@ -4670,7 +4791,7 @@ components:
               value: good
             aggregateAttributes:
             - name: networkDeviceId
-              function: distinctCount
+              function: count
               value: 10
           - id: overallHealthScoreRange=fair
             attributes:
@@ -4678,7 +4799,7 @@ components:
               value: fair
             aggregateAttributes:
             - name: networkDeviceId
-              function: distinctCount
+              function: count
               value: 7
           - id: overallHealthScoreRange=bad
             attributes:
@@ -4686,7 +4807,7 @@ components:
               value: bad
             aggregateAttributes:
             - name: networkDeviceId
-              function: distinctCount
+              function: count
               value: 2
         - timestamp: 1705348500000
           attributes: []
@@ -4698,7 +4819,7 @@ components:
               value: good
             aggregateAttributes:
             - name: networkDeviceId
-              function: distinctCount
+              function: count
               value: 12
           - id: overallHealthScoreRange=fair
             attributes:
@@ -4706,7 +4827,7 @@ components:
               value: fair
             aggregateAttributes:
             - name: networkDeviceId
-              function: distinctCount
+              function: count
               value: 1
           - id: overallHealthScoreRange=bad
             attributes:
@@ -4714,7 +4835,7 @@ components:
               value: bad
             aggregateAttributes:
             - name: networkDeviceId
-              function: distinctCount
+              function: count
               value: 1
         page:
           limit: 2
@@ -4727,8 +4848,7 @@ components:
         startTime: 1705348800000
         endTime: 1705435200000
         trendIntervalInMinutes: 10
-        groupBy:
-        - cpuName
+        groupBy: []
         filters:
         - key: deviceName
           operator: eq
@@ -4740,15 +4860,15 @@ components:
             value:
             - Global/San Jose
             - Global/SFO
-          - key: Software
+          - key: overallHealthScore
             operator: eq
-            value: 16.3.2
+            value: "10"
         attributes:
         - deviceName
         aggregateAttributes:
-        - name: cpuUtilization
+        - name: memoryUtilization
           function: min
-        - name: cpuUtilization
+        - name: memoryUtilization
           function: max
         page:
           limit: 500
