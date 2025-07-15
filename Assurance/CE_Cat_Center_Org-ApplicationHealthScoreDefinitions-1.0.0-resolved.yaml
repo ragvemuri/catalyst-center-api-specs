@@ -1,0 +1,1196 @@
+---
+openapi: 3.0.0
+info:
+  title: OpenAPI spec to define application health score definitions
+  description: APIs to customize application KPI thresholds and weightages for application health computation.
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Cisco Catalyst Center License
+    url: https://www.cisco.com/c/en/us/products/collateral/software/dna-software-ebook-cte.html
+  version: 1.0.0
+externalDocs:
+  description: Catalyst Center Developer API resources
+  url: https://developer.cisco.com/dnacenter/
+servers:
+- url: /
+tags:
+- name: applicationHealthScoreDefinitions
+  description: Operations related to application health score definitions.
+paths:
+  /dna/intent/api/v1/applicationHealthScoreDefinitions:
+    get:
+      tags:
+      - applicationHealthScoreDefinitions
+      summary: Get all application health score definitions.
+      description: |
+        Get all application health score definitions for given filter.
+
+        By default all supported attributes are listed in the response.
+
+        Following diagram explains the various thresholds, and corresponding health score range:
+
+        ```
+        badThreshold            poorThreshold             goodThreshold            greatThreshold
+             |-------------------------|-------------------------|-------------------------|
+                    Poor (1-3)                 Fair (4-7)                Good (8-10)
+        ```
+
+        Final health score is calcuated as follows:
+        * For each KPI (e.g. jitter), KPI-specific health score is calculated using thresholds explained above.
+        * Overall health score is derived by performing weighted average of all KPIs.
+      operationId: readApplicationHealthDefinitions
+      parameters:
+      - name: trafficClass
+        in: query
+        description: The traffic class for the application health score definition. If this is not provided then all traffic class application health score definitions will be included.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - voip-telephony
+          - multimedia-conferencing
+          - multimedia-streaming
+          - real-time-interactive
+          - broadcast-video
+          - signaling
+          - network-control
+          - ops-admin-mgmt
+          - transactional-data
+          - bulk-data
+      - name: includeForHealthScore
+        in: query
+        description: "The inclusion of application health score definition, either true or false. true indicates that particular application health metric is included in in the application health score computation, otherwise false."
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      - name: attribute
+        in: query
+        description: |
+          These are the attributes supported in application health score definitions response. By default, all properties are sent in response.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - id
+            - kpiName
+            - trafficClass
+            - includeForHealthScore
+            - includeForHealthScoreDefault
+            - definitionType
+            - unit
+            - weightValue
+            - weightDefaultValue
+            - badValue
+            - badDefaultValue
+            - badMinValue
+            - badMaxValue
+            - poorValue
+            - poorDefaultValue
+            - poorMinValue
+            - poorMaxValue
+            - goodValue
+            - goodDefaultValue
+            - goodMinValue
+            - goodMaxValue
+            - greatValue
+            - greatDefaultValue
+            - greatMinValue
+            - greatMaxValue
+            - lastModified
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          minimum: 1
+          type: integer
+          default: 500
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      responses:
+        "200":
+          description: Response object for the list of application health score definitions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationHealthScoreDefinitionListResponse'
+              example:
+                response:
+                - id: 015d9cba-4f53-4087-8317-7e49e5ffef47
+                  trafficClass: voip-telephony
+                  kpiName: appDelay
+                  definitionType: CUSTOM
+                  unit: msec
+                  weightValue: 10
+                  weightDefaultValue: 10
+                  weightMinValue: 1.0
+                  weightMaxValue: 10.0
+                  badValue: 10.0
+                  badDefaultValue: 10.0
+                  badMinValue: 0.0
+                  badMaxValue: 20.0
+                  poorValue: 4.0
+                  poorDefaultValue: 5.0
+                  poorMinValue: 0.0
+                  poorMaxValue: 20.0
+                  goodValue: 1
+                  goodDefaultValue: 1.0
+                  goodMinValue: 0.0
+                  goodMaxValue: 20.0
+                  greatValue: 0.1
+                  greatDefaultValue: 0.1
+                  greatMinValue: 0.0
+                  greatMaxValue: 20.0
+                  includeForHealthScore: true
+                  includeForHealthScoreDefault: true
+                  lastModified: 1739626032281
+                version: "1.0"
+                page:
+                  limit: 10
+                  offset: 1
+                  count: 20
+                  sortBy:
+                  - name: kpiName
+                    order: asc
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "406":
+          description: The client requested a response in a content format that this server does not support.
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "502":
+          description: There is a bad gateway connection from the client to the server.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and time-out.
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+  /dna/intent/api/v1/applicationHealthScoreDefinitions/{id}:
+    get:
+      tags:
+      - applicationHealthScoreDefinitions
+      summary: Get application health score definition for the given id.
+      description: |
+        Get application health score definition for the given id. By default all supported attributes are listed in the response.
+      operationId: readApplicationHealthDefinitionById
+      parameters:
+      - name: id
+        in: path
+        description: Application health score definition id.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: attribute
+        in: query
+        description: |
+          These are the attributes supported in application health score definitions response. By default, all properties are sent in response.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - id
+            - kpiName
+            - trafficClass
+            - includeForHealthScore
+            - includeForHealthScoreDefault
+            - definitionType
+            - unit
+            - weightValue
+            - weightDefaultValue
+            - badValue
+            - badDefaultValue
+            - badMinValue
+            - badMaxValue
+            - poorValue
+            - poorDefaultValue
+            - poorMinValue
+            - poorMaxValue
+            - goodValue
+            - goodDefaultValue
+            - goodMinValue
+            - goodMaxValue
+            - greatValue
+            - greatDefaultValue
+            - greatMinValue
+            - greatMaxValue
+            - lastModified
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      responses:
+        "200":
+          description: Response object for a specific application health score definition.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationHealthScoreDefinitionResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "502":
+          description: There is a bad gateway connection from the client to the server.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and time-out.
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+    put:
+      tags:
+      - applicationHealthScoreDefinitions
+      summary: Update application health score definition for the given id.
+      description: |
+        Update application health score definition for the given id.
+      operationId: updateApplicationHealthDefinitionById
+      parameters:
+      - name: id
+        in: path
+        description: Application health score definition id.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Update application health score definition for the given id.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationHealthScoreDefinition'
+            example:
+              weightValue: 10
+              badValue: 10.0
+              poorValue: 4
+              goodValue: 1
+              greatValue: 0.1
+              includeForHealthScore: true
+        required: true
+      responses:
+        "200":
+          description: Response object for a specific application health score definition.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationHealthScoreDefinitionResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "405":
+          description: The client made a request using an http method which is not supported for this resource.
+        "406":
+          description: The client requested a response in a content format that this server does not support.
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "502":
+          description: There is a bad gateway connection from the client to the server.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and time-out.
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+  /dna/intent/api/v1/applicationHealthScoreDefinitions/bulkUpdate:
+    post:
+      tags:
+      - applicationHealthScoreDefinitions
+      summary: Bulk update application health score definitions.
+      description: |
+        Update application health score definitions for multiple KPIs.
+      operationId: bulkUpdateApplicationHealthDefinitions
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Update application health score definition for the given ids.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ApplicationHealthScoreDefinitionRequest'
+            example:
+            - id: 015d9cba-4f53-4087-8317-7e49e5ffef47
+              weightValue: 10
+              badValue: 10
+              poorValue: 4
+              goodValue: 1
+              greatValue: 0.1
+              includeForHealthScore: true
+        required: true
+      responses:
+        "200":
+          description: Response object for the list of application health score definitions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationHealthScoreDefinitionListWithoutPaginationResponse'
+              example:
+                response:
+                - id: 015d9cba-4f53-4087-8317-7e49e5ffef47
+                  trafficClass: voip-telephony
+                  kpiName: appDelay
+                  definitionType: CUSTOM
+                  unit: msec
+                  weightValue: 10
+                  weightDefaultValue: 10
+                  weightMinValue: 1.0
+                  weightMaxValue: 10.0
+                  badValue: 10.0
+                  badDefaultValue: 10.0
+                  badMinValue: 0.0
+                  badMaxValue: 20.0
+                  poorValue: 4.0
+                  poorDefaultValue: 5.0
+                  poorMinValue: 0.0
+                  poorMaxValue: 20.0
+                  goodValue: 1
+                  goodDefaultValue: 1.0
+                  goodMinValue: 0.0
+                  goodMaxValue: 20.0
+                  greatValue: 0.1
+                  greatDefaultValue: 0.1
+                  greatMinValue: 0.0
+                  greatMaxValue: 20.0
+                  includeForHealthScore: true
+                  includeForHealthScoreDefault: true
+                  lastModified: 1739626032281
+                version: "1.0"
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "405":
+          description: The client made a request using an http method which is not supported for this resource.
+        "406":
+          description: The client requested a response in a content format that this server does not support.
+        "415":
+          description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "501":
+          description: The server has not implemented the functionality required to fulfill the request.
+        "502":
+          description: There is a bad gateway connection from the client to the server.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and time-out.
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+  /dna/intent/api/v1/applicationHealthScoreDefinitions/count:
+    get:
+      tags:
+      - applicationHealthScoreDefinitions
+      summary: Get the count of application health score definitions.
+      description: |
+        Get the count of application health score definitions based on provided filters.
+      operationId: countApplicationHealthDefinitions
+      parameters:
+      - name: trafficClass
+        in: query
+        description: The traffic class for the application health score definition. If this is not provided then all traffic class application health score definitions will be included.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - voip-telephony
+          - multimedia-conferencing
+          - multimedia-streaming
+          - real-time-interactive
+          - broadcast-video
+          - signaling
+          - network-control
+          - ops-admin-mgmt
+          - transactional-data
+          - bulk-data
+      - name: includeForHealthScore
+        in: query
+        description: "The inclusion of application health score definition, either true or false. true indicates that particular application health metric is included in in the application health score computation, otherwise false."
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      responses:
+        "200":
+          description: Reponse object containing total count of the records after applying requested filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: The client's authentication credentials included with the request are missing or invalid.
+        "403":
+          description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+        "406":
+          description: The client requested a response in a content format that this server does not support.
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "502":
+          description: There is a bad gateway connection from the client to the server.
+        "503":
+          description: The server is (temporarily) unavailable.
+        "504":
+          description: The server did not respond inside time restrictions and time-out.
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+components:
+  schemas:
+    ApplicationHealthScoreDefinitionListResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationHealthScoreDefinition'
+        version:
+          type: string
+          example: "1.0"
+        page:
+          $ref: '#/components/schemas/PaginationResponse'
+    ApplicationHealthScoreDefinitionListWithoutPaginationResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationHealthScoreDefinition'
+        version:
+          type: string
+          example: "1.0"
+    ApplicationHealthScoreDefinitionResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/ApplicationHealthScoreDefinition'
+        version:
+          type: string
+          example: "1.0"
+      description: Response object for list of health score definitions.
+    ApplicationHealthScoreDefinitionRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Application health score definition id.
+          format: uuid
+          readOnly: false
+          example: 015d9cba-4f53-4087-8317-7e49e5ffef47
+      description: Application health score definition.
+      example: ""
+      allOf:
+      - $ref: '#/components/schemas/ApplicationHealthScoreDefinition'
+    ApplicationHealthScoreDefinition:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Application health score definition id.
+          format: uuid
+          readOnly: true
+          example: 015d9cba-4f53-4087-8317-7e49e5ffef47
+        kpiName:
+          type: string
+          description: Application health KPI name.
+          readOnly: true
+          example: appDelay
+          enum:
+          - packetLoss
+          - jitter
+          - latency
+          - appDelay
+        trafficClass:
+          type: string
+          description: Traffic class for application health score definition.
+          readOnly: true
+          example: signaling
+          enum:
+          - voip-telephony
+          - multimedia-conferencing
+          - multimedia-streaming
+          - real-time-interactive
+          - broadcast-video
+          - signaling
+          - network-control
+          - ops-admin-mgmt
+          - transactional-data
+          - bulk-data
+        includeForHealthScore:
+          type: boolean
+          description: |
+            Flag to indicate whether the KPI is included for the application health score calulation or not.
+        includeForHealthScoreDefault:
+          type: boolean
+          description: "Default flag to indicate whether the KPI is included for application health calulation or not. \n"
+          readOnly: true
+        definitionType:
+          type: string
+          description: Definition type to indicate whether the health score definition has been customized or not.
+          readOnly: true
+          default: DEFAULT
+          enum:
+          - CUSTOM
+          - DEFAULT
+        unit:
+          type: string
+          description: Application Health score definition unit.
+          readOnly: true
+          example: msec
+          enum:
+          - sec
+          - msec
+          - percent
+        weightValue:
+          maximum: 10
+          minimum: 1
+          type: integer
+          description: |
+            The weightage of the KPI used for application health score calculation.
+          format: int32
+          example: 10
+        weightDefaultValue:
+          maximum: 10
+          minimum: 1
+          type: integer
+          description: |
+            The default weightage of the KPI used for application health score calculation.
+          format: int32
+          readOnly: true
+          example: 10
+        badValue:
+          type: number
+          description: |
+            The upper threshold value of the KPI for poor (1-3) health score.
+          example: 10
+        badDefaultValue:
+          type: number
+          description: |
+            The default upper threshold value of the KPI for poor (1-3) health score.
+          readOnly: true
+          example: 10
+        badMinValue:
+          type: number
+          description: |
+            Minimum value allowed for upper threshold value of the KPI for poor (1-3) health score.
+          readOnly: true
+          example: 0
+        badMaxValue:
+          type: number
+          description: |
+            Maximum value allowed for upper threshold value of the KPI for poor (1-3) health score.
+          readOnly: true
+          example: 20
+        poorValue:
+          type: number
+          description: |
+            The lower threshold value of the KPI for poor (1-3) health score. This would be same as the upper threshold value of the KPI for fair (4-7) health score.
+          example: 5
+        poorDefaultValue:
+          type: number
+          description: |
+            The default lower threshold value of the KPI for poor (1-3) health score.
+          readOnly: true
+          example: 5
+        poorMinValue:
+          type: number
+          description: |
+            Minimum value allowed for lower threshold value of the KPI for poor (1-3) health score.
+          readOnly: true
+          example: 0
+        poorMaxValue:
+          type: number
+          description: |
+            Maximum value allowed for lower threshold value of the KPI for poor (1-3) health score.
+          readOnly: true
+          example: 20
+        goodValue:
+          type: number
+          description: |
+            The lower threshold value of the KPI for fair (4-7) health score. This would be same as the upper threshold value of the KPI for good (8-10) health score.
+          example: 1
+        goodDefaultValue:
+          type: number
+          description: |
+            The default lower threshold value of the KPI for fair (4-7) health score.
+          readOnly: true
+          example: 1
+        goodMinValue:
+          type: number
+          description: |
+            Minimum value allowed for lower threshold value of the KPI for fair (4-7) health score.
+          readOnly: true
+          example: 0
+        goodMaxValue:
+          type: number
+          description: |
+            Maximum value allowed for lower threshold value of the KPI for fair (4-7) health score.
+          readOnly: true
+          example: 20
+        greatValue:
+          type: number
+          description: |
+            The lower threshold value of the KPI for good (8-10) health score.
+          example: 0.1
+        greatDefaultValue:
+          type: number
+          description: |
+            The default lower threshold value of the KPI for good (8-10) health score.
+          readOnly: true
+          example: 0.1
+        greatMinValue:
+          type: number
+          description: |
+            Minimum value allowed for the lower threshold value of the KPI for good (8-10) health score.
+          readOnly: true
+          example: 0
+        greatMaxValue:
+          type: number
+          description: |
+            Maximum value allowed for the lower threshold value of the KPI for good (8-10) health score.
+          readOnly: true
+          example: 20
+        lastModified:
+          type: integer
+          description: |
+            Last modification time in milliseconds since UNIX epoch. This is applicable only for modified thresholds.
+          format: int64
+          readOnly: true
+      description: Application health score definition.
+      example:
+        id: 015d9cba-4f53-4087-8317-7e49e5ffef47
+        trafficClass: voip-telephony
+        kpiName: appDelay
+        definitionType: CUSTOM
+        unit: msec
+        weightValue: 10
+        weightDefaultValue: 10
+        weightMinValue: 1.0
+        weightMaxValue: 10.0
+        badValue: 10.0
+        badDefaultValue: 10.0
+        badMinValue: 0.0
+        badMaxValue: 20.0
+        poorValue: 4.0
+        poorDefaultValue: 5.0
+        poorMinValue: 0.0
+        poorMaxValue: 20.0
+        goodValue: 1
+        goodDefaultValue: 1.0
+        goodMinValue: 0.0
+        goodMaxValue: 20.0
+        greatValue: 0.1
+        greatDefaultValue: 0.1
+        greatMinValue: 0.0
+        greatMaxValue: 20.0
+        includeForHealthScore: true
+        includeForHealthScoreDefault: true
+        lastModified: 1739626032281
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorObject'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured   processing this request.
+      example:
+        response:
+        - errorCode: 2600
+          message: Error message
+          detail: Error details
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    ErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: Application specific error code returned by the server
+        message:
+          type: string
+          description: Brief message about the error condition
+        detail:
+          type: string
+          description: "A more detailed explanation of the error condition the   parameter and its value, that caused the condition and why it caused it."
+    CountIntegerResponse:
+      title: Count Integer Response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/CountIntegerResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Reports
+    PaginationResponse:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: The reference to the limit applied in the Pagination   Request.
+          example: 10
+        offset:
+          type: integer
+          description: The reference to the record offset applied in the   Pagination Request.
+          example: 1
+        count:
+          type: integer
+          description: Total number of records related to the resource after   applying applicable filtering
+          example: 20
+        sortBy:
+          type: array
+          description: Reference to the sortBy that was applied in the Pagination   Request.
+          items:
+            $ref: '#/components/schemas/PaginationResponse_sortBy'
+    CountIntegerResponse_response:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The total number of records related to the resource
+          format: int64
+          example: 1000
+    PaginationResponse_sortBy:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Field name by which sort is requested
+          example: siteHierarchy
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for   descending
+          example: asc
+          enum:
+          - asc
+          - desc
+      description: List of field names and corresponding order used to sort   the records.
+  responses:
+    ApplicationHealthScoreDefinitionResponse:
+      description: Response object for a specific application health score definition.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApplicationHealthScoreDefinitionResponse'
+    ApplicationHealthScoreDefinitionListResponse:
+      description: Response object for the list of application health score definitions.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApplicationHealthScoreDefinitionListResponse'
+          example:
+            response:
+            - id: 015d9cba-4f53-4087-8317-7e49e5ffef47
+              trafficClass: voip-telephony
+              kpiName: appDelay
+              definitionType: CUSTOM
+              unit: msec
+              weightValue: 10
+              weightDefaultValue: 10
+              weightMinValue: 1.0
+              weightMaxValue: 10.0
+              badValue: 10.0
+              badDefaultValue: 10.0
+              badMinValue: 0.0
+              badMaxValue: 20.0
+              poorValue: 4.0
+              poorDefaultValue: 5.0
+              poorMinValue: 0.0
+              poorMaxValue: 20.0
+              goodValue: 1
+              goodDefaultValue: 1.0
+              goodMinValue: 0.0
+              goodMaxValue: 20.0
+              greatValue: 0.1
+              greatDefaultValue: 0.1
+              greatMinValue: 0.0
+              greatMaxValue: 20.0
+              includeForHealthScore: true
+              includeForHealthScoreDefault: true
+              lastModified: 1739626032281
+            version: "1.0"
+            page:
+              limit: 10
+              offset: 1
+              count: 20
+              sortBy:
+              - name: kpiName
+                order: asc
+    ApplicationHealthScoreDefinitionListWithoutPaginationResponse:
+      description: Response object for the list of application health score definitions.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApplicationHealthScoreDefinitionListWithoutPaginationResponse'
+          example:
+            response:
+            - id: 015d9cba-4f53-4087-8317-7e49e5ffef47
+              trafficClass: voip-telephony
+              kpiName: appDelay
+              definitionType: CUSTOM
+              unit: msec
+              weightValue: 10
+              weightDefaultValue: 10
+              weightMinValue: 1.0
+              weightMaxValue: 10.0
+              badValue: 10.0
+              badDefaultValue: 10.0
+              badMinValue: 0.0
+              badMaxValue: 20.0
+              poorValue: 4.0
+              poorDefaultValue: 5.0
+              poorMinValue: 0.0
+              poorMaxValue: 20.0
+              goodValue: 1
+              goodDefaultValue: 1.0
+              goodMinValue: 0.0
+              goodMaxValue: 20.0
+              greatValue: 0.1
+              greatDefaultValue: 0.1
+              greatMinValue: 0.0
+              greatMaxValue: 20.0
+              includeForHealthScore: true
+              includeForHealthScoreDefault: true
+              lastModified: 1739626032281
+            version: "1.0"
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "401":
+      description: The client's authentication credentials included with the request are missing or invalid.
+    "403":
+      description: "The server recognizes the authentication credentials, but the client is not authorized to perform this request."
+    "406":
+      description: The client requested a response in a content format that this server does not support.
+    "500":
+      description: The server could not fulfill the request due to internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "502":
+      description: There is a bad gateway connection from the client to the server.
+    "503":
+      description: The server is (temporarily) unavailable.
+    "504":
+      description: The server did not respond inside time restrictions and time-out.
+    "1XX":
+      description: Informational Responses - The server received the request and sent an informational response.
+    "2XX":
+      description: "Successful Responses - The server received the client request, understood it, and accepted it."
+    "3XX":
+      description: Redirection Messages - The client must take additional action to complete the request.
+    "4XX":
+      description: Client Error Responses - The client request caused the error.
+    "5XX":
+      description: Server Error Responses - The server failed to fulfill the request.
+    "404":
+      description: The client made a request for a resource that does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "501":
+      description: The server has not implemented the functionality required to fulfill the request.
+    "405":
+      description: The client made a request using an http method which is not supported for this resource.
+    "415":
+      description: "The client sent a request body in a format that the server does not support (for example, XML to a server that only accepts JSON)."
+    CountIntegerResponse:
+      description: Reponse object containing total count of the records after applying requested filters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CountIntegerResponse'
+  parameters:
+    applicationHealthDefinitionAttribute:
+      name: attribute
+      in: query
+      description: |
+        These are the attributes supported in application health score definitions response. By default, all properties are sent in response.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - id
+          - kpiName
+          - trafficClass
+          - includeForHealthScore
+          - includeForHealthScoreDefault
+          - definitionType
+          - unit
+          - weightValue
+          - weightDefaultValue
+          - badValue
+          - badDefaultValue
+          - badMinValue
+          - badMaxValue
+          - poorValue
+          - poorDefaultValue
+          - poorMinValue
+          - poorMaxValue
+          - goodValue
+          - goodDefaultValue
+          - goodMinValue
+          - goodMaxValue
+          - greatValue
+          - greatDefaultValue
+          - greatMinValue
+          - greatMaxValue
+          - lastModified
+    trafficClass:
+      name: trafficClass
+      in: query
+      description: The traffic class for the application health score definition. If this is not provided then all traffic class application health score definitions will be included.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        enum:
+        - voip-telephony
+        - multimedia-conferencing
+        - multimedia-streaming
+        - real-time-interactive
+        - broadcast-video
+        - signaling
+        - network-control
+        - ops-admin-mgmt
+        - transactional-data
+        - bulk-data
+    includeForHealthScore:
+      name: includeForHealthScore
+      in: query
+      description: "The inclusion of application health score definition, either true or false. true indicates that particular application health metric is included in in the application health score computation, otherwise false."
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: boolean
+    offset:
+      name: offset
+      in: query
+      description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+      schema:
+        minimum: 1
+        type: integer
+        default: 1
+    limit:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        minimum: 1
+        type: integer
+        default: 500
+    callerId:
+      name: X-CALLER-ID
+      in: header
+      description: |
+        Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+      required: false
+      schema:
+        type: string
+        default: unknown
+      example: ui:client360

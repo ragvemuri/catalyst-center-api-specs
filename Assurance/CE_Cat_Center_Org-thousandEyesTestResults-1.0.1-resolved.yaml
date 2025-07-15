@@ -1,0 +1,1369 @@
+---
+openapi: 3.0.3
+info:
+  title: OpenAPI specification for ThousandEyes Test Results
+  description: |
+    OpenAPI specification defined for the purpose of providing visibility into ThousandEyes test results available for the agents managed under Catalyst Center.
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Cisco Catalyst Center License
+    url: https://www.cisco.com/c/en/us/products/collateral/software/dna-software-ebook-cte.html
+  version: 1.0.1
+externalDocs:
+  description: Catalyst Center Developer API resources
+  url: https://developer.cisco.com/dnacenter/
+servers:
+- url: /
+tags:
+- name: thousandEyesTestResults
+  description: Operations related to ThousandEyes test results
+paths:
+  /dna/data/api/v1/thousandEyesTestResults:
+    get:
+      tags:
+      - thousandEyesTestResults
+      summary: Retrieves the list of ThousandEyes test results along with related metrics
+      description: |
+        Retrieves the list of ThousandEyes test results along with related metrics. If `startTime` and `endTime` are not provided, the API defaults to the last 24 hours.
+
+        Please note that `siteId` filter (if used) should be using only site UUIDs of buildings.
+      operationId: readThousandEyesTestResults
+      parameters:
+      - name: siteId
+        in: query
+        description: |
+          The site UUID without the top level hierarchy. `siteId` must be a site UUID of a building. The list of buildings can be fetched using API `GET /dna/intent/api/v1/sites?type=building`.
+          Examples:
+
+          `siteId=buildingUuid` (single siteId requested)
+
+          `siteId=buildingUuid1&siteId=buildingUuid2` (multiple siteId requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: testId
+        in: query
+        description: |
+          Unique identifier of the ThousandEyes test.
+          Examples:
+
+          `testId=2043918` (filter for single testId)
+
+          `testId=2043918&testId=129440` (filter for multiple testIds)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: testName
+        in: query
+        description: |
+          Name of the ThousandEyes test. This supports `*` wildcard, and filtering is case-insensitve.
+
+          Examples:
+
+          `testName=Cisco Webex` (exact match)
+
+          `testName=Microsoft*` (starts with given string)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: testType
+        in: query
+        description: |
+          Type of the ThousandEyes test. Please note that Catalyst Center supports only a subset of all possible ThousandEyes test types.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - agent-to-agent
+          - agent-to-server
+          - http-server
+          - voice
+        example: http-server
+      - name: agentId
+        in: query
+        description: |
+          Unique identifier of the ThousandEyes agent.
+          Examples:
+
+          `agentId=199345` (filter for single agentId)
+
+          `agentId=1993458&agentId=499387` (filter for multiple agentIds)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: networkDeviceName
+        in: query
+        description: |
+          Name of the network device as per the inventory. This supports `*` wildcard, and filtering is case-insensitve.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: attribute
+        in: query
+        description: |
+          List of attributes related to resource that can be requested to only be part of the response along with the required attributes.
+
+          Examples:
+
+          `attribute=testName` (single attribute requested)
+
+          `attribute=testId&attribute=testName&attribute=averageLatency` (multiple attributes requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - id
+            - testId
+            - testName
+            - testType
+            - agentId
+            - agentName
+            - networkDeviceName
+            - networkDeviceType
+            - networkDeviceId
+            - siteId
+            - siteHierarchyId
+            - siteName
+            - siteHierarchy
+            - testInterval
+            - testTarget
+            - sampleTimestamp
+            - averagePacketLoss
+            - latestPacketLoss
+            - maxPacketLoss
+            - averageJitter
+            - latestJitter
+            - maxJitter
+            - averageLatency
+            - latestLatency
+            - maxLatency
+            - averageResponseTime
+            - latestResponseTime
+            - maxResponseTime
+            - averageMos
+            - latestMos
+            - minMos
+            - averagePdv
+            - latestPdv
+            - maxPdv
+            - totalAlerts
+            - totalActiveAlerts
+            - totalSamplingTests
+            - totalFailureSamplingTests
+            - totalErrorsSamplingTests
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: sortBy
+        in: query
+        description: Attribute name by which the results should be sorted
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: testName
+          enum:
+          - testId
+          - testName
+          - testType
+          - agentId
+          - agentName
+          - networkDeviceName
+      - name: order
+        in: query
+        description: The sort order of the field ascending or descending.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      responses:
+        "200":
+          description: Response for the list of ThousandEyes test results
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ThousandEyesTestResultsResponse'
+              example:
+                response:
+                - id: 673de254b6a2117b11bd9980
+                  testId: "3015077"
+                  testName: Microsoft Sharepoint
+                  testType: http-server
+                  agentId: "1134666"
+                  agentName: blr-access-1.demo.local
+                  networkDeviceName: blr-access-1.demo.local
+                  networkDeviceType: Cisco Catalyst 9300 Switch
+                  siteId: 8ccf2507-9c1c-4763-9f2e-2f2192d2c2fe
+                  siteName: Building 17
+                  testInterval: 60
+                  testTarget: https://example-my.sharepoint.com
+                  sampleTime: 1729663982000
+                  averagePacketLoss: 3.5
+                  latestPacketLoss: 3.8
+                  maxPacketLoss: 7.1
+                  averageLatency: 25
+                  latestLatency: 93
+                  maxLatency: 310
+                  averageResponseTime: 606
+                  latestResponseTime: 777
+                  maxResponseTime: 2637
+                  totalAlerts: 0
+                  totalActiveAlerts: 1
+                  totalSamplingTests: 710
+                  totalFailureSamplingTests: 232
+                  totalErrorsSamplingTests: 51
+                page:
+                  limit: 100
+                  offset: 1
+                  count: 136
+                  sortBy:
+                  - name: testName
+                    order: asc
+                version: "1.0"
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppxErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppxErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+  /dna/data/api/v1/thousandEyesTestResults/count:
+    get:
+      tags:
+      - thousandEyesTestResults
+      summary: Retrieves the total count of ThousandEyes test results
+      description: "Retrieves the total count of ThousandEyes test results for the given filters. If `startTime` and `endTime` are not provided, the API defaults to the last 24 hours."
+      operationId: countThousandEyesTestResults
+      parameters:
+      - name: siteId
+        in: query
+        description: |
+          The site UUID without the top level hierarchy. `siteId` must be a site UUID of a building. The list of buildings can be fetched using API `GET /dna/intent/api/v1/sites?type=building`.
+          Examples:
+
+          `siteId=buildingUuid` (single siteId requested)
+
+          `siteId=buildingUuid1&siteId=buildingUuid2` (multiple siteId requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: testId
+        in: query
+        description: |
+          Unique identifier of the ThousandEyes test.
+          Examples:
+
+          `testId=2043918` (filter for single testId)
+
+          `testId=2043918&testId=129440` (filter for multiple testIds)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: testName
+        in: query
+        description: |
+          Name of the ThousandEyes test. This supports `*` wildcard, and filtering is case-insensitve.
+
+          Examples:
+
+          `testName=Cisco Webex` (exact match)
+
+          `testName=Microsoft*` (starts with given string)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: testType
+        in: query
+        description: |
+          Type of the ThousandEyes test. Please note that Catalyst Center supports only a subset of all possible ThousandEyes test types.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - agent-to-agent
+          - agent-to-server
+          - http-server
+          - voice
+        example: http-server
+      - name: agentId
+        in: query
+        description: |
+          Unique identifier of the ThousandEyes agent.
+          Examples:
+
+          `agentId=199345` (filter for single agentId)
+
+          `agentId=1993458&agentId=499387` (filter for multiple agentIds)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: networkDeviceName
+        in: query
+        description: |
+          Name of the network device as per the inventory. This supports `*` wildcard, and filtering is case-insensitve.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      responses:
+        "200":
+          description: Response for the count of ThousandEyes test results
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/AppxCountIntegerResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppxErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppxErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+  /dna/data/api/v1/thousandEyesTestResults/trendAnalytics:
+    get:
+      tags:
+      - thousandEyesTestResults
+      summary: The trend analytics data for ThousandEyes test results in the specified time range
+      description: |
+        Get trend time series for ThousandEyes test results.
+
+        The data will be grouped based on the specified trend time interval. If `startTime` and `endTime` are not provided, the API defaults to the last 24 hours.
+
+        By default:
+        - the number of records returned will be 100.
+        - the records will be sorted by time in ascending (`asc`) order
+      operationId: readThousandEyesTestResultsTrend
+      parameters:
+      - name: siteId
+        in: query
+        description: |
+          The site UUID without the top level hierarchy. `siteId` must be a site UUID of a building. The list of buildings can be fetched using API `GET /dna/intent/api/v1/sites?type=building`.
+          Examples:
+
+          `siteId=buildingUuid` (single siteId requested)
+
+          `siteId=buildingUuid1&siteId=buildingUuid2` (multiple siteId requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+      - name: startTime
+        in: query
+        description: |
+          Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        schema:
+          type: integer
+          format: int64
+        example: 1705348800000
+      - name: endTime
+        in: query
+        description: |
+          End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1705435200000
+      - name: trendInterval
+        in: query
+        description: |
+          The time interval to aggregate the metrics.
+
+          Recommendation:
+          |Time duration |Recommended `trendInterval`|
+          |--------------|---------------------------|
+          |Up to 6 hr    | `5MIN`                    |
+          |6 hr to 2 days| `1HR`                     |
+          |More than 2 days| `3HR`                     |
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: string
+          default: 1HR
+          enum:
+          - 5MIN
+          - 30MIN
+          - 1HR
+          - 3HR
+      - name: attribute
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - failurePercentage
+            - averagePacketLoss
+            - latestPacketLoss
+            - maxPacketLoss
+            - averageJitter
+            - latestJitter
+            - maxJitter
+            - averageLatency
+            - latestLatency
+            - maxLatency
+      - name: testId
+        in: query
+        description: |
+          Unique identifier of the ThousandEyes test.
+          Examples:
+
+          `testId=2043918` (filter for single testId)
+
+          `testId=2043918&testId=129440` (filter for multiple testIds)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: testName
+        in: query
+        description: |
+          Name of the ThousandEyes test. This supports `*` wildcard, and filtering is case-insensitve.
+
+          Examples:
+
+          `testName=Cisco Webex` (exact match)
+
+          `testName=Microsoft*` (starts with given string)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: testType
+        in: query
+        description: |
+          Type of the ThousandEyes test. Please note that Catalyst Center supports only a subset of all possible ThousandEyes test types.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - agent-to-agent
+          - agent-to-server
+          - http-server
+          - voice
+        example: http-server
+      - name: agentId
+        in: query
+        description: |
+          Unique identifier of the ThousandEyes agent.
+          Examples:
+
+          `agentId=199345` (filter for single agentId)
+
+          `agentId=1993458&agentId=499387` (filter for multiple agentIds)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: networkDeviceName
+        in: query
+        description: |
+          Name of the network device as per the inventory. This supports `*` wildcard, and filtering is case-insensitve.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 500
+          minimum: 1
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: order
+        in: query
+        description: The sort order of the field ascending or descending.
+        schema:
+          type: string
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      responses:
+        "200":
+          description: ThousandEyes test results summary response covering trend data.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ThousandEyesTestResultsTrendResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppxErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppxErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+components:
+  schemas:
+    ThousandEyesTestResultsResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          description: List of test results
+          items:
+            $ref: '#/components/schemas/ThousandEyesTestResult'
+        page:
+          $ref: '#/components/schemas/ThousandEyesTestResultPagination'
+        version:
+          type: string
+          description: The version of the response.
+          example: "1.0"
+      description: Response for the list of ThousandEyes test results.
+    ThousandEyesTestResult:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the test result.
+        testId:
+          type: string
+          description: Unique identifier for the ThousandEyes test.
+        testName:
+          type: string
+          description: Name of the ThousandEyes test.
+        testType:
+          type: string
+          description: |
+            Type of the ThousandEyes test. Please note that Catalyst Center supports only a subset of all possible ThousandEyes test types.
+          enum:
+          - agent-to-agent
+          - agent-to-server
+          - http-server
+          - voice
+        agentId:
+          type: string
+          description: Unique identifier for the ThousandEyes agent where test is running.
+        agentName:
+          type: string
+          description: Name of the ThousandEyes agent where test is running.
+        networkDeviceId:
+          type: string
+          description: Unique identifier of the network device on which the ThousandEyes agent is running.
+          format: uuid
+        networkDeviceName:
+          type: string
+          description: Name of the network device on which the ThousandEyes agent is running.
+        networkDeviceType:
+          type: string
+          description: Type of the network device on which the ThousandEyes agent is running.
+        siteId:
+          type: string
+          description: Unique identifier for the site of the network device.
+        siteHierarchyId:
+          type: string
+          description: "The full hierarchy breakdown of the site tree in id form, including the specific site id."
+          example: /31e57cb2-06af-4c5c-87d1-16af536095d2/54d3f243-509e-436d-9821-ebe01daf80db/f52fbe48-fcc9-4551-947b-e144e20c0311/50c01c29-b09e-49bf-b6ce-2e7d3395f3a3/
+        siteName:
+          type: string
+          description: Name of the site of the network device.
+        siteHierarchy:
+          type: string
+          description: "The full hierarchical breakdown of the site tree, including the specific site name. All site trees start with Global."
+          example: /Global/AreaName/BuildingName/FloorName/
+        testInterval:
+          type: integer
+          description: "Interval in seconds, at which the ThousandEyes test is configured to be executed."
+          format: int32
+        testTarget:
+          type: string
+          description: |
+            Target of the test. This is normally the URL in case of `http-server` test, `host:port` value in case of `agent-to-server` test,
+            or agent ID in case of `agent-to-agent` or `voice` tests.
+        sampleTimestamp:
+          type: integer
+          description: Time of the test results sample. The value is in terms of milliseconds since UNIX epoch.
+          format: int64
+        averagePacketLoss:
+          type: number
+          description: Average value of the packet loss (in percentage) for the given sampling interval.
+        latestPacketLoss:
+          type: number
+          description: Latest value of the packet loss (in percentage) for the given sampling interval.
+        maxPacketLoss:
+          type: number
+          description: Maximum value of the packet loss (in percentage) for the given sampling interval.
+        averageJitter:
+          type: number
+          description: Average value of the jitter (in milliseconds) for the given sampling interval.
+        latestJitter:
+          type: number
+          description: Latest value of the jitter (in milliseconds) for the given sampling interval.
+        maxJitter:
+          type: number
+          description: Maximum value of the jitter (in milliseconds) for the given sampling interval.
+        averageLatency:
+          type: number
+          description: Average value of the latency (in milliseconds) for the given sampling interval.
+        latestLatency:
+          type: number
+          description: Latest value of the latency (in milliseconds) for the given sampling interval.
+        maxLatency:
+          type: number
+          description: Maximum value of the latency (in milliseconds) for the given sampling interval.
+        averageResponseTime:
+          type: integer
+          description: Average value of the response time (in milliseconds) for the given sampling interval.
+          format: int32
+        latestResponseTime:
+          type: integer
+          description: Latest value of the response time (in milliseconds) for the given sampling interval.
+          format: int32
+        maxResponseTime:
+          type: integer
+          description: Maximum value of the response time (in milliseconds) for the given sampling interval.
+          format: int32
+        averageMos:
+          type: number
+          description: Average value of the Mean Opinion Score (MOS) for the given sampling interval.
+        latestMos:
+          type: number
+          description: Latest value of the Mean Opinion Score (MOS) for the given sampling interval.
+        minMos:
+          type: number
+          description: Minimum value of the Mean Opinion Score (MOS) for the given sampling interval.
+        averagePdv:
+          type: number
+          description: Average value of the Packet Delay Variation (PDV) for the given sampling interval.
+        latestPdv:
+          type: number
+          description: Latest value of the Packet Delay Variation (PDV) for the given sampling interval.
+        maxPdv:
+          type: number
+          description: Maximum value of the Packet Delay Variation (PDV) for the given sampling interval.
+        totalAlerts:
+          type: integer
+          description: Total number of alerts
+          format: int32
+        totalActiveAlerts:
+          type: integer
+          description: Total number of active alerts
+          format: int32
+        totalSamplingTests:
+          type: integer
+          description: Total number of tests sampled
+          format: int32
+        totalFailureSamplingTests:
+          type: integer
+          description: Total number of sampled tests that failed
+          format: int32
+        totalErrorsSamplingTests:
+          type: integer
+          description: Total number of sampled tests that had error
+          format: int32
+      description: A single ThousandEyes test result.
+    ThousandEyesTestResultPagination:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to fetch in a page
+          example: 100
+          default: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        count:
+          type: integer
+          description: Total number of records related to the resource after applying applicable filtering. Field is ignored for request and updated by API in the response
+          example: 136
+        sortBy:
+          type: array
+          description: The attribute by which the results are sorted
+          example:
+          - name: testName
+            order: asc
+          items:
+            $ref: '#/components/schemas/ThousandEyesTestResultSortByObj'
+      description: Pagination details
+    ThousandEyesTestResultSortByObj:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Attribute related to the resource that can be used to sort the response.
+          enum:
+          - testId
+          - testName
+          - testType
+          - agentId
+          - agentName
+          - networkDeviceName
+        order:
+          type: string
+          description: Sort order. 'asc' for ascending and 'desc' for descending
+          default: asc
+          enum:
+          - asc
+          - desc
+      description: Properties for sorting the results
+    AppxCountIntegerResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/AppxCountIntegerResponse_response'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Count of the results for the given filter
+    ThousandEyesTestResultsTrendResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          description: List of ThousandEyes test results trend items
+          items:
+            $ref: '#/components/schemas/ThousandEyesTestResultsTrend'
+        page:
+          $ref: '#/components/schemas/TimeBasedPagination'
+        version:
+          type: string
+          description: Version of the response
+          example: "1.0"
+      description: ThousandEyes test results trend
+    ThousandEyesTestResultsTrend:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          description: For trend API timestamp is the default groupBy attribute.
+          format: int64
+          example: 1718218219000
+        attributes:
+          type: array
+          description: List of trend attributes
+          items:
+            $ref: '#/components/schemas/ThousandEyesTestResultsAttributeValuePair'
+      description: The aggregate trend response includes timestamp and attributes.
+    ThousandEyesTestResultsAttributeValuePair:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Attribute name
+          example: failurePercentage
+        value:
+          type: object
+          description: This is the value of the attribute requested for trend analytics.
+          example: 23
+    AppxErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppxErrorObject'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured   processing this request.
+      example:
+        response:
+        - errorCode: 2600
+          message: Error message
+          detail: Error details
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    AppxErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: Application specific error code returned by the server
+        message:
+          type: string
+          description: Brief message about the error condition
+        detail:
+          type: string
+          description: "A more detailed explanation of the error condition the   parameter and its value, that caused the condition and why it caused it."
+    TimeBasedPagination:
+      type: object
+      properties:
+        limit:
+          minimum: 1
+          type: integer
+          description: Number of records to fetch in a page
+          example: 100
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+          default: 1
+        timeSortOrder:
+          type: string
+          description: Sort order. `asc` for ascending and  `desc` for descending
+          example: asc
+          default: asc
+          enum:
+          - asc
+          - desc
+        count:
+          type: integer
+          description: Number of records returned after applying applicable filtering. Field is ignored for request and updated by API in the response
+          example: 100
+    AppxCountIntegerResponse_response:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The total number of records related to the resource
+          format: int64
+          example: 1000
+  responses:
+    ThousandEyesTestResultsResponse:
+      description: Response for the list of ThousandEyes test results
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ThousandEyesTestResultsResponse'
+          example:
+            response:
+            - id: 673de254b6a2117b11bd9980
+              testId: "3015077"
+              testName: Microsoft Sharepoint
+              testType: http-server
+              agentId: "1134666"
+              agentName: blr-access-1.demo.local
+              networkDeviceName: blr-access-1.demo.local
+              networkDeviceType: Cisco Catalyst 9300 Switch
+              siteId: 8ccf2507-9c1c-4763-9f2e-2f2192d2c2fe
+              siteName: Building 17
+              testInterval: 60
+              testTarget: https://example-my.sharepoint.com
+              sampleTime: 1729663982000
+              averagePacketLoss: 3.5
+              latestPacketLoss: 3.8
+              maxPacketLoss: 7.1
+              averageLatency: 25
+              latestLatency: 93
+              maxLatency: 310
+              averageResponseTime: 606
+              latestResponseTime: 777
+              maxResponseTime: 2637
+              totalAlerts: 0
+              totalActiveAlerts: 1
+              totalSamplingTests: 710
+              totalFailureSamplingTests: 232
+              totalErrorsSamplingTests: 51
+            page:
+              limit: 100
+              offset: 1
+              count: 136
+              sortBy:
+              - name: testName
+                order: asc
+            version: "1.0"
+    AppxCountIntegerResponse:
+      description: Response for the count of ThousandEyes test results
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/AppxCountIntegerResponse'
+    ThousandEyesTestResultsTrendResponse:
+      description: ThousandEyes test results summary response covering trend data.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ThousandEyesTestResultsTrendResponse'
+    "400_Appx":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AppxErrorResponse'
+    "500_Appx":
+      description: The server could not fulfill the request due to internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AppxErrorResponse'
+    "1XX":
+      description: Informational Responses - The server received the request and sent an informational response.
+    "2XX":
+      description: "Successful Responses - The server received the client request, understood it, and accepted it."
+    "3XX":
+      description: Redirection Messages - The client must take additional action to complete the request.
+    "4XX":
+      description: Client Error Responses - The client request caused the error.
+    "5XX":
+      description: Server Error Responses - The server failed to fulfill the request.
+  parameters:
+    siteId:
+      name: siteId
+      in: query
+      description: |
+        The site UUID without the top level hierarchy. `siteId` must be a site UUID of a building. The list of buildings can be fetched using API `GET /dna/intent/api/v1/sites?type=building`.
+        Examples:
+
+        `siteId=buildingUuid` (single siteId requested)
+
+        `siteId=buildingUuid1&siteId=buildingUuid2` (multiple siteId requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+          format: uuid
+    testId:
+      name: testId
+      in: query
+      description: |
+        Unique identifier of the ThousandEyes test.
+        Examples:
+
+        `testId=2043918` (filter for single testId)
+
+        `testId=2043918&testId=129440` (filter for multiple testIds)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    testName:
+      name: testName
+      in: query
+      description: |
+        Name of the ThousandEyes test. This supports `*` wildcard, and filtering is case-insensitve.
+
+        Examples:
+
+        `testName=Cisco Webex` (exact match)
+
+        `testName=Microsoft*` (starts with given string)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+    testType:
+      name: testType
+      in: query
+      description: |
+        Type of the ThousandEyes test. Please note that Catalyst Center supports only a subset of all possible ThousandEyes test types.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        enum:
+        - agent-to-agent
+        - agent-to-server
+        - http-server
+        - voice
+      example: http-server
+    agentId:
+      name: agentId
+      in: query
+      description: |
+        Unique identifier of the ThousandEyes agent.
+        Examples:
+
+        `agentId=199345` (filter for single agentId)
+
+        `agentId=1993458&agentId=499387` (filter for multiple agentIds)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    networkDeviceName:
+      name: networkDeviceName
+      in: query
+      description: |
+        Name of the network device as per the inventory. This supports `*` wildcard, and filtering is case-insensitve.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+    thousandEyesTestResultsSortBy:
+      name: sortBy
+      in: query
+      description: Attribute name by which the results should be sorted
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        default: testName
+        enum:
+        - testId
+        - testName
+        - testType
+        - agentId
+        - agentName
+        - networkDeviceName
+    thousandEyesTestResultsAttribute:
+      name: attribute
+      in: query
+      description: |
+        List of attributes related to resource that can be requested to only be part of the response along with the required attributes.
+
+        Examples:
+
+        `attribute=testName` (single attribute requested)
+
+        `attribute=testId&attribute=testName&attribute=averageLatency` (multiple attributes requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - id
+          - testId
+          - testName
+          - testType
+          - agentId
+          - agentName
+          - networkDeviceName
+          - networkDeviceType
+          - networkDeviceId
+          - siteId
+          - siteHierarchyId
+          - siteName
+          - siteHierarchy
+          - testInterval
+          - testTarget
+          - sampleTimestamp
+          - averagePacketLoss
+          - latestPacketLoss
+          - maxPacketLoss
+          - averageJitter
+          - latestJitter
+          - maxJitter
+          - averageLatency
+          - latestLatency
+          - maxLatency
+          - averageResponseTime
+          - latestResponseTime
+          - maxResponseTime
+          - averageMos
+          - latestMos
+          - minMos
+          - averagePdv
+          - latestPdv
+          - maxPdv
+          - totalAlerts
+          - totalActiveAlerts
+          - totalSamplingTests
+          - totalFailureSamplingTests
+          - totalErrorsSamplingTests
+    thousandEyesTestResultsTrendAttribute:
+      name: attribute
+      in: query
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - failurePercentage
+          - averagePacketLoss
+          - latestPacketLoss
+          - maxPacketLoss
+          - averageJitter
+          - latestJitter
+          - maxJitter
+          - averageLatency
+          - latestLatency
+          - maxLatency
+    trendIntervalThousandEyes:
+      name: trendInterval
+      in: query
+      description: |
+        The time interval to aggregate the metrics.
+
+        Recommendation:
+        |Time duration |Recommended `trendInterval`|
+        |--------------|---------------------------|
+        |Up to 6 hr    | `5MIN`                    |
+        |6 hr to 2 days| `1HR`                     |
+        |More than 2 days| `3HR`                     |
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        default: 1HR
+        enum:
+        - 5MIN
+        - 30MIN
+        - 1HR
+        - 3HR
+    startTime:
+      name: startTime
+      in: query
+      description: |
+        Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      schema:
+        type: integer
+        format: int64
+      example: 1705348800000
+    endTime:
+      name: endTime
+      in: query
+      description: |
+        End time to which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
+      required: false
+      schema:
+        type: integer
+        format: int64
+      example: 1705435200000
+    limit_100:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        maximum: 100
+        minimum: 1
+        type: integer
+        default: 100
+    offset:
+      name: offset
+      in: query
+      description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+      schema:
+        minimum: 1
+        type: integer
+        default: 1
+    order:
+      name: order
+      in: query
+      description: The sort order of the field ascending or descending.
+      schema:
+        type: string
+        default: asc
+        enum:
+        - asc
+        - desc
+    callerId:
+      name: X-CALLER-ID
+      in: header
+      description: |
+        Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+      required: false
+      schema:
+        type: string
+        default: unknown
+      example: ui:client360
+    limit_500:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        maximum: 500
+        minimum: 1
+        type: integer
+        default: 100
