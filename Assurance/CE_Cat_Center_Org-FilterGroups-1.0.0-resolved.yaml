@@ -1,0 +1,1135 @@
+---
+openapi: 3.0.0
+info:
+  title: FilterGroups
+  description: Open API spec to manage life cycle operations (get/create/update/delete) of Filter Groups.
+  termsOfService: https://www.cisco.com/c/en/us/about/legal/cloud-and-software/end_user_license_agreement.html
+  contact:
+    name: Cisco TAC World Wide
+    url: https://www.cisco.com/c/en/us/support/web/tsd-cisco-worldwide-contacts.html
+    email: tac@cisco.com
+  license:
+    name: Cisco Catalyst Center License
+    url: https://www.cisco.com/c/en/us/products/collateral/software/dna-software-ebook-cte.html
+  version: 1.0.0
+externalDocs:
+  description: Catalyst Center Developer API resources
+  url: https://developer.cisco.com/dnacenter/
+servers:
+- url: https://developer.cisco.com
+tags:
+- name: filterGroups
+  description: "Filter Group is a collection of predefined filters. When this Filter Group is associated with an entity, those filters are applied on that entity.This APIs under `filterGroups` section are used to create, update, delete and get Filter Groups. Currently these Filter Groups can be used in Custom Dashboard and Issue Settings. Filter Group Association is the link between a Filter Group and the associated Entity. The APIs under `filterGroupAssociations` section are used to create, read and delete Filter Group Assications."
+  externalDocs:
+    description: Catalyst Center Assurance user guide
+    url: https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-user-guide-list.html
+paths:
+  /dna/intent/api/v1/filterGroups:
+    get:
+      tags:
+      - filterGroups
+      summary: Get the filter groups for given search criteria.
+      description: Returns the details of filter groups for given search criteria specified in query parameters.
+      operationId: readFilterGroups
+      parameters:
+      - name: id
+        in: query
+        description: |
+          Filter Group id.
+
+          Examples:
+          `?id=2ee1b9f0-8036-443b-bad0-7692760af1b5`(single id requested)
+
+          `?id=2ee1b9f0-8036-443b-bad0-7692760af1b5&id=ae368f0b-f4e3-4e8f-a914-011cbd19bb51` (multiple ids requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: name
+        in: query
+        description: |
+          Filter Group name.
+
+          Examples:
+          `?name=SJC Wireless`(single name requested)
+
+          `?name=SJC Wireless&name=Global Wired` (multiple names requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: type
+        in: query
+        description: |
+          Type of the filter group. Examples: type=Generic (single Filter Group type requested) type=Generic&type=Site (multiple Filter Group types requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            description: Type of the filter group
+            enum:
+            - Generic
+            - Site
+            - Network
+            - Client
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: offset
+        in: query
+        description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+        schema:
+          minimum: 1
+          type: integer
+          default: 1
+      - name: limit
+        in: query
+        description: Maximum number of records to return
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+          default: 100
+      responses:
+        "200":
+          description: Filter Group list response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterGroupListResponse'
+              examples:
+                Sample response:
+                  $ref: '#/components/examples/FilterGroupListResponseExample1'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+    post:
+      tags:
+      - filterGroups
+      summary: Create filter group.
+      description: Creates filter group with given filters.
+      operationId: createFilterGroup
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: Payload to create Filter Group.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilterGroupCreateRequest'
+            examples:
+              Sample request payload:
+                $ref: '#/components/examples/FilterGroupCreateRequestExample1'
+        required: true
+      responses:
+        "201":
+          description: Filter Group create success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterGroupCreateResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+  /dna/intent/api/v1/filterGroups/{id}:
+    get:
+      tags:
+      - filterGroups
+      summary: Get the filter group details for the given id.
+      description: Returns the details of filter group for the given id.
+      operationId: readFilterGroupById
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: id
+        in: path
+        description: Filter Group id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Filter Group response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterGroupResponse'
+              examples:
+                Sample response:
+                  $ref: '#/components/examples/FilterGroupResponseExample1'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+    put:
+      tags:
+      - filterGroups
+      summary: Update filter group.
+      description: Updates the filter group for given id. The request payload should contain complete definition of the Filter Group.
+      operationId: updateFilterGroupById
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: id
+        in: path
+        description: The id of the filter group to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: Request payload that defines the filter group.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilterGroupCreateRequest'
+            examples:
+              Request payload:
+                $ref: '#/components/examples/FilterGroupCreateRequestExample1'
+      responses:
+        "200":
+          description: Filter Group response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterGroupResponse'
+              examples:
+                Sample response:
+                  $ref: '#/components/examples/FilterGroupResponseExample1'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+    delete:
+      tags:
+      - filterGroups
+      summary: Delete a filter group.
+      description: Deletes the given filter group. Delete will fail and throws validation error if the given filter group is associated with any entity.
+      operationId: deleteFilterGroup
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: id
+        in: path
+        description: The id of the filter group to be deleted.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "204":
+          description: The server has successfully executed the delete request.
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+  /dna/intent/api/v1/filterGroupAssociations:
+    get:
+      tags:
+      - filterGroupAssociations
+      summary: Get the filter group associations
+      description: Returns the details of associations for the given parameters.
+      operationId: readFilterGroupAssociations
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: filterGroupId
+        in: query
+        description: |
+          Filter Group id.
+
+          Examples:
+          `?filterGroupId=2ee1b9f0-8036-443b-bad0-7692760af1b5`(single id requested)
+
+          `?filterGroupId=2ee1b9f0-8036-443b-bad0-7692760af1b5&filterGroupId=ae368f0b-f4e3-4e8f-a914-011cbd19bb51` (multiple ids requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: entityId
+        in: query
+        description: |
+          Entity id with which the filter group is associated.
+
+          Examples:
+          `?entityId=2ee1b9f0-8036-443b-bad0-7692760af1b5`(single id requested)
+
+          `?entityId=2ee1b9f0-8036-443b-bad0-7692760af1b5&entityId=ae368f0b-f4e3-4e8f-a914-011cbd19bb51` (multiple ids requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: entityType
+        in: query
+        description: |
+          Type of the entity with which the filter group is associated.
+
+          Examples:
+          `?entityType=Issue Settings`(single type requested)
+
+          `?entityType=Custom Dashboard&entityType=Issue Settings` (multiple types requested)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Filter Group associations response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterGroupAssociationsResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+    post:
+      tags:
+      - filterGroupAssociations
+      summary: Create filter group association.
+      description: Creates association between a filter group and entity.
+      operationId: createFilterGroupAssociation
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      requestBody:
+        description: "Request payload to create association between Filter Group and an entity. Examples of entities are Custom Dashboard, Issue Settings."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilterGroupAssociationCreateRequest'
+      responses:
+        "201":
+          description: Filter Group create success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterGroupAssociationCreateResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+  /dna/intent/api/v1/filterGroupAassociations/{id}:
+    delete:
+      tags:
+      - filterGroupAssociations
+      summary: Delete filter group association.
+      description: Deletes the association between filter group and entity.
+      operationId: deleteFilterGroupAssociation
+      parameters:
+      - name: X-CALLER-ID
+        in: header
+        description: |
+          Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+        required: false
+        schema:
+          type: string
+          default: unknown
+        example: ui:client360
+      - name: id
+        in: path
+        description: Association id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "204":
+          description: The server has successfully executed the delete request.
+        "404":
+          description: The client made a request for a resource that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "400":
+          description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: The server could not fulfill the request due to internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "1XX":
+          description: Informational Responses - The server received the request and sent an informational response.
+        "2XX":
+          description: "Successful Responses - The server received the client request, understood it, and accepted it."
+        "3XX":
+          description: Redirection Messages - The client must take additional action to complete the request.
+        "4XX":
+          description: Client Error Responses - The client request caused the error.
+        "5XX":
+          description: Server Error Responses - The server failed to fulfill the request.
+components:
+  schemas:
+    FilterGroupListResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          description: List of filter groups
+          items:
+            $ref: '#/components/schemas/FilterGroup'
+        page:
+          $ref: '#/components/schemas/FilterGroupPaginationResponse'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Filter Group list response
+    FilterGroupResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/FilterGroup'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Filter Group response
+    FilterGroupAssociationsResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          description: List of filter group associations
+          items:
+            $ref: '#/components/schemas/FilterGroupAssociation'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Filter Group associations response
+    FilterGroup:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Filter Gorup id
+          example: b654e071-f99d-48d4-957b-6638e9f3a2c9
+        name:
+          type: string
+          description: Filter Group name.
+          example: SJC Wireless
+        type:
+          type: string
+          description: The type of the Filter Group.
+        filters:
+          type: array
+          description: List of filters used in this Filter Group.
+          items:
+            $ref: '#/components/schemas/FilterGroupFilter'
+      description: Contains details of an filter group.
+    FilterGroupAssociation:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Association id
+          example: b654e071-f99d-48d4-957b-6638e9f3a2c9
+        filterGroupId:
+          type: string
+          description: Filter Group id
+          example: 5b5ae476-515f-400b-bda7-2492d3931541
+        entityId:
+          type: string
+          description: Entity id with which the Filter Group is associated.
+          example: 2ee1b9f0-8036-443b-bad0-7692760af1b5
+        entityName:
+          type: string
+          description: Entity name with which the Filter Group is associated.
+          example: SJC Wireless Dashboard
+        entityType:
+          type: string
+          description: The type of the entity with which the Filter Group is associated.
+          example: Custom Dashboard
+      description: Contains details of an filter group association association.
+    FilterGroupCreateResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Filter Group id
+          example: 015d9cba-4f53-4087-8317-7e49e5ffef46
+      description: Filter Group create response
+    FilterGroupAssociationCreateResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Filter Group association id
+          example: 015d9cba-4f53-4087-8317-7e49e5ffef46
+      description: Filter Group association create response
+    FilterGroupCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Filter Group name. Only alphabhets, digits and space is allowed for name."
+          example: SJCWireless
+        type:
+          type: string
+          description: The type of the Filter Group.
+          example: Generic
+          enum:
+          - Generic
+          - Site
+          - Network
+          - Client
+        filters:
+          type: array
+          description: List of filters used in this Filter Group
+          items:
+            $ref: '#/components/schemas/FilterGroupFilter'
+      description: Filter Group create request payload
+    FilterGroupAssociationCreateRequest:
+      type: object
+      properties:
+        filterGroupId:
+          type: string
+          description: Filter Group id
+          example: 5b5ae476-515f-400b-bda7-2492d3931541
+        entityId:
+          type: string
+          description: Entity id with which the Filter Group is associated.
+          example: 2ee1b9f0-8036-443b-bad0-7692760af1b5
+        entityName:
+          type: string
+          description: Entity name with which the Filter Group is associated.
+          example: SJC Wireless Dashboard
+        entityType:
+          type: string
+          description: The type of the entity with which the Filter Group is associated.
+          example: Custom Dashboard
+      description: Filter Group association create request payload
+    FilterGroupFilter:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Field names which are supported by this API as filter keys
+          enum:
+          - siteHierarchyId
+          - ssid
+          - clientHostName
+          - clientType
+          - clientDeviceType
+          - clientMacAddress
+          - clientIpAddress
+          - networkDeviceType
+          - networkDeviceOsVersion
+          - networkDeviceIpAddress
+          - networkDeviceHostName
+        operator:
+          type: string
+          description: Type of filter operator to use for querying data. `in` and `notIn` operator takes multiple values and applies the filters
+          enum:
+          - in
+          - eq
+          - like
+        value:
+          type: object
+          description: This should be array if `operator` is `in` and `notIn`. For all other operators this should be a string or a number.
+        displayValue:
+          type: object
+          description: "This field stores desriptive equivalent of the `value` field. For example, this field can be used to store site hierarchy name while the `value` field stores site hierarchy id."
+          readOnly: true
+      description: "Defines a filter with combination of `key`, `operator` and `value`."
+    FilterGroupPaginationResponse:
+      type: object
+      properties:
+        limit:
+          maximum: 100
+          minimum: 1
+          type: integer
+          description: Number of records to be returned in response
+          example: 7
+        offset:
+          minimum: 1
+          type: integer
+          description: Starting offset of data to fetch and returned
+          example: 5
+        count:
+          type: integer
+          description: Total number of records
+          example: 50
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorObject'
+        version:
+          type: string
+          description: The version of the response
+          example: "1.0"
+      description: Contains information explaining the error that occured   processing this request.
+      example:
+        response:
+        - errorCode: 2600
+          message: Error message
+          detail: Error details
+      externalDocs:
+        description: Error Codes - Cisco DevNet
+        url: https://developer.cisco.com/docs/dna-center/#!api-quick-start/error-codes
+    ErrorObject:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: Application specific error code returned by the server
+        message:
+          type: string
+          description: Brief message about the error condition
+        detail:
+          type: string
+          description: "A more detailed explanation of the error condition the   parameter and its value, that caused the condition and why it caused it."
+  responses:
+    FilterGroupListResponse:
+      description: Filter Group list response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FilterGroupListResponse'
+          examples:
+            Sample response:
+              $ref: '#/components/examples/FilterGroupListResponseExample1'
+    FilterGroupResponse:
+      description: Filter Group response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FilterGroupResponse'
+          examples:
+            Sample response:
+              $ref: '#/components/examples/FilterGroupResponseExample1'
+    FilterGroupCreateResponse:
+      description: Filter Group create success response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FilterGroupCreateResponse'
+    FilterGroupAssociationsResponse:
+      description: Filter Group associations response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FilterGroupAssociationsResponse'
+    FilterGroupAssociationCreateResponse:
+      description: Filter Group create success response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FilterGroupAssociationCreateResponse'
+    "400":
+      description: "The client made a request that the server could not understand (for example, the request syntax is incorrect)."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "500":
+      description: The server could not fulfill the request due to internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    "1XX":
+      description: Informational Responses - The server received the request and sent an informational response.
+    "2XX":
+      description: "Successful Responses - The server received the client request, understood it, and accepted it."
+    "3XX":
+      description: Redirection Messages - The client must take additional action to complete the request.
+    "4XX":
+      description: Client Error Responses - The client request caused the error.
+    "5XX":
+      description: Server Error Responses - The server failed to fulfill the request.
+    "404":
+      description: The client made a request for a resource that does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  parameters:
+    filterGroupIds:
+      name: id
+      in: query
+      description: |
+        Filter Group id.
+
+        Examples:
+        `?id=2ee1b9f0-8036-443b-bad0-7692760af1b5`(single id requested)
+
+        `?id=2ee1b9f0-8036-443b-bad0-7692760af1b5&id=ae368f0b-f4e3-4e8f-a914-011cbd19bb51` (multiple ids requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    filterGroupNames:
+      name: name
+      in: query
+      description: |
+        Filter Group name.
+
+        Examples:
+        `?name=SJC Wireless`(single name requested)
+
+        `?name=SJC Wireless&name=Global Wired` (multiple names requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    filterGroupIdsForAssociation:
+      name: filterGroupId
+      in: query
+      description: |
+        Filter Group id.
+
+        Examples:
+        `?filterGroupId=2ee1b9f0-8036-443b-bad0-7692760af1b5`(single id requested)
+
+        `?filterGroupId=2ee1b9f0-8036-443b-bad0-7692760af1b5&filterGroupId=ae368f0b-f4e3-4e8f-a914-011cbd19bb51` (multiple ids requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    filterGroupTypes:
+      name: type
+      in: query
+      description: |
+        Type of the filter group. Examples: type=Generic (single Filter Group type requested) type=Generic&type=Site (multiple Filter Group types requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+          description: Type of the filter group
+          enum:
+          - Generic
+          - Site
+          - Network
+          - Client
+    entityIds:
+      name: entityId
+      in: query
+      description: |
+        Entity id with which the filter group is associated.
+
+        Examples:
+        `?entityId=2ee1b9f0-8036-443b-bad0-7692760af1b5`(single id requested)
+
+        `?entityId=2ee1b9f0-8036-443b-bad0-7692760af1b5&entityId=ae368f0b-f4e3-4e8f-a914-011cbd19bb51` (multiple ids requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    entityTypes:
+      name: entityType
+      in: query
+      description: |
+        Type of the entity with which the filter group is associated.
+
+        Examples:
+        `?entityType=Issue Settings`(single type requested)
+
+        `?entityType=Custom Dashboard&entityType=Issue Settings` (multiple types requested)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    callerId:
+      name: X-CALLER-ID
+      in: header
+      description: |
+        Caller ID is used to trace the origin of API calls and their associated queries executed on the database. It's an optional header parameter that can be added to an API request.
+      required: false
+      schema:
+        type: string
+        default: unknown
+      example: ui:client360
+    offset:
+      name: offset
+      in: query
+      description: Specifies the starting point within all records returned by the API. It's one based offset. The starting value is 1.
+      schema:
+        minimum: 1
+        type: integer
+        default: 1
+    limit_100:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        maximum: 100
+        minimum: 1
+        type: integer
+        default: 100
+  examples:
+    FilterGroupCreateRequestExample1:
+      description: Sample reuest to create an Filter Group
+      value:
+        name: SJCWireless
+        type: Generic
+        filters:
+        - key: siteHierarchyId
+          operator: eq
+          value: 0f6e6d6-1dca-4af3-bc66-a53161c80965/7a2c60ed-f7dc-4ebf-8031-be9beddc6993/5b5ae476-515f-400b-bda7-2492d3931541
+        - key: clientType
+          operator: in
+          value:
+          - Wireless
+          - Wired
+        - key: ssid
+          operator: in
+          value:
+          - dual_radio_2
+        - key: clientHostName
+          operator: like
+          value:
+          - '%Test%'
+        - key: clientDeviceType
+          operator: like
+          value:
+          - '%Apple'
+        - key: clientMacAddress
+          operator: in
+          value:
+          - AA:BB:CC:DD:00:A0
+        - key: clientIpAddress
+          operator: eq
+          value: 10.112.4.67
+    FilterGroupResponseExample1:
+      description: Sample response of Filter Group
+      value:
+        response:
+          id: b654e071-f99d-48d4-957b-6638e9f3a2c9
+          name: SJCWireless
+          type: Generic
+          filters:
+          - key: siteHierarchyId
+            operator: eq
+            value: 0f6e6d6-1dca-4af3-bc66-a53161c80965/7a2c60ed-f7dc-4ebf-8031-be9beddc6993/5b5ae476-515f-400b-bda7-2492d3931541
+            displayValue: Globa/San Jose/SJC12
+          - key: clientType
+            operator: in
+            value:
+            - Wireless
+            - Wired
+          - key: ssid
+            operator: in
+            value:
+            - dual_radio_2
+          - key: clientHostName
+            operator: like
+            value:
+            - '%Test%'
+          - key: clientDeviceType
+            operator: like
+            value:
+            - '%Apple'
+          - key: clientMacAddress
+            operator: in
+            value:
+            - AA:BB:CC:DD:00:A0
+          - key: clientIpAddress
+            operator: eq
+            value: 10.112.4.67
+    FilterGroupListResponseExample1:
+      description: Sample response of Filter Group
+      value:
+        response:
+        - id: b654e071-f99d-48d4-957b-6638e9f3a2c9
+          name: SJCWireless
+          type: Generic
+          filters:
+          - key: siteHierarchyId
+            operator: eq
+            value: 0f6e6d6-1dca-4af3-bc66-a53161c80965/7a2c60ed-f7dc-4ebf-8031-be9beddc6993/5b5ae476-515f-400b-bda7-2492d3931541
+            displayValue: Globa/San Jose/SJC12
+          - key: clientType
+            operator: in
+            value:
+            - Wireless
+            - Wired
+          - key: ssid
+            operator: in
+            value:
+            - dual_radio_2
+          - key: clientHostName
+            operator: like
+            value:
+            - '%Test%'
+          - key: clientDeviceType
+            operator: like
+            value:
+            - '%Apple'
+          - key: clientMacAddress
+            operator: in
+            value:
+            - AA:BB:CC:DD:00:A0
+          - key: clientIpAddress
+            operator: eq
+            value: 10.112.4.67
+        page:
+          limit: 5
+          offset: 1
+          count: 20
+        version: "1.0"
+    FilterGroupQueryRequestExample1:
+      description: Sample reuest to query Filter Groups
+      value:
+        filters:
+        - key: name
+          operator: in
+          value:
+          - SJC Wireless
+          - Global Wired
+        page:
+          limit: 5
+          offset: 1
